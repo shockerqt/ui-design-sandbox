@@ -8,8 +8,10 @@ export default defineConfig({
     port: 8081,
     host: true,
   },
+  // Solo para verificación local del bundle. En producción Nginx sirve dist/
+  // directamente (ver deploy.sh), no `vite preview`.
   preview: {
-    port: 8082,
+    port: 8081,
     host: true,
     allowedHosts: true,
   },

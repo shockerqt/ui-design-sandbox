@@ -13,7 +13,12 @@ git reset --hard origin/main
 
 # 2. Instalar dependencias y compilar
 echo "📦 Instalando dependencias..."
-export PATH="/home/ubuntu/.local/share/fnm/node-versions/v24.16.0/installation/bin:$PATH"
+# Resuelve el Node 24 más reciente instalado por fnm; si no hay, usa el del PATH.
+FNM_NODE_BIN="$(ls -d /home/ubuntu/.local/share/fnm/node-versions/v24.*/installation/bin 2>/dev/null | sort -V | tail -1)"
+if [ -n "$FNM_NODE_BIN" ]; then
+  export PATH="$FNM_NODE_BIN:$PATH"
+fi
+echo "   Node $(node --version) / npm $(npm --version)"
 npm ci
 
 echo "🔨 Compilando bundle estático de producción..."
