@@ -1,348 +1,199 @@
 import React, { useState } from 'react';
-import { MockupItem, ViewportMode } from '../types';
-import { 
-  Monitor, 
-  Tablet, 
-  Smartphone, 
-  Maximize2, 
-  Code, 
-  Eye, 
-  Copy,
-  Check,
-  ArrowLeft,
-  RefreshCw
-} from 'lucide-react';
-import { Tooltip } from '@base-ui/react';
 import { Link } from 'wouter';
+import { ArrowLeft, Check, Copy, RotateCw } from 'lucide-react';
+import { MockupItem, MountTone, ViewportMode } from '../types';
 
-interface MockupViewerProps {
-  mockup: MockupItem;
-}
+const VIEWPORTS: Array<{ mode: ViewportMode; label: string }> = [
+  { mode: '100%', label: 'Full' },
+  { mode: '1440px', label: '1440' },
+  { mode: '768px', label: '768' },
+  { mode: '375px', label: '375' }
+];
 
-export const MockupViewer: React.FC<MockupViewerProps> = ({ mockup }) => {
+const MOUNTS: Array<{ tone: MountTone; color: string; label: string }> = [
+  { tone: 'ink', color: 'var(--mount-ink)', label: 'Montaje tinta' },
+  { tone: 'gray', color: 'var(--mount-gray)', label: 'Montaje gris neutro' },
+  { tone: 'paper', color: 'var(--mount-paper)', label: 'Montaje papel' }
+];
+
+export const MockupViewer: React.FC<{ mockup: MockupItem }> = ({ mockup }) => {
   const [viewport, setViewport] = useState<ViewportMode>('100%');
-  const [activeTab, setActiveTab] = useState<'canvas' | 'code'>('canvas');
+  const [mount, setMount] = useState<MountTone>('ink');
+  const [showCode, setShowCode] = useState(false);
   const [copied, setCopied] = useState(false);
-  const [key, setKey] = useState(0); // for refresh re-render
+  const [nonce, setNonce] = useState(0);
 
   const Component = mockup.component;
+  const isFull = viewport === '100%';
+  const mountColor = MOUNTS.find(m => m.tone === mount)!.color;
 
-  const handleCopyCode = () => {
-    navigator.clipboard.writeText(mockup.codeSnippet);
+  const copy = () => {
+    navigator.clipboard?.writeText(mockup.codeSnippet);
     setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    setTimeout(() => setCopied(false), 1800);
   };
 
   return (
-    <div style={{ maxWidth: '1400px', margin: '0 auto', padding: '24px 20px' }}>
-      {/* Navigation & Controls Bar */}
-      <div className="glass-panel" style={{
-        padding: '14px 24px',
-        marginBottom: '24px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        flexWrap: 'wrap',
-        gap: '16px'
-      }}>
-        {/* Left: Title & Back Button */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <Link
-            href="/"
+    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
+      {/* Todo el cromo cabe en el riel, para que el mockup se quede con el resto */}
+      <div className="rail">
+        <Link href="/" className="rail-btn" aria-label="Volver al registro">
+          <ArrowLeft size={15} />
+        </Link>
+
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: '10px', minWidth: 0 }}>
+          <span
             style={{
-              background: 'rgba(255, 255, 255, 0.08)',
-              border: '1px solid var(--border-color)',
-              color: '#fff',
-              padding: '8px 12px',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '6px',
-              fontSize: '0.85rem',
-              fontWeight: 600,
-              textDecoration: 'none'
+              fontFamily: 'var(--font-display)',
+              fontVariationSettings: "'wdth' 112, 'wght' 650",
+              fontSize: '0.9rem',
+              letterSpacing: '-0.01em',
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis'
             }}
           >
-            <ArrowLeft size={16} /> Gallery
-          </Link>
-
-          <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <h2 style={{ fontSize: '1.3rem', fontWeight: 800, color: '#fff', fontFamily: 'var(--font-display)' }}>
-                {mockup.title}
-              </h2>
-              <span className="badge badge-primary">{mockup.category}</span>
-            </div>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
-              {mockup.description}
-            </span>
-          </div>
+            {mockup.title}
+          </span>
+          <span className="mono" style={{ color: 'var(--fg-faint)' }}>
+            {mockup.version}
+          </span>
         </div>
 
-        {/* Center: Viewport Controls */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {activeTab === 'canvas' && (
-            <div style={{
-              background: 'rgba(15, 23, 42, 0.8)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '10px',
-              padding: '4px',
-              display: 'flex',
-              gap: '4px'
-            }}>
-              <Tooltip.Root>
-                <Tooltip.Trigger
-                  onClick={() => setViewport('100%')}
-                  style={{
-                    background: viewport === '100%' ? 'var(--primary)' : 'transparent',
-                    color: viewport === '100%' ? '#fff' : 'var(--text-muted)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600
-                  }}
-                >
-                  <Maximize2 size={14} /> Full
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner sideOffset={8}>
-                    <Tooltip.Popup className="base-Tooltip-popup">100% Responsive Viewport</Tooltip.Popup>
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
+        <div style={{ flex: 1 }} />
 
-              <Tooltip.Root>
-                <Tooltip.Trigger
-                  onClick={() => setViewport('1440px')}
-                  style={{
-                    background: viewport === '1440px' ? 'var(--primary)' : 'transparent',
-                    color: viewport === '1440px' ? '#fff' : 'var(--text-muted)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600
-                  }}
-                >
-                  <Monitor size={14} /> Desktop (1440px)
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner sideOffset={8}>
-                    <Tooltip.Popup className="base-Tooltip-popup">Desktop Canvas Frame</Tooltip.Popup>
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-
-              <Tooltip.Root>
-                <Tooltip.Trigger
-                  onClick={() => setViewport('768px')}
-                  style={{
-                    background: viewport === '768px' ? 'var(--primary)' : 'transparent',
-                    color: viewport === '768px' ? '#fff' : 'var(--text-muted)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600
-                  }}
-                >
-                  <Tablet size={14} /> Tablet (768px)
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner sideOffset={8}>
-                    <Tooltip.Popup className="base-Tooltip-popup">Tablet Canvas Frame</Tooltip.Popup>
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
-
-              <Tooltip.Root>
-                <Tooltip.Trigger
-                  onClick={() => setViewport('375px')}
-                  style={{
-                    background: viewport === '375px' ? 'var(--primary)' : 'transparent',
-                    color: viewport === '375px' ? '#fff' : 'var(--text-muted)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    padding: '6px 12px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '6px',
-                    fontSize: '0.8rem',
-                    fontWeight: 600
-                  }}
-                >
-                  <Smartphone size={14} /> Mobile (375px)
-                </Tooltip.Trigger>
-                <Tooltip.Portal>
-                  <Tooltip.Positioner sideOffset={8}>
-                    <Tooltip.Popup className="base-Tooltip-popup">Mobile Device Frame</Tooltip.Popup>
-                  </Tooltip.Positioner>
-                </Tooltip.Portal>
-              </Tooltip.Root>
+        {!showCode && (
+          <>
+            {/* Firma: el fondo contra el que se juzga el trabajo */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              {MOUNTS.map(m => (
+                <button
+                  key={m.tone}
+                  className="mount-swatch"
+                  style={{ background: m.color }}
+                  data-active={mount === m.tone}
+                  onClick={() => setMount(m.tone)}
+                  title={m.label}
+                  aria-label={m.label}
+                  aria-pressed={mount === m.tone}
+                />
+              ))}
             </div>
-          )}
 
-          {/* Canvas / Code Mode Toggle */}
-          <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '3px' }}>
-            <button
-              onClick={() => setActiveTab('canvas')}
-              style={{
-                background: activeTab === 'canvas' ? 'rgba(255,255,255,0.15)' : 'transparent',
-                color: activeTab === 'canvas' ? '#fff' : 'var(--text-muted)',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <Eye size={14} /> Preview Canvas
-            </button>
-            <button
-              onClick={() => setActiveTab('code')}
-              style={{
-                background: activeTab === 'code' ? 'rgba(255,255,255,0.15)' : 'transparent',
-                color: activeTab === 'code' ? '#fff' : 'var(--text-muted)',
-                border: 'none',
-                padding: '6px 12px',
-                borderRadius: '6px',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              <Code size={14} /> Source Code
-            </button>
-          </div>
+            <div className="rail-sep" />
 
-          <Tooltip.Root>
-            <Tooltip.Trigger
-              onClick={() => setKey(k => k + 1)}
-              style={{
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--border-color)',
-                color: '#fff',
-                padding: '8px',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }}
+            <div className="rail-group">
+              {VIEWPORTS.map(v => (
+                <button
+                  key={v.mode}
+                  className="rail-btn"
+                  data-active={viewport === v.mode}
+                  onClick={() => setViewport(v.mode)}
+                  aria-pressed={viewport === v.mode}
+                >
+                  {v.label}
+                </button>
+              ))}
+            </div>
+
+            <button
+              className="rail-btn"
+              onClick={() => setNonce(n => n + 1)}
+              title="Reiniciar el mockup"
+              aria-label="Reiniciar el mockup"
             >
-              <RefreshCw size={15} />
-            </Tooltip.Trigger>
-            <Tooltip.Portal>
-              <Tooltip.Positioner sideOffset={8}>
-                <Tooltip.Popup className="base-Tooltip-popup">Reload Mockup State</Tooltip.Popup>
-              </Tooltip.Positioner>
-            </Tooltip.Portal>
-          </Tooltip.Root>
-        </div>
+              <RotateCw size={14} />
+            </button>
+
+            <div className="rail-sep" />
+          </>
+        )}
+
+        <button className="rail-btn" data-active={showCode} onClick={() => setShowCode(v => !v)}>
+          {showCode ? 'Vista' : 'Codigo'}
+        </button>
       </div>
 
-      {/* Main Viewport Content Area */}
-      {activeTab === 'canvas' ? (
-        <div style={{
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          minHeight: '680px',
-          width: '100%',
-          overflowX: 'auto',
-          paddingBottom: '40px'
-        }}>
-          <div style={{
-            width: viewport,
-            maxWidth: '100%',
-            transition: 'width 0.3s cubic-bezier(0.16, 1, 0.3, 1)',
-            background: 'rgba(15, 23, 42, 0.75)',
-            border: viewport !== '100%' ? '2px solid rgba(99, 102, 241, 0.4)' : '1px solid var(--border-color)',
-            borderRadius: '20px',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.7)',
-            position: 'relative',
-            overflow: 'hidden'
-          }}>
-            {/* Viewport Width Badge when scaled */}
-            {viewport !== '100%' && (
-              <div style={{
-                background: 'rgba(99, 102, 241, 0.9)',
-                color: '#fff',
-                fontSize: '0.7rem',
-                fontWeight: 700,
-                padding: '4px 12px',
-                textAlign: 'center',
-                letterSpacing: '0.05em'
-              }}>
-                SIMULATED VIEWPORT: {viewport}
-              </div>
-            )}
-
-            <div key={key}>
-              <Component />
+      {showCode ? (
+        <div style={{ flex: 1, overflow: 'auto', background: 'var(--ink)' }}>
+          <div style={{ maxWidth: '980px', margin: '0 auto', padding: '32px 24px 64px' }}>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                marginBottom: '14px'
+              }}
+            >
+              <span className="label">{mockup.id}.tsx</span>
+              <button className="rail-btn" onClick={copy} style={{ border: '1px solid var(--line)' }}>
+                {copied ? <Check size={13} /> : <Copy size={13} />}
+                {copied ? 'Copiado' : 'Copiar'}
+              </button>
             </div>
+
+            <pre
+              style={{
+                background: 'var(--rail)',
+                border: '1px solid var(--line)',
+                borderRadius: '8px',
+                padding: '22px',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '0.8rem',
+                lineHeight: '1.75',
+                color: '#c8c8c8',
+                overflowX: 'auto'
+              }}
+            >
+              <code>{mockup.codeSnippet}</code>
+            </pre>
+
+            <p style={{ color: 'var(--fg-quiet)', fontSize: '0.85rem', marginTop: '20px' }}>
+              {mockup.description}
+            </p>
           </div>
         </div>
       ) : (
-        /* Source Code Tab */
-        <div className="glass-panel" style={{ padding: '24px', position: 'relative' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
-            <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem', fontFamily: 'var(--font-mono)' }}>
-              Source implementation snippet ({mockup.id}.tsx)
-            </span>
-            <button
-              onClick={handleCopyCode}
-              style={{
-                background: copied ? 'var(--success)' : 'var(--primary)',
-                color: '#fff',
-                border: 'none',
-                padding: '6px 14px',
-                borderRadius: '6px',
-                fontSize: '0.8rem',
-                fontWeight: 600,
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '6px'
-              }}
-            >
-              {copied ? <Check size={14} /> : <Copy size={14} />}
-              {copied ? 'Copied to Clipboard!' : 'Copy Code'}
-            </button>
+        <div
+          style={{
+            flex: 1,
+            overflow: 'auto',
+            background: mountColor,
+            transition: 'background-color 0.2s ease',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center'
+          }}
+        >
+          <div
+            style={{
+              width: isFull ? '100%' : viewport,
+              maxWidth: '100%',
+              minHeight: isFull ? '100%' : undefined,
+              margin: isFull ? 0 : '28px 0 8px',
+              /* Sin caja ni sombra a ancho completo: el mockup ES la pagina */
+              ...(isFull ? {} : { border: '1px solid rgba(0, 0, 0, 0.3)' }),
+              background: 'var(--ink)',
+              transition: 'width 0.28s cubic-bezier(0.16, 1, 0.3, 1)'
+            }}
+          >
+            <div key={nonce}>
+              <Component />
+            </div>
           </div>
 
-          <pre style={{
-            background: 'rgba(4, 7, 13, 0.9)',
-            border: '1px solid var(--border-color)',
-            borderRadius: '12px',
-            padding: '20px',
-            color: '#a5b4fc',
-            fontFamily: 'var(--font-mono)',
-            fontSize: '0.9rem',
-            overflowX: 'auto',
-            lineHeight: '1.6'
-          }}>
-            <code>{mockup.codeSnippet}</code>
-          </pre>
+          {/* Pie de lamina montada */}
+          {!isFull && (
+            <div
+              className="mono"
+              style={{
+                padding: '0 0 32px',
+                color: mount === 'paper' ? '#7a7a7a' : 'rgba(255, 255, 255, 0.5)'
+              }}
+            >
+              {viewport}
+            </div>
+          )}
         </div>
       )}
     </div>

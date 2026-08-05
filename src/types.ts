@@ -1,11 +1,11 @@
 import React from 'react';
 
-export type Category = 
-  | 'All' 
-  | 'Base UI Primitives' 
-  | 'Dashboards' 
-  | 'SaaS & Pricing' 
-  | 'Settings & Modals' 
+export type Category =
+  | 'All'
+  | 'Base UI Primitives'
+  | 'Dashboards'
+  | 'SaaS & Pricing'
+  | 'Settings & Modals'
   | 'Fintech & Cards';
 
 export interface MockupItem {
@@ -22,3 +22,6 @@ export interface MockupItem {
 }
 
 export type ViewportMode = '100%' | '1440px' | '768px' | '375px';
+
+/** Fondo contra el que se monta el mockup para juzgarlo. */
+export type MountTone = 'ink' | 'gray' | 'paper';

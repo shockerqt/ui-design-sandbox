@@ -1,15 +1,35 @@
+/* ============================================================
+   Design Sandbox — el shell es un instrumento que se retira.
+   Cromo en grafito estrictamente neutro: cualquier tinte propio
+   alteraria como se lee el mockup que enmarca.
+   ============================================================ */
+
 :root {
-  --bg-dark: #000000;
-  --bg-card: #0a0a0a;
-  --border-color: rgba(255, 255, 255, 0.1);
-  --primary: #8395d5;
-  --success: #22c55e;
-  --text-main: #ffffff;
-  --text-muted: #888888;
-  --text-dim: #555555;
-  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --font-display: 'Plus Jakarta Sans', var(--font-sans);
-  --font-mono: 'JetBrains Mono', monospace;
+  /* Cromo */
+  --ink: #0d0d0d;
+  --rail: #141414;
+  --rail-hi: #1c1c1c;
+  --line: #262626;
+  --line-soft: #1a1a1a;
+
+  /* Texto */
+  --fg: #ededed;
+  --fg-quiet: #8a8a8a;
+  --fg-faint: #565656;
+
+  /* Unica señal: ocre de etiqueta de archivo. Solo en afordancias. */
+  --signal: #d9a441;
+
+  /* Montajes: el fondo contra el que se juzga un mockup */
+  --mount-ink: #0d0d0d;
+  --mount-gray: #8c8c8c;
+  --mount-paper: #f2f0ed;
+
+  --font-display: 'Archivo', system-ui, sans-serif;
+  --font-ui: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --rail-h: 48px;
 }
 
 * {
@@ -18,90 +38,256 @@
   padding: 0;
 }
 
+html,
 body {
-  background-color: #000000;
-  color: #ffffff;
-  font-family: var(--font-sans);
-  min-height: 100vh;
+  height: 100%;
+}
+
+body {
+  background: var(--ink);
+  color: var(--fg);
+  font-family: var(--font-ui);
+  font-size: 15px;
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbar */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* Foco visible y consistente en todo el shell */
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 10px;
+  height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #000000;
+  background: var(--ink);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #222222;
-  border-radius: 3px;
+  background: #2e2e2e;
+  border: 3px solid var(--ink);
+  border-radius: 6px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #444444;
+  background: #3d3d3d;
 }
 
-/* Surfaces */
-.glass-panel {
-  background: rgba(10, 10, 10, 0.72);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid var(--border-color);
-  border-radius: 14px;
+/* ---------- Tipografia de display ---------- */
+
+.display {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 118, 'wght' 800;
+  letter-spacing: -0.035em;
+  line-height: 0.95;
+  text-transform: uppercase;
 }
 
-/* Interactive card variant (gallery) */
-.mockup-card {
-  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+.mono {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.01em;
 }
 
-.mockup-card:hover {
-  border-color: rgba(255, 255, 255, 0.22);
-  transform: translateY(-2px);
-  box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.9);
+/* Etiqueta de columna / eyebrow */
+.label {
+  font-family: var(--font-mono);
+  font-size: 0.65rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--fg-faint);
 }
 
-/* Badges */
+/* ---------- Registro de mockups ---------- */
+
+.register {
+  border-top: 1px solid var(--line);
+}
+
+.register-head,
+.register-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1.3fr) minmax(0, 0.9fr) 84px 104px;
+  gap: 20px;
+  align-items: baseline;
+  padding: 0 20px;
+}
+
+.register-head {
+  padding-top: 10px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--line);
+}
+
+.register-row {
+  padding-top: 18px;
+  padding-bottom: 18px;
+  border-bottom: 1px solid var(--line-soft);
+  position: relative;
+  transition: background-color 0.15s ease;
+}
+
+.register-row:hover {
+  background: var(--rail-hi);
+}
+
+/* Filete ocre que aparece al pasar por encima */
+.register-row::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  background: var(--signal);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.register-row:hover::before,
+.register-row:focus-visible::before {
+  opacity: 1;
+}
+
+.register-title {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 110, 'wght' 650;
+  font-size: 1.05rem;
+  letter-spacing: -0.015em;
+  color: var(--fg);
+}
+
+.register-slug {
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  color: var(--fg-quiet);
+  overflow-wrap: anywhere;
+}
+
+/* El prefijo /m/ se enciende al hover: recuerda que cada mockup es una URL */
+.register-slug .prefix {
+  color: var(--fg-faint);
+  transition: color 0.15s ease;
+}
+
+.register-row:hover .register-slug .prefix {
+  color: var(--signal);
+}
+
+/* ---------- Riel del visor ---------- */
+
+.rail {
+  height: var(--rail-h);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 12px 0 8px;
+  background: var(--rail);
+  border-bottom: 1px solid var(--line);
+}
+
+.rail-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--fg-quiet);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+
+.rail-btn:hover {
+  color: var(--fg);
+  background: var(--rail-hi);
+}
+
+.rail-btn[data-active='true'] {
+  color: var(--ink);
+  background: var(--fg);
+}
+
+/* Grupo segmentado */
+.rail-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.rail-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line);
+  flex: none;
+}
+
+/* Muestras del selector de montaje */
+.mount-swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 5px;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  padding: 0;
+  transition: box-shadow 0.12s ease;
+}
+
+.mount-swatch[data-active='true'] {
+  box-shadow: 0 0 0 2px var(--rail), 0 0 0 3px var(--signal);
+}
+
+/* ---------- Insignia ---------- */
+
 .badge {
   display: inline-flex;
   align-items: center;
-  padding: 3px 9px;
-  border: 1px solid transparent;
-  border-radius: 999px;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
+  padding: 2px 7px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  font-family: var(--font-mono);
+  font-size: 0.64rem;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
+  color: var(--fg-quiet);
   white-space: nowrap;
 }
 
-.badge-primary {
-  background: rgba(131, 149, 213, 0.12);
-  border-color: rgba(131, 149, 213, 0.32);
-  color: var(--primary);
-}
+/* ============================================================
+   Primitivas Base UI — estilos compartidos por los mockups
+   ============================================================ */
 
-/* Base UI Primitives minimal styling */
 .base-Tooltip-popup {
-  background: #111111;
-  color: #ffffff;
-  border: 1px solid #333333;
-  padding: 6px 12px;
-  border-radius: 6px;
-  font-size: 0.8rem;
+  background: #f2f0ed;
+  color: #0d0d0d;
+  padding: 5px 10px;
+  border-radius: 5px;
+  font-size: 0.78rem;
+  font-weight: 500;
   z-index: 1000;
 }
 
 .base-Dialog-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(4px);
+  background: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(3px);
   z-index: 999;
 }
 
@@ -110,13 +296,23 @@ body {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  background: #0a0a0a;
-  border: 1px solid #222222;
-  border-radius: 12px;
+  background: var(--rail);
+  border: 1px solid var(--line);
+  border-radius: 10px;
   padding: 24px;
   width: 90%;
-  max-width: 500px;
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.9);
+  max-width: 460px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.75);
+  z-index: 1000;
+}
+
+.base-Popover-popup {
+  background: var(--rail);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 14px 16px;
+  max-width: 280px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.7);
   z-index: 1000;
 }
 
@@ -126,33 +322,29 @@ body {
   width: 40px;
   height: 22px;
   border-radius: 9999px;
-  background-color: #222222;
+  background-color: #2a2a2a;
   padding: 2px;
   cursor: pointer;
-  border: 1px solid #333333;
+  border: 1px solid var(--line);
+  transition: background-color 0.18s ease;
 }
 
 .base-Switch-root[data-checked] {
-  background-color: #ffffff;
-  border-color: #ffffff;
+  background-color: var(--signal);
+  border-color: var(--signal);
 }
 
 .base-Switch-thumb {
   width: 16px;
   height: 16px;
   border-radius: 50%;
-  background-color: #ffffff;
-  transition: transform 0.2s ease;
+  background-color: var(--fg);
+  transition: transform 0.18s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.base-Popover-popup {
-  background: #0a0a0a;
-  border: 1px solid #222222;
-  border-radius: 10px;
-  padding: 14px 16px;
-  max-width: 280px;
-  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.8);
-  z-index: 1000;
+.base-Switch-root[data-checked] .base-Switch-thumb {
+  transform: translateX(18px);
+  background-color: var(--ink);
 }
 
 .base-Tabs-list {
@@ -160,9 +352,9 @@ body {
   position: relative;
   gap: 2px;
   padding: 3px;
-  border: 1px solid #222222;
-  border-radius: 9px;
-  background: #0a0a0a;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--rail);
 }
 
 .base-Tabs-tab {
@@ -170,17 +362,18 @@ body {
   z-index: 1;
   border: none;
   background: transparent;
-  color: var(--text-muted);
+  color: var(--fg-quiet);
   font: inherit;
   font-size: 0.8rem;
-  font-weight: 600;
+  font-weight: 500;
   padding: 6px 14px;
-  border-radius: 6px;
+  border-radius: 5px;
   cursor: pointer;
+  transition: color 0.15s ease;
 }
 
 .base-Tabs-tab[data-selected] {
-  color: #000000;
+  color: var(--ink);
 }
 
 .base-Tabs-indicator {
@@ -190,13 +383,14 @@ body {
   height: calc(100% - 6px);
   width: var(--active-tab-width);
   transform: translateX(var(--active-tab-left));
-  background: #ffffff;
-  border-radius: 6px;
-  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  background: var(--fg);
+  border-radius: 5px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .base-Accordion-item {
-  border-bottom: 1px solid #1a1a1a;
+  border-bottom: 1px solid var(--line-soft);
 }
 
 .base-Accordion-trigger {
@@ -206,30 +400,31 @@ body {
   width: 100%;
   border: none;
   background: transparent;
-  color: var(--text-main);
+  color: var(--fg);
   font: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: 0.875rem;
+  font-weight: 500;
   text-align: left;
   padding: 12px 2px;
   cursor: pointer;
+  transition: color 0.15s ease;
 }
 
 .base-Accordion-trigger:hover {
-  color: var(--primary);
+  color: var(--signal);
 }
 
 .base-Accordion-panel {
   overflow: hidden;
-  color: var(--text-muted);
-  font-size: 0.825rem;
+  color: var(--fg-quiet);
+  font-size: 0.85rem;
   line-height: 1.6;
   padding: 0 2px 14px;
 }
 
-/* El chevron gira cuando el panel esta abierto */
 .base-Accordion-chevron {
   transition: transform 0.2s ease;
+  flex: none;
 }
 
 .base-Accordion-trigger[data-panel-open] .base-Accordion-chevron {
@@ -238,8 +433,12 @@ body {
 
 /* Destello al cambiar un atributo en el inspector de estado */
 @keyframes attr-flash {
-  from { background-color: rgba(131, 149, 213, 0.35); }
-  to { background-color: transparent; }
+  from {
+    background-color: rgba(217, 164, 65, 0.35);
+  }
+  to {
+    background-color: transparent;
+  }
 }
 
 .attr-value {
@@ -248,18 +447,32 @@ body {
   animation: attr-flash 0.6s ease-out;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .attr-value,
-  .base-Tabs-indicator,
-  .base-Switch-thumb,
-  .base-Accordion-chevron,
-  .mockup-card {
-    animation: none !important;
-    transition: none !important;
+/* ---------- Responsive ---------- */
+
+@media (max-width: 720px) {
+  .register-head {
+    display: none;
+  }
+
+  .register-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+
+  .rail {
+    height: auto;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 8px 12px;
   }
 }
 
-.base-Switch-root[data-checked] .base-Switch-thumb {
-  transform: translateX(18px);
-  background-color: #000000;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

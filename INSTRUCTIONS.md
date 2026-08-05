@@ -12,12 +12,25 @@ Cuando el usuario pida crear o iterar un mockup, el Agente DEBE seguir estos pas
 ### 1. Creación o Modificación del Componente
 - Ubicación del componente: `src/mockups/<NombreComponente>.tsx`.
 - Utilizar **React 19** y componentes **Base UI** (`@base-ui/react`: Tooltip, Dialog, Tabs, Switch, Accordion, Popover).
-- Mantener una estética moderna, Dark Mode con acentos HSL, bordes translúcidos, glassmorphism (`backdrop-filter`) y micro-animaciones en `index.css`.
 - Incluir estados interactivos reales (ej. abrir modales con Dialog, cambiar switches, alternar pestañas).
-- Utilidades compartidas disponibles en `src/index.css`: clases `.glass-panel`, `.badge`,
-  `.badge-primary`, `.base-Tooltip-popup`, `.base-Dialog-popup`, `.base-Switch-root`; y las
-  variables `--primary`, `--success`, `--border-color`, `--text-main`, `--text-muted`,
-  `--text-dim`, `--font-sans`, `--font-display`, `--font-mono`.
+
+**Sistema visual.** El shell es un instrumento que se retira: cromo en grafito
+estrictamente neutro, para que no contamine cómo se lee el mockup. Un mockup puede
+tener la estética que quiera, pero si usa los tokens del shell hereda coherencia:
+
+- Cromo: `--ink` `--rail` `--rail-hi` `--line` `--line-soft`
+- Texto: `--fg` `--fg-quiet` `--fg-faint`
+- Señal única (ocre, solo en afordancias, nunca decorando): `--signal`
+- Montajes: `--mount-ink` `--mount-gray` `--mount-paper`
+- Tipografía: `--font-display` (Archivo variable, usar `font-variation-settings`
+  con el eje `wdth`), `--font-ui` (Inter), `--font-mono` (JetBrains Mono)
+- Clases: `.display` `.mono` `.label` `.badge` `.rail-btn`, y las primitivas
+  `.base-Switch-*` `.base-Tabs-*` `.base-Accordion-*` `.base-Dialog-*`
+  `.base-Tooltip-popup` `.base-Popover-popup`
+
+El mockup se renderiza a ancho completo bajo un riel de 48px, sin caja ni sombra.
+No asumir un contenedor angosto ni un fondo propio: el visor pone el fondo según
+el montaje elegido, y por defecto es tinta.
 
 ### 2. Ruteo
 - Cada mockup queda disponible en su propia URL: `/m/<id>`.

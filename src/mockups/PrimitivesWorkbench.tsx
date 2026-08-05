@@ -50,8 +50,8 @@ const StateReadout: React.FC<{ attrs: Record<string, string>; observing: string 
   return (
     <div
       style={{
-        background: 'rgba(0, 0, 0, 0.55)',
-        border: '1px solid #1a1a1a',
+        background: 'rgba(0, 0, 0, 0.4)',
+        border: '1px solid var(--line)',
         borderRadius: '10px',
         padding: '14px 16px',
         fontFamily: 'var(--font-mono)',
@@ -62,7 +62,7 @@ const StateReadout: React.FC<{ attrs: Record<string, string>; observing: string 
     >
       <div
         style={{
-          color: 'var(--text-dim)',
+          color: 'var(--fg-faint)',
           fontSize: '0.65rem',
           letterSpacing: '0.08em',
           textTransform: 'uppercase',
@@ -71,22 +71,22 @@ const StateReadout: React.FC<{ attrs: Record<string, string>; observing: string 
       >
         estado en el DOM
       </div>
-      <div style={{ color: 'var(--text-dim)', fontSize: '0.7rem', marginBottom: '10px' }}>
+      <div style={{ color: 'var(--fg-faint)', fontSize: '0.7rem', marginBottom: '10px' }}>
         observando {observing}
       </div>
 
       {entries.length === 0 ? (
-        <div style={{ color: 'var(--text-dim)' }}>sin atributos de estado</div>
+        <div style={{ color: 'var(--fg-faint)' }}>sin atributos de estado</div>
       ) : (
         entries.map(([name, value]) => (
           <div key={name} style={{ display: 'flex', gap: '6px', whiteSpace: 'nowrap' }}>
-            <span style={{ color: 'var(--text-muted)' }}>{name}</span>
+            <span style={{ color: 'var(--fg-quiet)' }}>{name}</span>
             {/* Un atributo sin valor se muestra solo con su nombre, como en devtools */}
             {value !== '' && (
               <>
-                <span style={{ color: '#333' }}>=</span>
+                <span style={{ color: 'var(--fg-faint)' }}>=</span>
                 {/* key={value} remonta el span, por lo que el destello se repite en cada cambio */}
-                <span key={value} className="attr-value" style={{ color: 'var(--primary)' }}>
+                <span key={value} className="attr-value" style={{ color: 'var(--signal)' }}>
                   {value}
                 </span>
               </>
@@ -112,7 +112,7 @@ const Bench: React.FC<{
       gap: '24px',
       alignItems: 'start',
       padding: '28px 0',
-      borderTop: '1px solid #141414'
+      borderTop: '1px solid var(--line-soft)'
     }}
   >
     <div style={{ minWidth: 0 }}>
@@ -120,13 +120,13 @@ const Bench: React.FC<{
         style={{
           fontFamily: 'var(--font-mono)',
           fontSize: '0.7rem',
-          color: 'var(--primary)',
+          color: 'var(--signal)',
           marginBottom: '6px'
         }}
       >
         {module}
       </div>
-      <p style={{ color: 'var(--text-muted)', fontSize: '0.825rem', marginBottom: '18px', maxWidth: '46ch' }}>
+      <p style={{ color: 'var(--fg-quiet)', fontSize: '0.825rem', marginBottom: '18px', maxWidth: '46ch' }}>
         {summary}
       </p>
       {children}
@@ -137,9 +137,9 @@ const Bench: React.FC<{
 );
 
 const triggerStyle: React.CSSProperties = {
-  background: '#111111',
-  border: '1px solid #262626',
-  color: '#ffffff',
+  background: 'var(--rail)',
+  border: '1px solid var(--line)',
+  color: 'var(--fg)',
   font: 'inherit',
   fontSize: '0.825rem',
   fontWeight: 600,
@@ -164,16 +164,17 @@ export const PrimitivesWorkbench: React.FC = () => {
         <h2
           style={{
             fontFamily: 'var(--font-display)',
-            fontSize: '1.75rem',
-            fontWeight: 800,
-            letterSpacing: '-0.03em',
-            color: '#ffffff',
-            marginBottom: '10px'
+            fontVariationSettings: "'wdth' 118, 'wght' 800",
+            fontSize: '1.9rem',
+            letterSpacing: '-0.035em',
+            textTransform: 'uppercase',
+            color: 'var(--fg)',
+            marginBottom: '12px'
           }}
         >
           Primitivas Base UI
         </h2>
-        <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '58ch', lineHeight: '1.6' }}>
+        <p style={{ color: 'var(--fg-quiet)', fontSize: '0.9rem', maxWidth: '58ch', lineHeight: '1.6' }}>
           Base UI no trae estilos: cada primitiva publica su estado como atributos en el
           nodo del DOM, y ahi es donde engancha el CSS. Interactua con cualquiera y mira
           los atributos cambiar en vivo.
@@ -195,7 +196,7 @@ export const PrimitivesWorkbench: React.FC = () => {
           >
             <Switch.Thumb className="base-Switch-thumb" />
           </Switch.Root>
-          <span style={{ color: 'var(--text-muted)', fontSize: '0.825rem' }}>
+          <span style={{ color: 'var(--fg-quiet)', fontSize: '0.825rem' }}>
             Notificaciones {checked ? 'activadas' : 'desactivadas'}
           </span>
         </div>
@@ -221,7 +222,7 @@ export const PrimitivesWorkbench: React.FC = () => {
             <Tabs.Indicator className="base-Tabs-indicator" />
           </Tabs.List>
 
-          <div style={{ color: 'var(--text-muted)', fontSize: '0.825rem', paddingTop: '14px' }}>
+          <div style={{ color: 'var(--fg-quiet)', fontSize: '0.825rem', paddingTop: '14px' }}>
             <Tabs.Panel value="resumen">Estado general del sistema en las ultimas 24 horas.</Tabs.Panel>
             <Tabs.Panel value="consumo">Caudal acumulado por punto de medicion.</Tabs.Panel>
             <Tabs.Panel value="alertas">Ninguna alerta activa en este momento.</Tabs.Panel>
@@ -235,7 +236,7 @@ export const PrimitivesWorkbench: React.FC = () => {
         attrs={accordionAttrs}
         observing="el primer Accordion.Trigger"
       >
-        <Accordion.Root style={{ borderTop: '1px solid #1a1a1a' }}>
+        <Accordion.Root style={{ borderTop: '1px solid var(--line-soft)' }}>
           <Accordion.Item className="base-Accordion-item">
             <Accordion.Header>
               <Accordion.Trigger ref={accordionRef} className="base-Accordion-trigger">
@@ -279,14 +280,15 @@ export const PrimitivesWorkbench: React.FC = () => {
               <Dialog.Title
                 style={{
                   fontFamily: 'var(--font-display)',
-                  fontSize: '1.1rem',
-                  fontWeight: 700,
+                  fontVariationSettings: "'wdth' 110, 'wght' 650",
+                  fontSize: '1.05rem',
+                  letterSpacing: '-0.015em',
                   marginBottom: '8px'
                 }}
               >
                 Confirmar despliegue
               </Dialog.Title>
-              <Dialog.Description style={{ color: 'var(--text-muted)', fontSize: '0.85rem', marginBottom: '20px' }}>
+              <Dialog.Description style={{ color: 'var(--fg-quiet)', fontSize: '0.85rem', marginBottom: '20px' }}>
                 Se recompila el bundle y se recarga Nginx. El sitio queda unos segundos
                 sirviendo la version anterior.
               </Dialog.Description>
@@ -339,7 +341,7 @@ export const PrimitivesWorkbench: React.FC = () => {
                 <Popover.Title style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '6px' }}>
                   Punto de medicion 04
                 </Popover.Title>
-                <Popover.Description style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
+                <Popover.Description style={{ color: 'var(--fg-quiet)', fontSize: '0.8rem' }}>
                   Ultima lectura hace 3 minutos. Caudal dentro del rango esperado.
                 </Popover.Description>
               </Popover.Popup>
