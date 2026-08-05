@@ -145,6 +145,120 @@ body {
   transition: transform 0.2s ease;
 }
 
+.base-Popover-popup {
+  background: #0a0a0a;
+  border: 1px solid #222222;
+  border-radius: 10px;
+  padding: 14px 16px;
+  max-width: 280px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+}
+
+.base-Tabs-list {
+  display: inline-flex;
+  position: relative;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid #222222;
+  border-radius: 9px;
+  background: #0a0a0a;
+}
+
+.base-Tabs-tab {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.base-Tabs-tab[data-selected] {
+  color: #000000;
+}
+
+.base-Tabs-indicator {
+  position: absolute;
+  top: 3px;
+  left: 0;
+  height: calc(100% - 6px);
+  width: var(--active-tab-width);
+  transform: translateX(var(--active-tab-left));
+  background: #ffffff;
+  border-radius: 6px;
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.base-Accordion-item {
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.base-Accordion-trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 2px;
+  cursor: pointer;
+}
+
+.base-Accordion-trigger:hover {
+  color: var(--primary);
+}
+
+.base-Accordion-panel {
+  overflow: hidden;
+  color: var(--text-muted);
+  font-size: 0.825rem;
+  line-height: 1.6;
+  padding: 0 2px 14px;
+}
+
+/* El chevron gira cuando el panel esta abierto */
+.base-Accordion-chevron {
+  transition: transform 0.2s ease;
+}
+
+.base-Accordion-trigger[data-panel-open] .base-Accordion-chevron {
+  transform: rotate(180deg);
+}
+
+/* Destello al cambiar un atributo en el inspector de estado */
+@keyframes attr-flash {
+  from { background-color: rgba(131, 149, 213, 0.35); }
+  to { background-color: transparent; }
+}
+
+.attr-value {
+  border-radius: 3px;
+  padding: 0 3px;
+  animation: attr-flash 0.6s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .attr-value,
+  .base-Tabs-indicator,
+  .base-Switch-thumb,
+  .base-Accordion-chevron,
+  .mockup-card {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
 .base-Switch-root[data-checked] .base-Switch-thumb {
   transform: translateX(18px);
   background-color: #000000;
