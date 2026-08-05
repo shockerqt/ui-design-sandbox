@@ -8,4 +8,9 @@ export default defineConfig({
     port: 8081,
     host: true,
   },
+  preview: {
+    port: 8082,
+    host: true,
+    allowedHosts: true,
+  },
 });
