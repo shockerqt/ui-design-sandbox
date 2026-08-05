@@ -1,17 +1,17 @@
 import React from 'react';
+import { Link } from 'wouter';
 import { MockupItem } from '../types';
-import { Sparkles, ArrowRight, Tag, Clock } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 
 interface MockupCardProps {
   mockup: MockupItem;
-  onSelect: (mockup: MockupItem) => void;
 }
 
-export const MockupCard: React.FC<MockupCardProps> = ({ mockup, onSelect }) => {
+export const MockupCard: React.FC<MockupCardProps> = ({ mockup }) => {
   return (
-    <div
-      onClick={() => onSelect(mockup)}
-      className="glass-panel"
+    <Link
+      href={`/m/${mockup.id}`}
+      className="glass-panel mockup-card"
       style={{
         padding: '24px',
         display: 'flex',
@@ -19,7 +19,9 @@ export const MockupCard: React.FC<MockupCardProps> = ({ mockup, onSelect }) => {
         justifyContent: 'space-between',
         cursor: 'pointer',
         position: 'relative',
-        overflow: 'hidden'
+        overflow: 'hidden',
+        textDecoration: 'none',
+        color: 'inherit'
       }}
     >
       {/* Top Gradient Accent */}
@@ -107,6 +109,6 @@ export const MockupCard: React.FC<MockupCardProps> = ({ mockup, onSelect }) => {
           Explore Mockup <ArrowRight size={14} />
         </span>
       </div>
-    </div>
+    </Link>
   );
 };

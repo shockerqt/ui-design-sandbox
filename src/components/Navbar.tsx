@@ -1,15 +1,14 @@
 import React from 'react';
+import { Link } from 'wouter';
 import { LayoutGrid } from 'lucide-react';
 
 interface NavbarProps {
   mockupCount: number;
-  onBackToGallery: () => void;
   isViewingMockup: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
   mockupCount,
-  onBackToGallery,
   isViewingMockup
 }) => {
   return (
@@ -29,9 +28,9 @@ export const Navbar: React.FC<NavbarProps> = ({
         justifyContent: 'space-between'
       }}>
         {/* Brand Logo & Title */}
-        <div 
-          onClick={onBackToGallery}
-          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer' }}
+        <Link
+          href="/"
+          style={{ display: 'flex', alignItems: 'center', gap: '12px', cursor: 'pointer', textDecoration: 'none' }}
         >
           <div style={{
             width: '12px',
@@ -48,13 +47,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           }}>
             UI Sandbox
           </span>
-        </div>
+        </Link>
 
         {/* Actions */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
           {isViewingMockup && (
-            <button
-              onClick={onBackToGallery}
+            <Link
+              href="/"
               style={{
                 background: '#111111',
                 border: '1px solid #222222',
@@ -66,11 +65,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '6px'
+                gap: '6px',
+                textDecoration: 'none'
               }}
             >
               <LayoutGrid size={14} /> Back to Gallery
-            </button>
+            </Link>
           )}
 
           <span style={{ fontSize: '0.8rem', color: '#666666' }}>

@@ -7,20 +7,19 @@ import {
   Maximize2, 
   Code, 
   Eye, 
-  Copy, 
-  Check, 
-  Sparkles,
+  Copy,
+  Check,
   ArrowLeft,
   RefreshCw
 } from 'lucide-react';
-import { Tooltip, Tabs } from '@base-ui/react';
+import { Tooltip } from '@base-ui/react';
+import { Link } from 'wouter';
 
 interface MockupViewerProps {
   mockup: MockupItem;
-  onBack: () => void;
 }
 
-export const MockupViewer: React.FC<MockupViewerProps> = ({ mockup, onBack }) => {
+export const MockupViewer: React.FC<MockupViewerProps> = ({ mockup }) => {
   const [viewport, setViewport] = useState<ViewportMode>('100%');
   const [activeTab, setActiveTab] = useState<'canvas' | 'code'>('canvas');
   const [copied, setCopied] = useState(false);
@@ -48,8 +47,8 @@ export const MockupViewer: React.FC<MockupViewerProps> = ({ mockup, onBack }) =>
       }}>
         {/* Left: Title & Back Button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          <button
-            onClick={onBack}
+          <Link
+            href="/"
             style={{
               background: 'rgba(255, 255, 255, 0.08)',
               border: '1px solid var(--border-color)',
@@ -61,11 +60,12 @@ export const MockupViewer: React.FC<MockupViewerProps> = ({ mockup, onBack }) =>
               alignItems: 'center',
               gap: '6px',
               fontSize: '0.85rem',
-              fontWeight: 600
+              fontWeight: 600,
+              textDecoration: 'none'
             }}
           >
             <ArrowLeft size={16} /> Gallery
-          </button>
+          </Link>
 
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
