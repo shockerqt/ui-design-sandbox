@@ -4,8 +4,30 @@ import { AnalyticsDashboard } from './AnalyticsDashboard';
 import { SaaSPricing } from './SaaSPricing';
 import { CommandPalette } from './CommandPalette';
 import { MobileFintechWallet } from './MobileFintechWallet';
+import { AIChatDashboard } from './AIChatDashboard';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'tableros-chat-ia',
+    title: 'Tablero Control Chat IA & Agentes',
+    category: 'Dashboards',
+    description: 'Tablero de control para interacción con Agentes de IA, flujo de mensajes en directo, telemetría y modales de configuración Base UI (Estilo Sora / Tableros CloudFront).',
+    tags: ['Chat IA', 'Sora Font', 'Base UI Dialog', 'Base UI Switch', 'Telemetría'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-05',
+    component: AIChatDashboard,
+    previewGradient: 'linear-gradient(135deg, rgba(131, 149, 213, 0.4), rgba(79, 110, 247, 0.2))',
+    codeSnippet: `<div style={{ background: '#0d1117', color: '#8b95b0', fontFamily: "'Sora', sans-serif" }}>
+  <Dialog.Root>
+    <Dialog.Trigger>Configurar Prompt</Dialog.Trigger>
+    <Dialog.Portal>
+      <Dialog.Popup className="base-Dialog-popup" style={{ background: '#161b27' }}>
+        <h3>Ajustes del Prompt</h3>
+      </Dialog.Popup>
+    </Dialog.Portal>
+  </Dialog.Root>
+</div>`
+  },
   {
     id: 'base-ui-primitives',
     title: 'Base UI Headless Components Lab',
