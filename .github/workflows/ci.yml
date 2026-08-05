@@ -1,4 +1,4 @@
-name: CI Workflow
+name: CI & CD Pipeline
 
 on:
   push:
@@ -8,6 +8,7 @@ on:
 
 jobs:
   build:
+    name: Build & Validate
     runs-on: ubuntu-latest
 
     steps:
@@ -25,3 +26,19 @@ jobs:
 
       - name: Check TypeScript & Build
         run: npm run build
+
+  deploy:
+    name: Deploy to OCI VPS
+    needs: build
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute Remote Deploy via SSH
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            /home/ubuntu/workspace/ui-design-sandbox/deploy.sh
