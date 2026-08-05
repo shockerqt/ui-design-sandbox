@@ -3,8 +3,10 @@
   --bg-card: #0a0a0a;
   --border-color: rgba(255, 255, 255, 0.1);
   --primary: #8395d5;
+  --success: #22c55e;
   --text-main: #ffffff;
   --text-muted: #888888;
+  --text-dim: #555555;
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --font-display: 'Plus Jakarta Sans', var(--font-sans);
   --font-mono: 'JetBrains Mono', monospace;
@@ -42,6 +44,46 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   background: #444444;
+}
+
+/* Surfaces */
+.glass-panel {
+  background: rgba(10, 10, 10, 0.72);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+}
+
+/* Interactive card variant (gallery) */
+.mockup-card {
+  transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.mockup-card:hover {
+  border-color: rgba(255, 255, 255, 0.22);
+  transform: translateY(-2px);
+  box-shadow: 0 16px 32px -18px rgba(0, 0, 0, 0.9);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-primary {
+  background: rgba(131, 149, 213, 0.12);
+  border-color: rgba(131, 149, 213, 0.32);
+  color: var(--primary);
 }
 
 /* Base UI Primitives minimal styling */
