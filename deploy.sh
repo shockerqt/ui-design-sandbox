@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🚀 Iniciando despliegue de UI Design Sandbox en VPS..."
+echo "🚀 Iniciando despliegue de UI Design Sandbox en Nginx VPS..."
 
 CDIR="$(cd "$(dirname "$0")" && pwd)"
 cd "$CDIR"
@@ -16,11 +16,11 @@ echo "📦 Instalando dependencias..."
 export PATH="/home/ubuntu/.local/share/fnm/node-versions/v24.16.0/installation/bin:$PATH"
 npm ci
 
-echo "🔨 Compilando bundle de producción..."
+echo "🔨 Compilando bundle estático de producción..."
 npm run build
 
-# 3. Reiniciar servicio systemd
-echo "🔄 Reiniciando servicio systemd ui-design-sandbox.service..."
-sudo systemctl restart ui-design-sandbox.service
+# 3. Recargar Nginx para refrescar estáticos
+echo "🔄 Recargando Nginx web server..."
+sudo systemctl reload nginx
 
-echo "✅ Despliegue completado con éxito en http://oci2.shocker.cl:8082 !"
+echo "✅ Despliegue estático completado con éxito en https://sandbox.shocker.cl !"
