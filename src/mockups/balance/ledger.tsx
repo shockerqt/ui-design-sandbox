@@ -83,12 +83,12 @@ export const EntryRow: React.FC<{ entry: Entry; mode: RowMode; showTime?: boolea
               flex: 1,
               minWidth: 0,
               fontFamily: 'var(--sk-font-ui)',
-              fontSize: '0.88rem',
+              fontSize: '0.82rem',
               color: ink,
             }}>
             {entry.name}
           </span>
-          <span style={{ ...num('0.85rem', 600), color: ink, flex: 'none' }}>{entry.kcal}</span>
+          <span style={{ ...num('0.8rem', 600), color: ink, flex: 'none' }}>{entry.kcal}</span>
         </div>
 
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, marginTop: 2 }}>
