@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tabs } from '@base-ui/react';
+
 import { ChevronLeft, ChevronRight, Plus, RotateCcw } from 'lucide-react';
 import { ENTRIES, sum } from './balance/data';
 import { DayBalance, Rule, label } from './balance/ledger';
@@ -29,9 +29,17 @@ const LAYOUTS = [
   { key: 'meals', label: 'Por comida' },
 ] as const;
 
+/* En 390 px las cuatro columnas y el nombre se pelean el ancho. Las dos
+   salidas estan aqui para compararlas con el dato real, no a ojo. */
+const ROWS = [
+  { key: 'columnas', label: 'Columnas' },
+  { key: 'amplio', label: 'Nombre amplio' },
+] as const;
+
 export const BalanceLogRedesign: React.FC = () => {
   const [theme, setTheme] = useState<string>('libro');
   const [layout, setLayout] = useState<string>('timeline');
+  const [row, setRow] = useState<'columnas' | 'amplio'>('columnas');
 
   const totals = sum(ENTRIES);
 
@@ -78,6 +86,28 @@ export const BalanceLogRedesign: React.FC = () => {
             data-active={layout === l.key}
             onClick={() => setLayout(l.key)}>
             {l.label}
+          </button>
+        ))}
+
+        <span style={{ width: 12 }} />
+
+        <span
+          style={{
+            fontFamily: 'var(--font-mono)',
+            fontSize: '0.62rem',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            color: 'var(--fg-faint)',
+          }}>
+          Fila
+        </span>
+        {ROWS.map((r) => (
+          <button
+            key={r.key}
+            className="skin-picker-btn"
+            data-active={row === r.key}
+            onClick={() => setRow(r.key)}>
+            {r.label}
           </button>
         ))}
       </div>
@@ -142,7 +172,7 @@ export const BalanceLogRedesign: React.FC = () => {
           <Rule weight="heavy" />
 
           <div style={{ flex: 1 }}>
-            {layout === 'timeline' ? <TimelineLayout /> : <MealsLayout />}
+            {layout === 'timeline' ? <TimelineLayout mode={row} /> : <MealsLayout mode={row} />}
           </div>
 
           {/* Barra de accion: registrar y repetir de ayer */}

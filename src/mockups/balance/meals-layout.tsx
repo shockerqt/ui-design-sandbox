@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { ENTRIES, byMeal, sum, timeRange } from './data';
-import { ColumnHead, EntryRow, Rule, Subtotal, label } from './ledger';
+import { ColumnHead, EntryRow, Rule, RowMode, Subtotal, label } from './ledger';
 
 /* ============================================================
    Disposicion B — Comidas nombradas.
@@ -12,12 +12,12 @@ import { ColumnHead, EntryRow, Rule, Subtotal, label } from './ledger';
    en el bloque de las 16:20.
    ============================================================ */
 
-export const MealsLayout: React.FC = () => {
+export const MealsLayout: React.FC<{ mode: RowMode }> = ({ mode }) => {
   const blocks = byMeal(ENTRIES);
 
   return (
     <div>
-      <ColumnHead />
+      <ColumnHead mode={mode} />
       <Rule weight="mid" />
 
       {blocks.map((block, index) => {
@@ -50,7 +50,7 @@ export const MealsLayout: React.FC = () => {
             </div>
 
             {block.entries.map((entry) => (
-              <EntryRow key={entry.id} entry={entry} />
+              <EntryRow key={entry.id} entry={entry} mode={mode} showTime />
             ))}
 
             <Subtotal totals={totals} />

@@ -10,9 +10,11 @@ export const TARGETS = { kcal: 2200, protein: 150, carbs: 220, fat: 65 };
 
 export interface Entry {
   id: string;
-  /** "HH:MM" */
+  /** "HH:MM" tal cual se registro */
   time: string;
   name: string;
+  /** Marca comercial, cuando el alimento la tiene */
+  brand?: string;
   portion: string;
   kcal: number;
   protein: number;
@@ -21,9 +23,9 @@ export interface Entry {
 }
 
 export const ENTRIES: Entry[] = [
-  { id: 'e1', time: '08:05', name: 'Tostadas integrales', portion: '2 reb', kcal: 180, protein: 7, carbs: 30, fat: 3 },
+  { id: 'e1', time: '08:05', name: 'Tostadas integrales', brand: 'Ideal', portion: '2 reb', kcal: 180, protein: 7, carbs: 30, fat: 3 },
   { id: 'e2', time: '08:05', name: 'Palta', portion: '1/2 un', kcal: 175, protein: 2, carbs: 9, fat: 17 },
-  { id: 'e3', time: '08:20', name: 'Café con leche', portion: '250 ml', kcal: 80, protein: 6, carbs: 9, fat: 2 },
+  { id: 'e3', time: '08:20', name: 'Café con leche', brand: 'Nescafé + Soprole', portion: '250 ml', kcal: 80, protein: 6, carbs: 9, fat: 2 },
 
   { id: 'e4', time: '11:10', name: 'Manzana', portion: '1 un', kcal: 80, protein: 0, carbs: 21, fat: 0 },
 
@@ -31,13 +33,13 @@ export const ENTRIES: Entry[] = [
   { id: 'e6', time: '13:40', name: 'Quinoa', portion: '1 taza', kcal: 280, protein: 10, carbs: 48, fat: 5 },
   { id: 'e7', time: '13:45', name: 'Ensalada chilena', portion: '1 taza', kcal: 90, protein: 2, carbs: 10, fat: 5 },
 
-  { id: 'e8', time: '16:20', name: 'Almendras', portion: '25 g', kcal: 145, protein: 5, carbs: 5, fat: 13 },
-  { id: 'e9', time: '17:05', name: 'Yogurt natural', portion: '150 g', kcal: 95, protein: 9, carbs: 11, fat: 2 },
+  { id: 'e8', time: '16:20', name: 'Almendras', brand: 'Frutos del Maipo', portion: '25 g', kcal: 145, protein: 5, carbs: 5, fat: 13 },
+  { id: 'e9', time: '17:05', name: 'Yogurt natural', brand: 'Soprole', portion: '150 g', kcal: 95, protein: 9, carbs: 11, fat: 2 },
 
-  { id: 'e10', time: '19:30', name: 'Marraqueta con quesillo', portion: '1/2 un', kcal: 260, protein: 14, carbs: 38, fat: 6 },
-  { id: 'e11', time: '19:30', name: 'Té', portion: '250 ml', kcal: 5, protein: 0, carbs: 1, fat: 0 },
+  { id: 'e10', time: '19:30', name: 'Marraqueta con quesillo', brand: 'Quillayes', portion: '1/2 un', kcal: 260, protein: 14, carbs: 38, fat: 6 },
+  { id: 'e11', time: '19:30', name: 'Té', brand: 'Supremo', portion: '250 ml', kcal: 5, protein: 0, carbs: 1, fat: 0 },
 
-  { id: 'e12', time: '21:50', name: 'Pollo a la plancha', portion: '150 g', kcal: 280, protein: 45, carbs: 0, fat: 11 },
+  { id: 'e12', time: '21:50', name: 'Pollo a la plancha', brand: 'Ariztía', portion: '150 g', kcal: 280, protein: 45, carbs: 0, fat: 11 },
 ];
 
 export type Totals = { kcal: number; protein: number; carbs: number; fat: number };
@@ -53,10 +55,24 @@ export const sum = (entries: Entry[]): Totals =>
     { kcal: 0, protein: 0, carbs: 0, fat: 0 }
   );
 
-/** Agrupa por hora exacta, respetando el registro tal cual se hizo. */
-export const byTime = (entries: Entry[]) => {
+/**
+ * Cuadra un registro a la hora mas cercana, con el empate hacia abajo.
+ * 08:05 y 08:20 caen ambos en 08:00, que es lo correcto: fue un solo
+ * desayuno. Asi se consigue el agrupado sensato sin nombrar comidas.
+ */
+export const snapToHour = (time: string): string => {
+  const [h, m] = time.split(':').map(Number);
+  const hour = (m > 30 ? h + 1 : h) % 24;
+  return `${String(hour).padStart(2, '0')}:00`;
+};
+
+/** Agrupa por hora cuadrada. */
+export const byHour = (entries: Entry[]) => {
   const map = new Map<string, Entry[]>();
-  entries.forEach((e) => map.set(e.time, [...(map.get(e.time) ?? []), e]));
+  entries.forEach((e) => {
+    const key = snapToHour(e.time);
+    map.set(key, [...(map.get(key) ?? []), e]);
+  });
   return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
-import { ENTRIES, byTime, sum } from './data';
-import { ColumnHead, EntryRow, Rule, Subtotal, label, num } from './ledger';
+import { ENTRIES, byHour, sum } from './data';
+import { ColumnHead, EntryRow, Rule, RowMode, Subtotal, label, num } from './ledger';
 
 /* ============================================================
    Disposicion A — Timeline por hora.
@@ -23,59 +23,42 @@ const gapMinutes = (a: string, b: string) => {
   return bh * 60 + bm - (ah * 60 + am);
 };
 
-const InsertSlot: React.FC<{ from: string; to: string }> = ({ from, to }) => {
-  const minutes = gapMinutes(from, to);
-  // Solo se ofrece insertar donde hay hueco real
-  if (minutes < 45) return null;
+/** Boton de la hora. Cada nodo del riel ofrece registrar ahi mismo. */
+const AddAtHour: React.FC<{ hour: string; subdued?: boolean }> = ({ hour, subdued }) => (
+  <button
+    style={{
+      display: 'flex',
+      alignItems: 'center',
+      gap: 5,
+      padding: '4px 9px',
+      background: 'transparent',
+      border: `1px ${subdued ? 'dashed' : 'solid'} var(--sk-line)`,
+      color: subdued ? 'var(--sk-faint)' : 'var(--sk-quiet)',
+      cursor: 'pointer',
+      font: 'inherit',
+    }}
+    title={`Registrar a las ${hour}`}>
+    <Plus size={11} />
+    <span style={{ ...label('0.55rem'), letterSpacing: '0.06em' }}>{hour}</span>
+  </button>
+);
 
-  const [h, m] = from.split(':').map(Number);
-  const mid = new Date(0, 0, 0, h, m + Math.floor(minutes / 2));
-  const midLabel = `${String(mid.getHours()).padStart(2, '0')}:${String(mid.getMinutes()).padStart(2, '0')}`;
-
-  return (
-    <div style={{ display: 'flex', minHeight: 44 }}>
-      <div style={{ width: RAIL_W, position: 'relative', flex: 'none' }}>
-        <div
-          style={{
-            position: 'absolute',
-            left: RAIL_W - 13,
-            top: 0,
-            bottom: 0,
-            width: 1,
-            borderLeft: '1px dashed var(--sk-line)',
-          }}
-        />
-      </div>
-
-      <button
-        style={{
-          flex: 1,
-          display: 'flex',
-          alignItems: 'center',
-          gap: 8,
-          margin: '4px 16px 4px 0',
-          padding: '7px 10px',
-          background: 'transparent',
-          border: '1px dashed var(--sk-line)',
-          color: 'var(--sk-faint)',
-          cursor: 'pointer',
-          font: 'inherit',
-        }}>
-        <Plus size={13} />
-        <span style={{ ...label('0.6rem'), letterSpacing: '0.06em' }}>
-          Registrar a las {midLabel}
-        </span>
-      </button>
-    </div>
-  );
+/** Horas vacias entre dos registros, para poder intercalar. */
+const emptyHoursBetween = (from: string, to: string): string[] => {
+  const a = Number(from.slice(0, 2));
+  const b = Number(to.slice(0, 2));
+  const out: string[] = [];
+  for (let h = a + 1; h < b; h++) out.push(`${String(h).padStart(2, '0')}:00`);
+  // Solo se ofrecen si el hueco es de verdad, no cada hora del dia
+  return out.length >= 2 ? [out[Math.floor(out.length / 2)]] : out;
 };
 
-export const TimelineLayout: React.FC = () => {
-  const groups = byTime(ENTRIES);
+export const TimelineLayout: React.FC<{ mode: RowMode }> = ({ mode }) => {
+  const groups = byHour(ENTRIES);
 
   return (
     <div>
-      <ColumnHead />
+      <ColumnHead mode={mode} />
       <Rule weight="mid" />
 
       {groups.map(([time, entries], index) => {
@@ -122,14 +105,48 @@ export const TimelineLayout: React.FC = () => {
               </div>
 
               <div style={{ flex: 1, minWidth: 0, paddingTop: 4 }}>
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'flex-end',
+                    padding: '0 16px 2px',
+                  }}>
+                  <AddAtHour hour={time} />
+                </div>
+
                 {entries.map((entry) => (
-                  <EntryRow key={entry.id} entry={entry} />
+                  <EntryRow key={entry.id} entry={entry} mode={mode} showTime />
                 ))}
-                {entries.length > 1 ? <Subtotal totals={totals} /> : <div style={{ height: 8 }} />}
+                {entries.length > 1 ? <Subtotal totals={totals} /> : <div style={{ height: 6 }} />}
               </div>
             </div>
 
-            {next ? <InsertSlot from={time} to={next[0]} /> : null}
+            {next
+              ? emptyHoursBetween(time, next[0]).map((hour) => (
+                  <div key={hour} style={{ display: 'flex', minHeight: 34 }}>
+                    <div style={{ width: RAIL_W, position: 'relative', flex: 'none' }}>
+                      <div
+                        style={{
+                          position: 'absolute',
+                          left: RAIL_W - 13,
+                          top: 0,
+                          bottom: 0,
+                          borderLeft: '1px dashed var(--sk-line)',
+                        }}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        justifyContent: 'flex-end',
+                        padding: '5px 16px 0',
+                      }}>
+                      <AddAtHour hour={hour} subdued />
+                    </div>
+                  </div>
+                ))
+              : null}
           </React.Fragment>
         );
       })}
