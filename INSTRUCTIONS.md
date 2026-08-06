@@ -38,7 +38,6 @@ tener la estética que quiera, pero si usa los tokens del shell hereda coherenci
 - Cromo: `--ink` `--rail` `--rail-hi` `--line` `--line-soft`
 - Texto: `--fg` `--fg-quiet` `--fg-faint`
 - Señal única (ocre, solo en afordancias, nunca decorando): `--signal`
-- Montajes: `--mount-ink` `--mount-gray` `--mount-paper`
 - Tipografía: `--font-display` (Archivo variable, usar `font-variation-settings`
   con el eje `wdth`), `--font-ui` (Inter), `--font-mono` (JetBrains Mono)
 - Clases: `.display` `.mono` `.label` `.badge` `.rail-btn`, y las primitivas
@@ -49,9 +48,23 @@ El mockup se renderiza a ancho completo bajo un riel de 48px, sin caja ni sombra
 No asumir un contenedor angosto: el mockup ocupa toda la página. **Debe traer su
 propio fondo**, porque el visor no le pone ninguno.
 
-Para un mockup de fondo claro, envolverlo en `.paper`: las primitivas Base UI se
-reskinean solas a la variante clara, sin duplicar componentes. Ver
-`NutritionSummary.tsx`.
+Para variar el estilo sin tocar la estructura existe el **sistema de pieles**:
+envolver el mockup en `.skin` mas una clase de tema (`.skin-tabla`,
+`.skin-cocina`, `.skin-ficha`, `.skin-editorial`, `.skin-nocturno`) y leer todo
+desde las variables `--sk-*`:
+
+- Color: `--sk-bg` `--sk-panel` `--sk-ink` `--sk-quiet` `--sk-faint` `--sk-tint`
+  `--sk-line` `--sk-accent` `--sk-signal`
+- Tipografia: `--sk-font-display` `--sk-font-ui` `--sk-wdth` `--sk-case` `--sk-tracking`
+- Forma: `--sk-radius` `--sk-rule-heavy` `--sk-rule-mid` `--sk-meter` `--sk-border`
+
+Las primitivas Base UI se re-tiñen solas bajo `.skin`, incluidas las pieles
+oscuras. Los helpers `display()`, `plain()`, `Rule` y `RuleMeter` de
+`mockups/nutrition/parts.tsx` ya consumen estas variables: **no fijar colores,
+pesos de filete ni `text-transform` en el componente**, o la piel deja de aplicar.
+
+Agregar una piel nueva son ~18 lineas: un bloque de variables en `index.css` y
+una entrada en `SKINS` dentro del mockup. Ver `NutritionApp.tsx`.
 
 ### 2. Ruteo
 - Cada mockup queda disponible en su propia URL: `/m/<id>`.

@@ -10,7 +10,7 @@ import {
   Trash2
 } from 'lucide-react';
 import { FoodItem, Meal, RECENT_MEALS, TARGET, mealTotals, shortDate, weekday } from './data';
-import { Rule, RuleMeter, condensed } from './parts';
+import { Rule, RuleMeter, SK, display, plain } from './parts';
 
 /* ============================================================
    Registro del dia.
@@ -37,7 +37,7 @@ const iconBtn: React.CSSProperties = {
   height: 26,
   border: 'none',
   background: 'transparent',
-  color: 'var(--paper-quiet)',
+  color: SK.quiet,
   cursor: 'pointer',
   padding: 0
 };
@@ -55,11 +55,11 @@ const ItemRow: React.FC<{ item: FoodItem }> = ({ item }) => (
   >
     <span style={{ minWidth: 0 }}>
       {item.name}
-      <span style={{ color: 'var(--paper-quiet)' }}> · {item.detail}</span>
+      <span style={{ color: SK.quiet }}> · {item.detail}</span>
     </span>
 
     <span style={{ display: 'flex', alignItems: 'center', gap: 4, flex: 'none' }}>
-      <span style={{ ...condensed(600, '0.85rem'), whiteSpace: 'nowrap' }}>{item.kcal} kcal</span>
+      <span style={{ ...plain('0.85rem', 600), whiteSpace: 'nowrap' }}>{item.kcal} kcal</span>
 
       <Popover.Root>
         <Popover.Trigger style={iconBtn} aria-label={`Opciones de ${item.name}`}>
@@ -112,28 +112,26 @@ const MealBlock: React.FC<{ meal: Meal }> = ({ meal }) => {
           alignItems: 'center',
           justifyContent: 'space-between',
           padding: '13px 2px',
-          borderBottom: '1px solid var(--paper-tint)'
+          borderBottom: '1px solid var(--sk-tint)'
         }}
       >
         <span
           style={{
-            ...condensed(700, '0.95rem'),
-            textTransform: 'uppercase',
-            color: 'var(--paper-quiet)'
+            ...display('0.95rem', 700),
+            color: SK.quiet
           }}
         >
           {meal.slot}
         </span>
         <button
           style={{
-            ...condensed(700, '0.8rem'),
-            textTransform: 'uppercase',
+            ...display('0.8rem', 700),
             display: 'flex',
             alignItems: 'center',
             gap: 5,
-            border: '1.5px solid var(--paper-ink)',
+            border: 'var(--sk-border) solid var(--sk-ink)',
             background: 'transparent',
-            color: 'var(--paper-ink)',
+            color: SK.ink,
             padding: '5px 10px',
             cursor: 'pointer'
           }}
@@ -149,15 +147,15 @@ const MealBlock: React.FC<{ meal: Meal }> = ({ meal }) => {
       <Accordion.Header>
         <Accordion.Trigger className="base-Accordion-trigger" style={{ padding: '13px 2px' }}>
           <span style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-            <span style={{ ...condensed(700, '0.95rem'), textTransform: 'uppercase' }}>
+            <span style={{ ...display('0.95rem', 700) }}>
               {meal.slot}
             </span>
-            <span style={{ ...condensed(400, '0.8rem'), color: 'var(--paper-quiet)' }}>
+            <span style={{ ...plain('0.8rem', 400), color: SK.quiet }}>
               {meal.time}
             </span>
           </span>
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-            <span style={condensed(700, '1rem')}>{kcal} kcal</span>
+            <span style={display('1rem', 700)}>{kcal} kcal</span>
             <ChevronDown className="base-Accordion-chevron" size={15} />
           </span>
         </Accordion.Trigger>
@@ -170,15 +168,14 @@ const MealBlock: React.FC<{ meal: Meal }> = ({ meal }) => {
 
         <button
           style={{
-            ...condensed(700, '0.8rem'),
-            textTransform: 'uppercase',
+            ...display('0.8rem', 700),
             display: 'flex',
             alignItems: 'center',
             gap: 6,
             marginTop: 8,
             border: 'none',
             background: 'transparent',
-            color: 'var(--paper-ink)',
+            color: SK.ink,
             padding: '4px 0',
             cursor: 'pointer'
           }}
@@ -225,7 +222,7 @@ export const LogPanel: React.FC = () => {
           aria-label="Dia anterior"
           style={{
             ...iconBtn,
-            color: 'var(--paper-ink)',
+            color: SK.ink,
             cursor: pos === 0 ? 'default' : 'pointer',
             opacity: pos === 0 ? 0.25 : 1
           }}
@@ -234,10 +231,10 @@ export const LogPanel: React.FC = () => {
         </button>
 
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-          <span style={{ ...condensed(800, '1.05rem'), textTransform: 'uppercase' }}>
+          <span style={{ ...display('1.05rem', 800) }}>
             {offset === 0 ? 'Hoy' : weekday(date)}
           </span>
-          <span style={{ ...condensed(400, '0.85rem'), color: 'var(--paper-quiet)' }}>
+          <span style={{ ...plain('0.85rem', 400), color: SK.quiet }}>
             {shortDate(date)}
           </span>
         </div>
@@ -248,7 +245,7 @@ export const LogPanel: React.FC = () => {
           aria-label="Dia siguiente"
           style={{
             ...iconBtn,
-            color: 'var(--paper-ink)',
+            color: SK.ink,
             cursor: pos === OFFSETS.length - 1 ? 'default' : 'pointer',
             opacity: pos === OFFSETS.length - 1 ? 0.25 : 1
           }}
@@ -257,7 +254,7 @@ export const LogPanel: React.FC = () => {
         </button>
       </div>
 
-      <Rule weight={7} />
+      <Rule level="mid" />
 
       {/* Resumen del dia: contexto, no protagonista */}
       <div
@@ -272,16 +269,15 @@ export const LogPanel: React.FC = () => {
         <div>
           <div
             style={{
-              ...condensed(400, '0.72rem'),
-              color: 'var(--paper-quiet)',
-              textTransform: 'uppercase'
+              ...plain('0.72rem', 400),
+              color: SK.quiet
             }}
           >
             Calorias del dia
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 7 }}>
-            <span style={condensed(800, '2.4rem')}>{totals.kcal.toLocaleString('es-CL')}</span>
-            <span style={{ ...condensed(400, '0.95rem'), color: 'var(--paper-quiet)' }}>
+            <span style={display('2.4rem', 800)}>{totals.kcal.toLocaleString('es-CL')}</span>
+            <span style={{ ...plain('0.95rem', 400), color: SK.quiet }}>
               / {TARGET.kcal.toLocaleString('es-CL')}
             </span>
           </div>
@@ -290,17 +286,16 @@ export const LogPanel: React.FC = () => {
         <div style={{ textAlign: 'right' }}>
           <div
             style={{
-              ...condensed(400, '0.72rem'),
-              color: 'var(--paper-quiet)',
-              textTransform: 'uppercase'
+              ...plain('0.72rem', 400),
+              color: SK.quiet
             }}
           >
             {over ? 'Sobre el objetivo' : 'Quedan'}
           </div>
           <div
             style={{
-              ...condensed(800, '1.6rem'),
-              color: over ? 'var(--paper-signal)' : 'var(--paper-ink)'
+              ...display('1.6rem', 800),
+              color: over ? SK.signal : SK.ink
             }}
           >
             {Math.abs(remaining).toLocaleString('es-CL')} kcal
@@ -308,7 +303,7 @@ export const LogPanel: React.FC = () => {
         </div>
       </div>
 
-      <RuleMeter ratio={totals.kcal / TARGET.kcal} weight={8} />
+      <RuleMeter ratio={totals.kcal / TARGET.kcal} tall />
 
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, paddingTop: 14 }}>
         {macros.map(m => (
@@ -321,22 +316,22 @@ export const LogPanel: React.FC = () => {
                 gap: 6
               }}
             >
-              <span style={{ ...condensed(700, '0.75rem'), textTransform: 'uppercase' }}>
+              <span style={{ ...display('0.75rem', 700) }}>
                 {m.name}
               </span>
-              <span style={{ ...condensed(400, '0.72rem'), color: 'var(--paper-quiet)' }}>
+              <span style={{ ...plain('0.72rem', 400), color: SK.quiet }}>
                 {m.value}/{m.target} g
               </span>
             </div>
             <div style={{ paddingTop: 6 }}>
-              <RuleMeter ratio={m.value / m.target} weight={4} />
+              <RuleMeter ratio={m.value / m.target} />
             </div>
           </div>
         ))}
       </div>
 
       <div style={{ paddingTop: 22 }}>
-        <Rule weight={7} />
+        <Rule level="mid" />
       </div>
 
       {/* Comidas */}
@@ -348,13 +343,13 @@ export const LogPanel: React.FC = () => {
           padding: '12px 0 8px'
         }}
       >
-        <span style={{ ...condensed(800, '1rem'), textTransform: 'uppercase' }}>Comidas</span>
-        <span style={{ ...condensed(400, '0.8rem'), color: 'var(--paper-quiet)' }}>
+        <span style={{ ...display('1rem', 800) }}>Comidas</span>
+        <span style={{ ...plain('0.8rem', 400), color: SK.quiet }}>
           {logged} de 4 registradas
         </span>
       </div>
 
-      <Rule weight={1} />
+      <Rule />
 
       <Accordion.Root>
         {meals.map(meal => (
@@ -366,13 +361,12 @@ export const LogPanel: React.FC = () => {
       <Dialog.Root>
         <Dialog.Trigger
           style={{
-            ...condensed(800, '1rem'),
-            textTransform: 'uppercase',
+            ...display('1rem', 800),
             width: '100%',
             marginTop: 24,
             padding: '15px',
-            background: 'var(--paper-ink)',
-            color: 'var(--paper-bg)',
+            background: SK.ink,
+            color: SK.bg,
             border: 'none',
             cursor: 'pointer',
             display: 'flex',
@@ -387,16 +381,16 @@ export const LogPanel: React.FC = () => {
         <Dialog.Portal>
           <Dialog.Backdrop className="base-Dialog-backdrop" />
           <Dialog.Popup className="base-Dialog-popup">
-            <Dialog.Title style={{ ...condensed(800, '1.35rem'), textTransform: 'uppercase' }}>
+            <Dialog.Title style={{ ...display('1.35rem', 800) }}>
               Registrar comida
             </Dialog.Title>
 
             <div style={{ margin: '12px 0' }}>
-              <Rule weight={4} />
+              <Rule level="mid" />
             </div>
 
             <Dialog.Description
-              style={{ fontSize: '0.9rem', color: 'var(--paper-quiet)', marginBottom: 20 }}
+              style={{ fontSize: '0.9rem', color: SK.quiet, marginBottom: 20 }}
             >
               Elige el momento del dia y busca el alimento. Las porciones se guardan para la
               proxima vez.
@@ -405,12 +399,11 @@ export const LogPanel: React.FC = () => {
             <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
               <Dialog.Close
                 style={{
-                  ...condensed(700, '0.9rem'),
-                  textTransform: 'uppercase',
+                  ...display('0.9rem', 700),
                   padding: '10px 18px',
                   background: 'none',
-                  border: '1.5px solid var(--paper-ink)',
-                  color: 'var(--paper-ink)',
+                  border: 'var(--sk-border) solid var(--sk-ink)',
+                  color: SK.ink,
                   cursor: 'pointer'
                 }}
               >
@@ -418,12 +411,11 @@ export const LogPanel: React.FC = () => {
               </Dialog.Close>
               <Dialog.Close
                 style={{
-                  ...condensed(700, '0.9rem'),
-                  textTransform: 'uppercase',
+                  ...display('0.9rem', 700),
                   padding: '10px 18px',
-                  background: 'var(--paper-ink)',
-                  border: '1.5px solid var(--paper-ink)',
-                  color: 'var(--paper-bg)',
+                  background: SK.ink,
+                  border: 'var(--sk-border) solid var(--sk-ink)',
+                  color: SK.bg,
                   cursor: 'pointer'
                 }}
               >

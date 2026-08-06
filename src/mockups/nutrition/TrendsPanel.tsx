@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Tabs } from '@base-ui/react';
 import { DayPoint, RANGES, RangeKey, SERIES, TARGET, shortDate, trendAt } from './data';
-import { Rule, RuleMeter, SectionHead, condensed } from './parts';
+import { Rule, RuleMeter, SK, SectionHead, display, plain } from './parts';
 
 /* ============================================================
    Resumen en el tiempo.
@@ -34,10 +34,10 @@ function useWidth<T extends HTMLElement>(fallback = 620) {
   return [ref, width] as const;
 }
 
-const INK = 'var(--paper-ink)';
-const TINT = 'var(--paper-tint)';
-const QUIET = 'var(--paper-quiet)';
-const SIGNAL = 'var(--paper-signal)';
+const INK = SK.ink;
+const TINT = SK.tint;
+const QUIET = SK.quiet;
+const SIGNAL = SK.signal;
 
 /* ---------- Peso: diario + tendencia ---------- */
 
@@ -109,7 +109,7 @@ const WeightChart: React.FC<{
             cy={y(trend[hover])}
             r={4}
             fill={INK}
-            stroke="var(--paper-bg)"
+            stroke="var(--sk-bg)"
             strokeWidth={2}
           />
         )}
@@ -251,7 +251,7 @@ export const TrendsPanel: React.FC = () => {
           flexWrap: 'wrap'
         }}
       >
-        <span style={{ ...condensed(400, '0.9rem'), color: QUIET }}>
+        <span style={{ ...plain('0.9rem', 400), color: QUIET }}>
           {shortDate(points[0].date)} — {shortDate(points[points.length - 1].date)}
         </span>
 
@@ -267,7 +267,7 @@ export const TrendsPanel: React.FC = () => {
         </Tabs.Root>
       </div>
 
-      <Rule weight={7} />
+      <Rule level="mid" />
 
       {/* ---------- Peso ---------- */}
 
@@ -287,20 +287,20 @@ export const TrendsPanel: React.FC = () => {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20 }}>
         <div>
-          <div style={{ ...condensed(400, '0.75rem'), color: QUIET, textTransform: 'uppercase' }}>
+          <div style={{ ...display('0.75rem', 400), color: QUIET }}>
             Tendencia hoy
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-            <span style={condensed(800, '3.2rem')}>{trendNow.toFixed(1)}</span>
-            <span style={{ ...condensed(400, '1rem'), color: QUIET }}>kg</span>
+            <span style={display('3.2rem', 800)}>{trendNow.toFixed(1)}</span>
+            <span style={{ ...plain('1rem', 400), color: QUIET }}>kg</span>
           </div>
         </div>
 
         <div style={{ textAlign: 'right' }}>
-          <div style={{ ...condensed(400, '0.75rem'), color: QUIET, textTransform: 'uppercase' }}>
+          <div style={{ ...display('0.75rem', 400), color: QUIET }}>
             En el periodo
           </div>
-          <div style={{ ...condensed(800, '1.6rem'), color: delta > 0 ? SIGNAL : INK }}>
+          <div style={{ ...display('1.6rem', 800), color: delta > 0 ? SIGNAL : INK }}>
             {signed(delta)} kg
           </div>
         </div>
@@ -314,7 +314,7 @@ export const TrendsPanel: React.FC = () => {
             style={{
               display: 'flex',
               justifyContent: 'space-between',
-              ...condensed(600, '0.8rem'),
+              ...plain('0.8rem', 600),
               color: focus ? INK : TINT,
               padding: '14px 0 6px',
               minHeight: 26
@@ -336,7 +336,7 @@ export const TrendsPanel: React.FC = () => {
           <WeightChart points={points} trend={trend} hover={hoverWeight} onHover={setHoverWeight} />
 
           {/* Dos series: la leyenda va siempre */}
-          <div style={{ display: 'flex', gap: 20, paddingTop: 10, ...condensed(400, '0.75rem') }}>
+          <div style={{ display: 'flex', gap: 20, paddingTop: 10, ...plain('0.75rem', 400) }}>
             <span style={{ display: 'flex', alignItems: 'center', gap: 6, color: QUIET }}>
               <svg width="10" height="10" aria-hidden="true">
                 <circle cx="5" cy="5" r="2.5" fill={QUIET} />
@@ -353,21 +353,20 @@ export const TrendsPanel: React.FC = () => {
         </>
       ) : (
         <div style={{ maxHeight: 260, overflow: 'auto', marginTop: 14 }}>
-          <table style={{ width: '100%', borderCollapse: 'collapse', ...condensed(400, '0.8rem') }}>
+          <table style={{ width: '100%', borderCollapse: 'collapse', ...plain('0.8rem', 400) }}>
             <thead>
               <tr>
                 {['Dia', 'Diario', 'Tendencia'].map((h, i) => (
                   <th
                     key={h}
                     style={{
-                      ...condensed(700, '0.7rem'),
-                      textTransform: 'uppercase',
+                      ...display('0.7rem', 700),
                       textAlign: i === 0 ? 'left' : 'right',
                       padding: '6px 0',
-                      borderBottom: `2px solid ${INK}`,
+                      borderBottom: 'var(--sk-rule-mid) solid var(--sk-line)',
                       position: 'sticky',
                       top: 0,
-                      background: 'var(--paper-bg)'
+                      background: SK.bg
                     }}
                   >
                     {h}
@@ -396,7 +395,7 @@ export const TrendsPanel: React.FC = () => {
                     </td>
                     <td
                       style={{
-                        ...condensed(700, '0.8rem'),
+                        ...display('0.8rem', 700),
                         textAlign: 'right',
                         padding: '5px 0',
                         borderBottom: `1px solid ${TINT}`
@@ -412,7 +411,7 @@ export const TrendsPanel: React.FC = () => {
       )}
 
       <div style={{ paddingTop: 22 }}>
-        <Rule weight={7} />
+        <Rule level="mid" />
       </div>
 
       {/* ---------- Calorias ---------- */}
@@ -421,22 +420,22 @@ export const TrendsPanel: React.FC = () => {
 
       <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 20 }}>
         <div>
-          <div style={{ ...condensed(400, '0.75rem'), color: QUIET, textTransform: 'uppercase' }}>
+          <div style={{ ...display('0.75rem', 400), color: QUIET }}>
             Promedio diario
           </div>
           <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-            <span style={condensed(800, '2.4rem')}>{avgKcal.toLocaleString('es-CL')}</span>
-            <span style={{ ...condensed(400, '0.95rem'), color: QUIET }}>
+            <span style={display('2.4rem', 800)}>{avgKcal.toLocaleString('es-CL')}</span>
+            <span style={{ ...plain('0.95rem', 400), color: QUIET }}>
               / {TARGET.kcal.toLocaleString('es-CL')}
             </span>
           </div>
         </div>
 
         <div style={{ textAlign: 'right' }}>
-          <div style={{ ...condensed(400, '0.75rem'), color: QUIET, textTransform: 'uppercase' }}>
+          <div style={{ ...display('0.75rem', 400), color: QUIET }}>
             Dias sobre el objetivo
           </div>
-          <div style={{ ...condensed(800, '1.6rem'), color: daysOver > days / 2 ? SIGNAL : INK }}>
+          <div style={{ ...display('1.6rem', 800), color: daysOver > days / 2 ? SIGNAL : INK }}>
             {daysOver} de {days}
           </div>
         </div>
@@ -446,7 +445,7 @@ export const TrendsPanel: React.FC = () => {
         style={{
           display: 'flex',
           justifyContent: 'space-between',
-          ...condensed(600, '0.8rem'),
+          ...plain('0.8rem', 600),
           color: focusKcal ? INK : TINT,
           padding: '14px 0 6px',
           minHeight: 26
@@ -469,7 +468,7 @@ export const TrendsPanel: React.FC = () => {
 
       <CaloriesChart points={points} hover={hoverKcal} onHover={setHoverKcal} />
 
-      <div style={{ display: 'flex', gap: 20, paddingTop: 10, ...condensed(400, '0.75rem') }}>
+      <div style={{ display: 'flex', gap: 20, paddingTop: 10, ...plain('0.75rem', 400) }}>
         <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
           <svg width="10" height="10" aria-hidden="true">
             <rect width="10" height="10" fill={INK} />
@@ -491,18 +490,18 @@ export const TrendsPanel: React.FC = () => {
       </div>
 
       <div style={{ paddingTop: 22 }}>
-        <Rule weight={7} />
+        <Rule level="mid" />
       </div>
 
       {/* ---------- Macros ---------- */}
 
       <SectionHead title="Macros" />
 
-      <div style={{ ...condensed(400, '0.75rem'), color: QUIET, paddingBottom: 6 }}>
+      <div style={{ ...plain('0.75rem', 400), color: QUIET, paddingBottom: 6 }}>
         Promedio del periodo contra el objetivo diario
       </div>
 
-      <Rule weight={1} />
+      <Rule />
 
       {macros.map(macro => {
         const avg = Math.round(mean(macro.values));
@@ -525,12 +524,12 @@ export const TrendsPanel: React.FC = () => {
                     gap: 12
                   }}
                 >
-                  <span style={{ ...condensed(700, '0.95rem'), textTransform: 'uppercase' }}>
+                  <span style={{ ...display('0.95rem', 700) }}>
                     {macro.name}
                   </span>
                   <span style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-                    <span style={condensed(700, '1.15rem')}>{avg} g</span>
-                    <span style={{ ...condensed(400, '0.8rem'), color: QUIET }}>
+                    <span style={display('1.15rem', 700)}>{avg} g</span>
+                    <span style={{ ...plain('0.8rem', 400), color: QUIET }}>
                       de {macro.target} g
                     </span>
                   </span>

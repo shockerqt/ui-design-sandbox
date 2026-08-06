@@ -404,133 +404,283 @@ a {
   transform: rotate(180deg);
 }
 
-/* ---------- Variante clara de las primitivas ----------
-   Un mockup sobre fondo claro se envuelve en .paper y las primitivas
-   se reskinean solas, sin duplicar componentes. */
+/* ============================================================
+   Sistema de pieles para los mockups.
 
-.paper {
-  --paper-bg: #faf8f3;
-  --paper-ink: #14120e;
-  --paper-line: #14120e;
-  --paper-quiet: #6d675c;
-  --paper-tint: #e3ded1;
-  --paper-signal: #c8331c;
+   Un mockup se envuelve en .skin mas una clase de tema. Todo el
+   estilo sale de variables --sk-*, asi que la estructura no cambia
+   al cambiar de piel, y las primitivas Base UI se re-tiñen solas.
+   ============================================================ */
+
+/* --- Tabla nutricional: papel, tinta, filetes pesados --- */
+.skin-tabla {
+  --sk-bg: #faf8f3;
+  --sk-panel: #faf8f3;
+  --sk-ink: #14120e;
+  --sk-quiet: #6d675c;
+  --sk-faint: #9a9384;
+  --sk-tint: #e3ded1;
+  --sk-line: #14120e;
+  --sk-accent: #14120e;
+  --sk-signal: #c8331c;
+  --sk-font-display: 'Archivo', sans-serif;
+  --sk-font-ui: 'Inter', sans-serif;
+  --sk-wdth: 80;
+  --sk-case: uppercase;
+  --sk-tracking: 0.01em;
+  --sk-radius: 0px;
+  --sk-rule-heavy: 10px;
+  --sk-rule-mid: 7px;
+  --sk-meter: 6px;
+  --sk-border: 1.5px;
 }
 
-.paper .base-Dialog-backdrop {
-  background: rgba(20, 18, 14, 0.4);
+/* --- Riel de cocina: acero frio, denso, naranja de temporizador --- */
+.skin-cocina {
+  --sk-bg: #e8e9eb;
+  --sk-panel: #f4f5f6;
+  --sk-ink: #2b2f33;
+  --sk-quiet: #6b7178;
+  --sk-faint: #9aa0a6;
+  --sk-tint: #d2d5d9;
+  --sk-line: #b9bec4;
+  --sk-accent: #2b2f33;
+  --sk-signal: #ff6a1f;
+  --sk-font-display: 'Archivo', sans-serif;
+  --sk-font-ui: 'JetBrains Mono', monospace;
+  --sk-wdth: 74;
+  --sk-case: uppercase;
+  --sk-tracking: 0.045em;
+  --sk-radius: 2px;
+  --sk-rule-heavy: 3px;
+  --sk-rule-mid: 2px;
+  --sk-meter: 4px;
+  --sk-border: 1px;
 }
 
-.paper .base-Dialog-popup {
-  background: var(--paper-bg);
-  border: 2px solid var(--paper-ink);
-  border-radius: 0;
-  color: var(--paper-ink);
-  box-shadow: 8px 8px 0 rgba(20, 18, 14, 0.16);
+/* --- Expediente clinico: blanco frio, azul de formulario --- */
+.skin-ficha {
+  --sk-bg: #ffffff;
+  --sk-panel: #f2f5f8;
+  --sk-ink: #1c2b3a;
+  --sk-quiet: #5b6b7c;
+  --sk-faint: #93a1af;
+  --sk-tint: #dde5ec;
+  --sk-line: #c7d2dc;
+  --sk-accent: #2f6fb5;
+  --sk-signal: #c0392b;
+  --sk-font-display: 'Inter', sans-serif;
+  --sk-font-ui: 'Inter', sans-serif;
+  --sk-wdth: 100;
+  --sk-case: none;
+  --sk-tracking: -0.011em;
+  --sk-radius: 4px;
+  --sk-rule-heavy: 2px;
+  --sk-rule-mid: 1px;
+  --sk-meter: 8px;
+  --sk-border: 1px;
 }
 
-.paper .base-Popover-popup {
-  background: var(--paper-bg);
-  border: 1.5px solid var(--paper-ink);
-  border-radius: 0;
-  color: var(--paper-ink);
-  box-shadow: 5px 5px 0 rgba(20, 18, 14, 0.14);
+/* --- Sobremesa editorial: avena, mucho aire, serifa de display --- */
+.skin-editorial {
+  --sk-bg: #faf7f2;
+  --sk-panel: #f2ede4;
+  --sk-ink: #2e2b26;
+  --sk-quiet: #6f685d;
+  --sk-faint: #a49b8c;
+  --sk-tint: #e2dbcd;
+  --sk-line: #d6cec0;
+  --sk-accent: #7d8460;
+  --sk-signal: #b4593a;
+  --sk-font-display: 'Instrument Serif', serif;
+  --sk-font-ui: 'Inter', sans-serif;
+  --sk-wdth: 100;
+  --sk-case: none;
+  --sk-tracking: -0.02em;
+  --sk-radius: 0px;
+  --sk-rule-heavy: 1px;
+  --sk-rule-mid: 1px;
+  --sk-meter: 3px;
+  --sk-border: 1px;
+  /* Instrument Serif solo trae un peso: sin esto el navegador lo falsea */
+  font-synthesis-weight: none;
 }
 
-.paper .base-Tooltip-popup {
-  background: var(--paper-ink);
-  color: var(--paper-bg);
-  border-radius: 0;
+/* --- Instrumento nocturno: oscuro, mono, ambar --- */
+.skin-nocturno {
+  --sk-bg: #0f1113;
+  --sk-panel: #1a1d21;
+  --sk-ink: #e6e8ea;
+  --sk-quiet: #8b9299;
+  --sk-faint: #5b6268;
+  --sk-tint: #262a2f;
+  --sk-line: #2f343a;
+  --sk-accent: #ffb020;
+  --sk-signal: #ff5f56;
+  --sk-font-display: 'JetBrains Mono', monospace;
+  --sk-font-ui: 'JetBrains Mono', monospace;
+  --sk-wdth: 100;
+  --sk-case: uppercase;
+  --sk-tracking: 0.02em;
+  --sk-radius: 2px;
+  --sk-rule-heavy: 2px;
+  --sk-rule-mid: 1px;
+  --sk-meter: 5px;
+  --sk-border: 1px;
 }
 
-.paper .base-Accordion-item {
-  border-bottom: 1px solid var(--paper-tint);
+/* ---------- Primitivas re-teñidas desde las variables ---------- */
+
+.skin .base-Dialog-backdrop {
+  background: rgba(0, 0, 0, 0.45);
 }
 
-.paper .base-Accordion-trigger {
-  color: var(--paper-ink);
+.skin .base-Dialog-popup {
+  background: var(--sk-panel);
+  border: var(--sk-border) solid var(--sk-line);
+  border-radius: var(--sk-radius);
+  color: var(--sk-ink);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.22);
 }
 
-.paper .base-Accordion-trigger:hover {
-  color: var(--paper-signal);
+.skin .base-Popover-popup {
+  background: var(--sk-panel);
+  border: var(--sk-border) solid var(--sk-line);
+  border-radius: var(--sk-radius);
+  color: var(--sk-ink);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.2);
 }
 
-.paper .base-Accordion-panel {
-  color: var(--paper-quiet);
+.skin .base-Tooltip-popup {
+  background: var(--sk-ink);
+  color: var(--sk-bg);
+  border-radius: var(--sk-radius);
 }
 
-.paper .base-Switch-root {
-  background-color: var(--paper-tint);
-  border-color: var(--paper-tint);
+.skin .base-Accordion-item {
+  border-bottom: 1px solid var(--sk-tint);
 }
 
-.paper .base-Switch-root[data-checked] {
-  background-color: var(--paper-ink);
-  border-color: var(--paper-ink);
+.skin .base-Accordion-trigger {
+  color: var(--sk-ink);
 }
 
-.paper .base-Switch-thumb {
-  background-color: var(--paper-bg);
+.skin .base-Accordion-trigger:hover {
+  color: var(--sk-accent);
 }
 
-.paper .base-Switch-root[data-checked] .base-Switch-thumb {
-  background-color: var(--paper-bg);
+.skin .base-Accordion-panel {
+  color: var(--sk-quiet);
 }
 
-.paper .base-Tabs-list {
+.skin .base-Switch-root {
+  background-color: var(--sk-tint);
+  border-color: var(--sk-tint);
+}
+
+.skin .base-Switch-root[data-checked] {
+  background-color: var(--sk-accent);
+  border-color: var(--sk-accent);
+}
+
+.skin .base-Switch-thumb,
+.skin .base-Switch-root[data-checked] .base-Switch-thumb {
+  background-color: var(--sk-bg);
+}
+
+.skin .base-Tabs-list {
   background: transparent;
-  border: 1.5px solid var(--paper-ink);
-  border-radius: 0;
+  border: var(--sk-border) solid var(--sk-line);
+  border-radius: var(--sk-radius);
   padding: 2px;
 }
 
-.paper .base-Tabs-tab {
-  color: var(--paper-quiet);
-  border-radius: 0;
+.skin .base-Tabs-tab {
+  color: var(--sk-quiet);
+  border-radius: var(--sk-radius);
+  font-family: var(--sk-font-ui);
+  font-size: 0.78rem;
 }
 
-.paper .base-Tabs-tab[data-active] {
-  color: var(--paper-bg);
+.skin .base-Tabs-tab[data-active] {
+  color: var(--sk-bg);
 }
 
-.paper .base-Tabs-indicator {
-  background: var(--paper-ink);
-  border-radius: 0;
+.skin .base-Tabs-indicator {
+  background: var(--sk-accent);
+  border-radius: var(--sk-radius);
 }
 
-.paper :focus-visible {
-  outline-color: var(--paper-signal);
+.skin :focus-visible {
+  outline-color: var(--sk-accent);
 }
 
-/* Navegacion de seccion: la activa lleva su filete debajo, como en la tabla */
-.paper .nav-list {
+/* Navegacion de seccion: la activa lleva su filete debajo */
+.skin .nav-list {
   display: flex;
   gap: 24px;
 }
 
-.paper .nav-tab {
-  font-family: var(--font-display);
-  font-variation-settings: 'wdth' 80, 'wght' 800;
+.skin .nav-tab {
+  font-family: var(--sk-font-display);
+  font-variation-settings: 'wdth' var(--sk-wdth), 'wght' 800;
+  font-weight: 800;
   font-size: 1.15rem;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
+  letter-spacing: var(--sk-tracking);
+  text-transform: var(--sk-case);
   background: none;
   border: none;
   border-bottom: 4px solid transparent;
   padding: 2px 0 6px;
-  color: var(--paper-quiet);
+  color: var(--sk-quiet);
   cursor: pointer;
   transition: color 0.15s ease, border-color 0.15s ease;
 }
 
-.paper .nav-tab:hover {
-  color: var(--paper-ink);
+.skin .nav-tab:hover {
+  color: var(--sk-ink);
 }
 
-.paper .nav-tab[data-active] {
-  color: var(--paper-ink);
-  border-bottom-color: var(--paper-ink);
+.skin .nav-tab[data-active] {
+  color: var(--sk-ink);
+  border-bottom-color: var(--sk-accent);
 }
+
+/* ---------- Selector de piel: control del laboratorio, no del producto ---------- */
+
+.skin-picker {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 14px;
+  background: var(--rail);
+  border-bottom: 1px solid var(--line);
+}
+
+.skin-picker-btn {
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: transparent;
+  color: var(--fg-quiet);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  padding: 4px 9px;
+  cursor: pointer;
+  transition: color 0.12s ease, background-color 0.12s ease;
+}
+
+.skin-picker-btn:hover {
+  color: var(--fg);
+  background: var(--rail-hi);
+}
+
+.skin-picker-btn[data-active='true'] {
+  color: var(--ink);
+  background: var(--fg);
+  border-color: var(--fg);
+}
+
 
 /* Destello al cambiar un atributo en el inspector de estado */
 @keyframes attr-flash {
