@@ -50,9 +50,19 @@ export const BreakTimer: React.FC = () => {
   const [spacePressed, setSpacePressed] = useState<boolean>(false);
 
   // History logs stored in state & localStorage
+  // `localStorage` puede no existir o lanzar (modo privado, cookies
+  // bloqueadas), asi que se accede siempre a traves de esta guarda.
+  const storage = (): Storage | null => {
+    try {
+      return typeof window !== 'undefined' ? window.localStorage : null;
+    } catch {
+      return null;
+    }
+  };
+
   const [logs, setLogs] = useState<BreakLog[]>(() => {
     try {
-      const saved = localStorage.getItem('sandbox_break_logs');
+      const saved = storage()?.getItem('sandbox_break_logs');
       return saved ? JSON.parse(saved) : [];
     } catch {
       return [];
@@ -66,19 +76,39 @@ export const BreakTimer: React.FC = () => {
   // Save logs to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('sandbox_break_logs', JSON.stringify(logs));
-    } catch (e) {
-      console.error('Error saving logs:', e);
+      storage()?.setItem('sandbox_break_logs', JSON.stringify(logs));
+    } catch {
+      // Sin almacenamiento disponible: el registro vive solo en memoria
     }
   }, [logs]);
 
-  // Audio synthesizer using Web Audio API
+  /**
+   * Un solo AudioContext para toda la vida del componente. Antes se
+   * creaba uno por sonido y nunca se cerraba: los navegadores limitan
+   * los contextos simultaneos (~6 en Chrome) y a partir de ahi el
+   * audio moria en silencio, tragado por el catch.
+   */
+  const audioRef = useRef<AudioContext | null>(null);
+
+  const getAudioContext = (): AudioContext | null => {
+    if (audioRef.current) return audioRef.current;
+    const AudioCtx =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+    if (!AudioCtx) return null;
+    audioRef.current = new AudioCtx();
+    return audioRef.current;
+  };
+
+  useEffect(() => () => { audioRef.current?.close(); }, []);
+
   const playSound = (type: 'start' | 'pause' | 'finish' | 'log') => {
     if (!soundEnabled) return;
     try {
-      const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
+      const ctx = getAudioContext();
+      if (!ctx) return;
+      // El navegador suspende el contexto hasta que hay gesto del usuario
+      if (ctx.state === 'suspended') void ctx.resume();
       
       const playTone = (freq: number, startSec: number, durationSec: number, type: OscillatorType = 'sine') => {
         const osc = ctx.createOscillator();
@@ -303,9 +333,9 @@ export const BreakTimer: React.FC = () => {
             gap: 8,
             padding: '4px 12px',
             borderRadius: 999,
-            background: spacePressed ? 'var(--signal)' : 'rgba(255, 255, 255, 0.05)',
+            background: spacePressed ? 'var(--signal)' : 'var(--rail-hi)',
             border: '1px solid var(--line)',
-            color: spacePressed ? '#000' : 'var(--fg)',
+            color: spacePressed ? 'var(--ink)' : 'var(--fg)',
             transition: 'all 0.15s ease',
             fontFamily: 'var(--font-mono)',
             fontSize: '0.72rem'
@@ -313,8 +343,8 @@ export const BreakTimer: React.FC = () => {
         >
           <kbd
             style={{
-              background: spacePressed ? '#000' : 'var(--rail)',
-              color: spacePressed ? '#fff' : 'var(--signal)',
+              background: spacePressed ? 'var(--ink)' : 'var(--rail)',
+              color: spacePressed ? 'var(--fg)' : 'var(--signal)',
               padding: '2px 8px',
               borderRadius: 4,
               border: '1px solid var(--line)',
@@ -458,7 +488,7 @@ export const BreakTimer: React.FC = () => {
               padding: '36px 24px',
               textAlign: 'center',
               position: 'relative',
-              boxShadow: isRunning ? '0 0 40px rgba(217, 164, 65, 0.08)' : 'none',
+              boxShadow: isRunning ? '0 0 40px color-mix(in srgb, var(--sk-signal) 12%, transparent)' : 'none',
               transition: 'box-shadow 0.3s ease',
               marginBottom: 24
             }}
@@ -472,8 +502,8 @@ export const BreakTimer: React.FC = () => {
                     width: 8,
                     height: 8,
                     borderRadius: '50%',
-                    background: isRunning ? '#10b981' : elapsedMs > 0 ? '#f59e0b' : 'var(--sk-faint)',
-                    boxShadow: isRunning ? '0 0 8px #10b981' : 'none'
+                    background: isRunning ? 'var(--sk-signal)' : elapsedMs > 0 ? 'var(--sk-quiet)' : 'var(--sk-faint)',
+                    boxShadow: isRunning ? '0 0 8px color-mix(in srgb, var(--sk-signal) 60%, transparent)' : 'none'
                   }}
                 />
                 <span className="mono" style={{ fontSize: '0.72rem', color: 'var(--sk-quiet)', textTransform: 'uppercase' }}>
@@ -581,7 +611,7 @@ export const BreakTimer: React.FC = () => {
                   padding: '12px 28px',
                   borderRadius: 'var(--sk-radius)',
                   background: isRunning ? 'var(--sk-ink)' : 'var(--sk-signal)',
-                  color: isRunning ? 'var(--sk-bg)' : '#000',
+                  color: isRunning ? 'var(--sk-bg)' : 'var(--sk-ink)',
                   border: 'none',
                   fontWeight: 700,
                   fontSize: '0.95rem',
@@ -589,7 +619,7 @@ export const BreakTimer: React.FC = () => {
                   display: 'flex',
                   alignItems: 'center',
                   gap: 10,
-                  boxShadow: '0 4px 14px rgba(0, 0, 0, 0.2)',
+                  boxShadow: '0 4px 14px color-mix(in srgb, var(--sk-shadow) 20%, transparent)',
                   transition: 'transform 0.1s ease, background 0.2s ease'
                 }}
               >
@@ -597,7 +627,7 @@ export const BreakTimer: React.FC = () => {
                 <span>{isRunning ? 'Pausar' : 'Iniciar'}</span>
                 <kbd
                   style={{
-                    background: 'rgba(0,0,0,0.15)',
+                    background: 'color-mix(in srgb, var(--sk-shadow) 15%, transparent)',
                     padding: '2px 6px',
                     borderRadius: 4,
                     fontSize: '0.65rem',

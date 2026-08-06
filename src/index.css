@@ -428,6 +428,9 @@ a {
   --sk-wdth: 80;
   --sk-case: uppercase;
   --sk-tracking: 0.01em;
+  --sk-font-num: 'IBM Plex Mono', monospace;
+  --sk-scrim: rgba(20, 18, 14, 0.42);
+  --sk-shadow: #14120e;
   --sk-radius: 0px;
   --sk-rule-heavy: 10px;
   --sk-rule-mid: 7px;
@@ -451,6 +454,9 @@ a {
   --sk-wdth: 74;
   --sk-case: uppercase;
   --sk-tracking: 0.045em;
+  --sk-font-num: 'JetBrains Mono', monospace;
+  --sk-scrim: rgba(43, 47, 51, 0.45);
+  --sk-shadow: #2b2f33;
   --sk-radius: 2px;
   --sk-rule-heavy: 3px;
   --sk-rule-mid: 2px;
@@ -474,6 +480,9 @@ a {
   --sk-wdth: 100;
   --sk-case: none;
   --sk-tracking: -0.011em;
+  --sk-font-num: 'IBM Plex Mono', monospace;
+  --sk-scrim: rgba(28, 43, 58, 0.42);
+  --sk-shadow: #1c2b3a;
   --sk-radius: 4px;
   --sk-rule-heavy: 2px;
   --sk-rule-mid: 1px;
@@ -497,6 +506,9 @@ a {
   --sk-wdth: 100;
   --sk-case: none;
   --sk-tracking: -0.02em;
+  --sk-font-num: 'IBM Plex Mono', monospace;
+  --sk-scrim: rgba(46, 43, 38, 0.4);
+  --sk-shadow: #2e2b26;
   --sk-radius: 0px;
   --sk-rule-heavy: 1px;
   --sk-rule-mid: 1px;
@@ -522,6 +534,9 @@ a {
   --sk-wdth: 100;
   --sk-case: uppercase;
   --sk-tracking: 0.02em;
+  --sk-font-num: 'JetBrains Mono', monospace;
+  --sk-scrim: rgba(0, 0, 0, 0.6);
+  --sk-shadow: #000000;
   --sk-radius: 2px;
   --sk-rule-heavy: 2px;
   --sk-rule-mid: 1px;
