@@ -1,7 +1,49 @@
 import { MockupItem } from '../types';
+import { NutritionSummary } from './NutritionSummary';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'nutricion-resumen',
+    title: 'Nutricion · Resumen diario',
+    category: 'Dashboards',
+    description:
+      'Tablero del dia de una app de registro nutricional, con el lenguaje visual de la tabla nutricional.',
+    tags: ['app de comida', 'tabla nutricional', 'papel', 'Archivo condensed'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-05',
+    component: NutritionSummary,
+    codeSnippet: `/**
+ * El avance no es una barra sobrepuesta al diseño: es el filete de
+ * la tabla nutricional, partido en la proporcion consumida. Cuando
+ * se pasa del objetivo, el filete cambia a la señal roja.
+ */
+const RuleMeter: React.FC<{ ratio: number; weight?: number }> = ({ ratio, weight = 6 }) => {
+  const pct = Math.min(ratio, 1) * 100;
+  const over = ratio > 1;
+  return (
+    <div style={{ display: 'flex', height: weight, background: 'var(--paper-tint)' }}>
+      <div
+        style={{
+          width: \`\${pct}%\`,
+          background: over ? 'var(--paper-signal)' : 'var(--paper-ink)',
+          transition: 'width 0.35s cubic-bezier(0.16, 1, 0.3, 1)'
+        }}
+      />
+    </div>
+  );
+};
+
+// Archivo en su eje condensado: misma familia que el shell,
+// extremo opuesto del eje wdth. Coherencia sin repetir la voz.
+const condensed = (weight: number, size: string): React.CSSProperties => ({
+  fontFamily: 'var(--font-display)',
+  fontVariationSettings: \`'wdth' 80, 'wght' \${weight}\`,
+  fontSize: size,
+  letterSpacing: '0.01em',
+  lineHeight: 1.05
+});`
+  },
   {
     id: 'primitives-workbench',
     title: 'Primitivas Base UI',

@@ -431,6 +431,104 @@ a {
   transform: rotate(180deg);
 }
 
+/* ---------- Variante clara de las primitivas ----------
+   Un mockup sobre fondo claro se envuelve en .paper y las primitivas
+   se reskinean solas, sin duplicar componentes. */
+
+.paper {
+  --paper-bg: #faf8f3;
+  --paper-ink: #14120e;
+  --paper-line: #14120e;
+  --paper-quiet: #6d675c;
+  --paper-tint: #e3ded1;
+  --paper-signal: #c8331c;
+}
+
+.paper .base-Dialog-backdrop {
+  background: rgba(20, 18, 14, 0.4);
+}
+
+.paper .base-Dialog-popup {
+  background: var(--paper-bg);
+  border: 2px solid var(--paper-ink);
+  border-radius: 0;
+  color: var(--paper-ink);
+  box-shadow: 8px 8px 0 rgba(20, 18, 14, 0.16);
+}
+
+.paper .base-Popover-popup {
+  background: var(--paper-bg);
+  border: 1.5px solid var(--paper-ink);
+  border-radius: 0;
+  color: var(--paper-ink);
+  box-shadow: 5px 5px 0 rgba(20, 18, 14, 0.14);
+}
+
+.paper .base-Tooltip-popup {
+  background: var(--paper-ink);
+  color: var(--paper-bg);
+  border-radius: 0;
+}
+
+.paper .base-Accordion-item {
+  border-bottom: 1px solid var(--paper-tint);
+}
+
+.paper .base-Accordion-trigger {
+  color: var(--paper-ink);
+}
+
+.paper .base-Accordion-trigger:hover {
+  color: var(--paper-signal);
+}
+
+.paper .base-Accordion-panel {
+  color: var(--paper-quiet);
+}
+
+.paper .base-Switch-root {
+  background-color: var(--paper-tint);
+  border-color: var(--paper-tint);
+}
+
+.paper .base-Switch-root[data-checked] {
+  background-color: var(--paper-ink);
+  border-color: var(--paper-ink);
+}
+
+.paper .base-Switch-thumb {
+  background-color: var(--paper-bg);
+}
+
+.paper .base-Switch-root[data-checked] .base-Switch-thumb {
+  background-color: var(--paper-bg);
+}
+
+.paper .base-Tabs-list {
+  background: transparent;
+  border: 1.5px solid var(--paper-ink);
+  border-radius: 0;
+  padding: 2px;
+}
+
+.paper .base-Tabs-tab {
+  color: var(--paper-quiet);
+  border-radius: 0;
+}
+
+.paper .base-Tabs-tab[data-selected] {
+  color: var(--paper-bg);
+}
+
+.paper .base-Tabs-indicator {
+  background: var(--paper-ink);
+  border-radius: 0;
+}
+
+.paper :focus-visible {
+  outline-color: var(--paper-signal);
+}
+
 /* Destello al cambiar un atributo en el inspector de estado */
 @keyframes attr-flash {
   from {
