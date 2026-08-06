@@ -3,8 +3,20 @@ import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 import { BreakTimer } from './BreakTimer';
+import { SaviaNutrition } from './SaviaNutrition';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'savia-nutricion',
+    title: 'Savia · Nutrición consciente',
+    category: 'Dashboards',
+    description:
+      'Un pulso nutricional diario con energía, macros, hidratación, biodiversidad vegetal y lectura semanal en una interfaz editorial-botánica.',
+    tags: ['nutrición', 'bienestar', 'dashboard', 'editorial', 'Base UI'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-06',
+    component: SaviaNutrition
+  },
   {
     id: 'cronometro',
     title: 'Cronómetro de Descansos',
