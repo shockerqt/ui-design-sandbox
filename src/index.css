@@ -20,11 +20,6 @@
   /* Unica señal: ocre de etiqueta de archivo. Solo en afordancias. */
   --signal: #d9a441;
 
-  /* Montajes: el fondo contra el que se juzga un mockup */
-  --mount-ink: #0d0d0d;
-  --mount-gray: #8c8c8c;
-  --mount-paper: #f2f0ed;
-
   --font-display: 'Archivo', system-ui, sans-serif;
   --font-ui: 'Inter', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', ui-monospace, monospace;
@@ -229,28 +224,6 @@ a {
   padding: 2px;
   border: 1px solid var(--line);
   border-radius: 8px;
-}
-
-.rail-sep {
-  width: 1px;
-  height: 20px;
-  background: var(--line);
-  flex: none;
-}
-
-/* Muestras del selector de montaje */
-.mount-swatch {
-  width: 22px;
-  height: 22px;
-  border-radius: 5px;
-  border: 1px solid var(--line);
-  cursor: pointer;
-  padding: 0;
-  transition: box-shadow 0.12s ease;
-}
-
-.mount-swatch[data-active='true'] {
-  box-shadow: 0 0 0 2px var(--rail), 0 0 0 3px var(--signal);
 }
 
 /* ---------- Insignia ---------- */

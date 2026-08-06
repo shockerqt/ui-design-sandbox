@@ -159,7 +159,8 @@ export const PrimitivesWorkbench: React.FC = () => {
   const [checked, setChecked] = useState(false);
 
   return (
-    <div style={{ padding: '40px 32px 48px', maxWidth: '900px', margin: '0 auto' }}>
+    <div style={{ background: 'var(--ink)', color: 'var(--fg)', minHeight: '100%' }}>
+      <div style={{ padding: '40px 32px 48px', maxWidth: '900px', margin: '0 auto' }}>
       <header style={{ marginBottom: '8px' }}>
         <h2
           style={{
@@ -348,7 +349,8 @@ export const PrimitivesWorkbench: React.FC = () => {
             </Popover.Positioner>
           </Popover.Portal>
         </Popover.Root>
-      </Bench>
+        </Bench>
+      </div>
     </div>
   );
 };

@@ -17,11 +17,6 @@ export interface MockupItem {
   version: string;
   updatedAt: string;
   component: React.ComponentType;
-  codeSnippet: string;
-  previewGradient?: string;
 }
 
 export type ViewportMode = '100%' | '1440px' | '768px' | '375px';
-
-/** Fondo contra el que se monta el mockup para juzgarlo. */
-export type MountTone = 'ink' | 'gray' | 'paper';

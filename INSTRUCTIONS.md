@@ -29,8 +29,12 @@ tener la estética que quiera, pero si usa los tokens del shell hereda coherenci
   `.base-Tooltip-popup` `.base-Popover-popup`
 
 El mockup se renderiza a ancho completo bajo un riel de 48px, sin caja ni sombra.
-No asumir un contenedor angosto ni un fondo propio: el visor pone el fondo según
-el montaje elegido, y por defecto es tinta.
+No asumir un contenedor angosto: el mockup ocupa toda la página. **Debe traer su
+propio fondo**, porque el visor no le pone ninguno.
+
+Para un mockup de fondo claro, envolverlo en `.paper`: las primitivas Base UI se
+reskinean solas a la variante clara, sin duplicar componentes. Ver
+`NutritionSummary.tsx`.
 
 ### 2. Ruteo
 - Cada mockup queda disponible en su propia URL: `/m/<id>`.
@@ -58,7 +62,6 @@ el montaje elegido, y por defecto es tinta.
   - `version`: Incremento semántico (ej. `v1.0.0` -> `v1.1.0`).
   - `updatedAt`: Fecha actual (YYYY-MM-DD).
   - `component`: Referencia al componente React.
-  - `codeSnippet`: Fragmento representativo del código fuente para copiar.
 
 ### 4. Verificación de Compilación
 - Ejecutar `npm run build` para asegurar 0 errores de TypeScript y empaquetado Vite limpio.
