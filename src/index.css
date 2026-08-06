@@ -529,6 +529,72 @@ a {
   --sk-border: 1px;
 }
 
+
+/* --- Libro contable, papel greenbar: el lenguaje del rediseño de Balance --- */
+.skin-libro {
+  --sk-bg: #f2f5ee;
+  --sk-panel: #ffffff;
+  --sk-ink: #1a1d19;
+  --sk-quiet: #5c6358;
+  --sk-faint: #8d9487;
+  --sk-tint: #e4eadd;
+  --sk-line: #cfd8c6;
+  --sk-accent: #1a1d19;
+  --sk-signal: #b4232a;
+  --sk-scrim: rgba(26, 29, 25, 0.4);
+  --sk-shadow: #1a1d19;
+  --sk-font-display: 'IBM Plex Sans', sans-serif;
+  --sk-font-ui: 'IBM Plex Sans', sans-serif;
+  --sk-font-num: 'IBM Plex Mono', monospace;
+  --sk-wdth: 100;
+  --sk-case: uppercase;
+  --sk-tracking: 0.06em;
+  --sk-radius: 0px;
+  --sk-rule-heavy: 3px;
+  --sk-rule-mid: 2px;
+  --sk-meter: 3px;
+  --sk-border: 1px;
+}
+
+/* --- El mismo libro, de noche: tinta invertida sobre verde muy oscuro --- */
+.skin-libro-noche {
+  --sk-bg: #12160f;
+  --sk-panel: #1a1f16;
+  --sk-ink: #eef2e6;
+  --sk-quiet: #9aa392;
+  --sk-faint: #656e5d;
+  --sk-tint: #232a1e;
+  --sk-line: #333c2c;
+  --sk-accent: #eef2e6;
+  --sk-signal: #ff6b6b;
+  --sk-scrim: rgba(0, 0, 0, 0.6);
+  --sk-shadow: #000000;
+  --sk-font-display: 'IBM Plex Sans', sans-serif;
+  --sk-font-ui: 'IBM Plex Sans', sans-serif;
+  --sk-font-num: 'IBM Plex Mono', monospace;
+  --sk-wdth: 100;
+  --sk-case: uppercase;
+  --sk-tracking: 0.06em;
+  --sk-radius: 0px;
+  --sk-rule-heavy: 3px;
+  --sk-rule-mid: 2px;
+  --sk-meter: 3px;
+  --sk-border: 1px;
+}
+
+/* Banda alterna del papel greenbar. Solo en filas de detalle. */
+.ledger-band:nth-child(even) {
+  background: var(--sk-tint);
+}
+
+/* Cifras del libro: tabulares y alineadas a la derecha, siempre. */
+.num {
+  font-family: var(--sk-font-num);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+  text-align: right;
+}
+
 /* ---------- Primitivas re-teñidas desde las variables ---------- */
 
 .skin .base-Dialog-backdrop {
