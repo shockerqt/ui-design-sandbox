@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Tabs } from '@base-ui/react';
-import { Play, Pause, RotateCcw, BookmarkPlus, Volume2, VolumeX, Coffee, Footprints, Activity, Eye, Droplet, HeadphoneOff, Sparkles, Trash2, Clock } from 'lucide-react';
+import { Activity, BookmarkPlus, Clock, Coffee, Droplet, Eye, Footprints, HeadphoneOff, Headphones, Pause, Play, RotateCcw, Sparkles, StretchHorizontal, Trash2, Volume2, VolumeX } from 'lucide-react';
 
 /* Pieles disponibles */
 const SKINS = [
@@ -18,17 +18,17 @@ interface BreakLog {
   durationMs: number;
   mode: string;
   tag: string;
-  tagIcon: string;
+  tagId: string;
   note: string;
 }
 
 const TAG_OPTIONS = [
-  { id: 'cafe', label: 'Café / Snack', icon: '☕' },
-  { id: 'caminata', label: 'Caminata', icon: '🚶' },
-  { id: 'estiramiento', label: 'Estiramiento', icon: '🧘' },
-  { id: 'visual', label: 'Pausa Visual', icon: '👁️' },
-  { id: 'agua', label: 'Hidratación', icon: '💧' },
-  { id: 'meditacion', label: 'Desconexión', icon: '🎧' }
+  { id: 'cafe', label: 'Café', icon: Coffee },
+  { id: 'caminata', label: 'Caminata', icon: Footprints },
+  { id: 'estiramiento', label: 'Estiramiento', icon: StretchHorizontal },
+  { id: 'visual', label: 'Pausa visual', icon: Eye },
+  { id: 'agua', label: 'Hidratación', icon: Droplet },
+  { id: 'meditacion', label: 'Desconexión', icon: Headphones }
 ];
 
 export const BreakTimer: React.FC = () => {
@@ -213,7 +213,7 @@ export const BreakTimer: React.FC = () => {
       durationMs: elapsedMs,
       mode: mode === 'stopwatch' ? 'Cronómetro' : `${Math.round((targetMs || elapsedMs) / 60000)}m Temporizador`,
       tag: tagObj.label,
-      tagIcon: tagObj.icon,
+      tagId: tagObj.id,
       note: noteText.trim() || 'Sin notas'
     };
 
@@ -433,7 +433,7 @@ export const BreakTimer: React.FC = () => {
                     gap: 6
                   }}
                 >
-                  ⏱️ Cronómetro Libre
+                  Cronómetro libre
                 </Tabs.Tab>
 
                 <Tabs.Tab
@@ -453,7 +453,7 @@ export const BreakTimer: React.FC = () => {
                     gap: 6
                   }}
                 >
-                  ☕ Corto (5 min)
+                  Corto · 5 min
                 </Tabs.Tab>
 
                 <Tabs.Tab
@@ -473,7 +473,7 @@ export const BreakTimer: React.FC = () => {
                     gap: 6
                   }}
                 >
-                  🚶 Largo (15 min)
+                  Largo · 15 min
                 </Tabs.Tab>
               </Tabs.List>
             </div>
@@ -720,7 +720,7 @@ export const BreakTimer: React.FC = () => {
                     transition: 'all 0.12s ease'
                   }}
                 >
-                  <span>{tag.icon}</span>
+                  <tag.icon size={14} />
                   <span>{tag.label}</span>
                 </button>
               ))}
@@ -752,7 +752,7 @@ export const BreakTimer: React.FC = () => {
             {/* Header with Clear Button */}
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <div className="label" style={{ fontSize: '0.72rem' }}>
-                📊 Resumen & Historial de Descansos
+                Resumen e historial
               </div>
 
               {logs.length > 0 && (
@@ -879,7 +879,11 @@ export const BreakTimer: React.FC = () => {
                       }}
                     >
                       <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                        <span style={{ fontSize: '1.2rem' }}>{log.tagIcon}</span>
+                        {(() => {
+                          const ActivityIcon =
+                            TAG_OPTIONS.find((t) => t.id === log.tagId)?.icon ?? Coffee;
+                          return <ActivityIcon size={16} />;
+                        })()}
                         <div>
                           <div style={{ fontWeight: 600, color: 'var(--sk-ink)' }}>
                             {log.tag} <span className="mono" style={{ color: 'var(--sk-quiet)', fontSize: '0.7rem' }}>({log.mode})</span>

@@ -5,7 +5,7 @@ El usuario solicitará la creación o iteración de mockups mediante comandos na
 - *"Quiero crear un mockup para [funcionalidad/pantalla]"*
 - *"Quiero iterar el mockup [id-de-mockup]"*
 
-## 🤖 Protocolo Autónomo del Agente
+## Protocolo Autónomo del Agente
 
 Cuando el usuario pida crear o iterar un mockup, el Agente DEBE seguir estos pasos sin requerir intervención manual del usuario:
 
@@ -15,7 +15,7 @@ Cuando el usuario pida crear o iterar un mockup, el Agente DEBE seguir estos pas
 - Utilizar **React 19** y componentes **Base UI** (`@base-ui/react`: Tooltip, Dialog, Tabs, Switch, Accordion, Popover).
 - Incluir estados interactivos reales (ej. abrir modales con Dialog, cambiar switches, alternar pestañas).
 
-> ⚠️ **No inventar atributos de Base UI.** Antes de escribir un selector `[data-*]`
+> **No inventar atributos de Base UI.** Antes de escribir un selector `[data-*]`
 > o de leer una variable CSS de una primitiva, consultar la documentación:
 >
 > - **Índice**: `https://base-ui.com/llms.txt` — lista los `.md` de cada componente.
