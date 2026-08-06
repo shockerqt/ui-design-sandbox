@@ -76,6 +76,34 @@ export const byHour = (entries: Entry[]) => {
   return [...map.entries()].sort(([a], [b]) => a.localeCompare(b));
 };
 
+export interface HourRange {
+  from: number;
+  to: number;
+}
+
+/** Tramo por defecto: cubre un dia de comidas sin llenar con la madrugada. */
+export const DEFAULT_HOUR_RANGE: HourRange = { from: 5, to: 22 };
+
+/**
+ * Riel continuo. Cubre siempre el rango configurado, tenga o no
+ * registros, y se estira si hay comida fuera de el en vez de
+ * esconderla.
+ */
+export const buildRail = (
+  entries: Entry[],
+  range: HourRange = DEFAULT_HOUR_RANGE
+): Array<{ hour: string; entries: Entry[] }> => {
+  const map = new Map(byHour(entries));
+  const logged = [...map.keys()].map((h) => Number(h.slice(0, 2)));
+  const first = Math.min(range.from, ...logged);
+  const last = Math.max(range.to, ...logged);
+
+  return Array.from({ length: last - first + 1 }, (_, i) => {
+    const hour = `${String(first + i).padStart(2, '0')}:00`;
+    return { hour, entries: map.get(hour) ?? [] };
+  });
+};
+
 /* --- Ventanas de comida, para la disposicion por nombre --- */
 
 const WINDOWS: Array<{ name: string; from: string; to: string }> = [
