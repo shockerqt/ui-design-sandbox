@@ -345,7 +345,7 @@ a {
   transition: color 0.15s ease;
 }
 
-.base-Tabs-tab[data-selected] {
+.base-Tabs-tab[data-active] {
   color: var(--ink);
 }
 
@@ -489,7 +489,7 @@ a {
   border-radius: 0;
 }
 
-.paper .base-Tabs-tab[data-selected] {
+.paper .base-Tabs-tab[data-active] {
   color: var(--paper-bg);
 }
 
