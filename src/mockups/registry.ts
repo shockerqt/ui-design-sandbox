@@ -2,8 +2,20 @@ import { MockupItem } from '../types';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
+import { BreakTimer } from './BreakTimer';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'cronometro',
+    title: 'Cronómetro de Descansos',
+    category: 'Dashboards',
+    description:
+      'Cronómetro y temporizador interactivo para medir descansos, accionable con la tecla Espacio, etiquetas de actividad, sintetizador de audio y registro de pausas activas.',
+    tags: ['cronometro', 'descansos', 'espacio', 'timer', 'audio', 'base-ui'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-06',
+    component: BreakTimer
+  },
   {
     id: 'balance-registro',
     title: 'Balance · Rediseño del registro',
@@ -38,3 +50,4 @@ export const mockupRegistry: MockupItem[] = [
     component: PrimitivesWorkbench
   }
 ];
+
