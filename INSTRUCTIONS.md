@@ -1,8 +1,5 @@
 # Agent-Driven Mockup Lifecycle (`ui-design-sandbox`)
 
-> 🚨 **REGLA PRIMORDIAL PARA EL AGENTE DE IA**:
-> Antes de responder o ejecutar cualquier cambio, el Agente DEBE leer primero este archivo `INSTRUCTIONS.md`, así como `.ai-rules`, `CLAUDE.md` o `STACK.md` presentes en el espacio de trabajo.
-
 Este repositorio está diseñado para **desarrollo guiado 100% por Agentes de IA**.
 El usuario solicitará la creación o iteración de mockups mediante comandos naturales como:
 - *"Quiero crear un mockup para [funcionalidad/pantalla]"*
@@ -10,8 +7,8 @@ El usuario solicitará la creación o iteración de mockups mediante comandos na
 
 ## 🤖 Protocolo Autónomo del Agente
 
-
 Cuando el usuario pida crear o iterar un mockup, el Agente DEBE seguir estos pasos sin requerir intervención manual del usuario:
+
 
 ### 1. Creación o Modificación del Componente
 - Ubicación del componente: `src/mockups/<NombreComponente>.tsx`.
