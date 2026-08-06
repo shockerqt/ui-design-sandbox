@@ -1,30 +1,18 @@
 import { MockupItem } from '../types';
-import { NutritionLog } from './NutritionLog';
-import { NutritionTrends } from './NutritionTrends';
+import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 
 export const mockupRegistry: MockupItem[] = [
   {
-    id: 'nutricion-resumen',
-    title: 'Nutricion · Resumen',
+    id: 'nutricion',
+    title: 'App de nutricion',
     category: 'Dashboards',
     description:
-      'Peso con tendencia, calorias y macros en el tiempo, contra el objetivo. Rango de 1 semana a 3 meses.',
+      'Dos secciones bajo una cabecera: resumen del progreso en el tiempo y registro del dia con edicion.',
     tags: ['app de comida', 'series de tiempo', 'media movil', 'papel'],
-    version: 'v2.0.0',
+    version: 'v3.0.0',
     updatedAt: '2026-08-05',
-    component: NutritionTrends
-  },
-  {
-    id: 'nutricion-registro',
-    title: 'Nutricion · Registro',
-    category: 'Dashboards',
-    description:
-      'Detalle de lo comido en el dia, con edicion y navegacion entre dias. El resumen va como contexto.',
-    tags: ['app de comida', 'registro diario', 'edicion', 'papel'],
-    version: 'v2.0.0',
-    updatedAt: '2026-08-05',
-    component: NutritionLog
+    component: NutritionApp
   },
   {
     id: 'primitives-workbench',

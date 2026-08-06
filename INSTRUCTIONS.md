@@ -14,6 +14,23 @@ Cuando el usuario pida crear o iterar un mockup, el Agente DEBE seguir estos pas
 - Utilizar **React 19** y componentes **Base UI** (`@base-ui/react`: Tooltip, Dialog, Tabs, Switch, Accordion, Popover).
 - Incluir estados interactivos reales (ej. abrir modales con Dialog, cambiar switches, alternar pestañas).
 
+> ⚠️ **No inventar atributos de Base UI.** Antes de escribir un selector `[data-*]`
+> o de leer una variable CSS de una primitiva, consultar la documentación:
+>
+> - **Índice**: `https://base-ui.com/llms.txt` — lista los `.md` de cada componente.
+> - **Componente**: `https://base-ui.com/react/components/<nombre>.md` — trae la
+>   tabla de atributos y variables CSS por parte. Preferir el `.md` sobre la
+>   página HTML.
+>
+> Ya paso una vez: el CSS enganchaba `.base-Tabs-tab[data-selected]`, atributo
+> inexistente. El real es `data-active`, y esta documentado en `tabs.md`. El fallo
+> es silencioso —compila y no lanza errores—, solo se ve como un estilo que nunca
+> se aplica, asi que no basta con que el build pase.
+>
+> Atributos ya verificados contra el DOM real: `data-active` (Tabs.Tab),
+> `data-checked` (Switch.Root), `data-panel-open` (Accordion.Trigger),
+> `data-popup-open` (triggers de Dialog y Popover).
+
 **Sistema visual.** El shell es un instrumento que se retira: cromo en grafito
 estrictamente neutro, para que no contamine cómo se lee el mockup. Un mockup puede
 tener la estética que quiera, pero si usa los tokens del shell hereda coherencia:

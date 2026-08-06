@@ -502,6 +502,36 @@ a {
   outline-color: var(--paper-signal);
 }
 
+/* Navegacion de seccion: la activa lleva su filete debajo, como en la tabla */
+.paper .nav-list {
+  display: flex;
+  gap: 24px;
+}
+
+.paper .nav-tab {
+  font-family: var(--font-display);
+  font-variation-settings: 'wdth' 80, 'wght' 800;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  background: none;
+  border: none;
+  border-bottom: 4px solid transparent;
+  padding: 2px 0 6px;
+  color: var(--paper-quiet);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.paper .nav-tab:hover {
+  color: var(--paper-ink);
+}
+
+.paper .nav-tab[data-active] {
+  color: var(--paper-ink);
+  border-bottom-color: var(--paper-ink);
+}
+
 /* Destello al cambiar un atributo en el inspector de estado */
 @keyframes attr-flash {
   from {
