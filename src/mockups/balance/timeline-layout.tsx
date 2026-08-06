@@ -17,6 +17,9 @@ import { ColumnHead, EntryRow, GroupSummary, Rule, RowMode, label, num } from '.
 const RAIL_W = 56;
 const DOT = 20;
 const PAD_RIGHT = 8;
+const NODE_TOP = 6;
+/** Centro del punto medido desde el borde superior del slot. */
+const NODE_CENTER = NODE_TOP + DOT / 2;
 
 /**
  * El eje del riel. La linea y el punto se derivan de aqui en vez de
@@ -34,7 +37,7 @@ const HourNode: React.FC<{ hour: string; filled: boolean }> = ({ hour, filled })
       style={{
         position: 'absolute',
         right: PAD_RIGHT,
-        top: 6,
+        top: NODE_TOP,
         display: 'flex',
         alignItems: 'center',
         gap: 8,
@@ -83,23 +86,38 @@ export const TimelineLayout: React.FC<{ mode: RowMode; hourRange?: HourRange }> 
       <ColumnHead mode={mode} />
       <Rule weight="mid" />
 
-      {rail.map(({ hour, entries }) => {
+      {rail.map(({ hour, entries }, index) => {
         const filled = entries.length > 0;
+        const isLast = index === rail.length - 1;
 
         return (
           <div key={hour} style={{ display: 'flex', minHeight: filled ? undefined : 34 }}>
             <div style={{ width: RAIL_W, position: 'relative', flex: 'none' }}>
-              {/* Ambos cuelgan del mismo eje: por eso quedan centrados */}
+              {/* Arriba la linea sube hasta el borde y engancha con el slot
+                  anterior; abajo se corta en el ultimo nodo, para que el dia
+                  termine donde termina el contenido. */}
               <div
                 style={{
                   position: 'absolute',
                   left: AXIS - 0.5,
                   top: 0,
-                  bottom: 0,
+                  height: NODE_CENTER,
                   width: 1,
                   background: 'var(--sk-line)',
                 }}
               />
+              {!isLast ? (
+                <div
+                  style={{
+                    position: 'absolute',
+                    left: AXIS - 0.5,
+                    top: NODE_CENTER,
+                    bottom: 0,
+                    width: 1,
+                    background: 'var(--sk-line)',
+                  }}
+                />
+              ) : null}
               <HourNode hour={hour} filled={filled} />
             </div>
 
