@@ -66,7 +66,7 @@ export const NutritionApp: React.FC = () => {
           flex: 1,
           background: 'var(--sk-bg)',
           color: 'var(--sk-ink)',
-          padding: '32px 24px 72px',
+          padding: 'clamp(16px, 5vw, 32px) clamp(12px, 4vw, 24px) 72px',
           fontFamily: 'var(--sk-font-ui)'
         }}
       >

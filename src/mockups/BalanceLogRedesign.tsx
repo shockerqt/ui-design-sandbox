@@ -113,27 +113,13 @@ export const BalanceLogRedesign: React.FC = () => {
       </div>
 
       {/* El mockup, a ancho de telefono sobre el lienzo */}
-      <div
-        style={{
-          flex: 1,
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'flex-start',
-          padding: '24px 16px 48px',
-          background: 'var(--ink)',
-        }}>
+      <div className="mockup-stage">
         <div
-          className={`skin skin-${theme}`}
+          className={`skin skin-${theme} mockup-frame`}
           style={{
-            width: 390,
-            maxWidth: '100%',
             background: 'var(--sk-bg)',
             color: 'var(--sk-ink)',
             fontFamily: 'var(--sk-font-ui)',
-            border: '1px solid var(--sk-line)',
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: 720,
           }}>
           {/* Cabecera del dia */}
           <div

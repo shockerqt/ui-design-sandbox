@@ -727,6 +727,54 @@ a {
   border-bottom-color: var(--sk-accent);
 }
 
+
+/* ---------- Escenario del mockup ----------
+   En pantalla grande el mockup va enmarcado a ancho de telefono sobre
+   el lienzo. En un telefono real el marco sobra: ocupa todo, que es la
+   unica forma de juzgar proporciones de verdad. */
+
+.mockup-stage {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 24px 16px 48px;
+  background: var(--ink);
+}
+
+.mockup-frame {
+  width: 390px;
+  max-width: 100%;
+  border: 1px solid var(--sk-line);
+  display: flex;
+  flex-direction: column;
+  min-height: 720px;
+}
+
+@media (max-width: 480px) {
+  .mockup-stage {
+    padding: 0;
+  }
+
+  .mockup-frame {
+    width: 100%;
+    border: none;
+    min-height: 0;
+    flex: 1;
+  }
+
+  /* El selector se compacta para no comerse la pantalla */
+  .skin-picker {
+    gap: 5px;
+    padding: 6px 8px;
+  }
+
+  .skin-picker-btn {
+    font-size: 0.62rem;
+    padding: 3px 7px;
+  }
+}
+
 /* ---------- Selector de piel: control del laboratorio, no del producto ---------- */
 
 .skin-picker {
