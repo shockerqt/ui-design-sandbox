@@ -1,7 +1,7 @@
 import React from 'react';
 import { Plus } from 'lucide-react';
 import { ENTRIES, byMeal, sum, timeRange } from './data';
-import { ColumnHead, EntryRow, Rule, RowMode, Subtotal, label } from './ledger';
+import { ColumnHead, EntryRow, GroupSummary, Rule, RowMode, label } from './ledger';
 
 /* ============================================================
    Disposicion B — Comidas nombradas.
@@ -49,11 +49,13 @@ export const MealsLayout: React.FC<{ mode: RowMode }> = ({ mode }) => {
               </span>
             </div>
 
+            {block.entries.length > 1 ? <GroupSummary totals={totals} mode={mode} /> : null}
+
             {block.entries.map((entry) => (
               <EntryRow key={entry.id} entry={entry} mode={mode} showTime />
             ))}
 
-            <Subtotal totals={totals} />
+            <div style={{ height: 8 }} />
           </div>
         );
       })}

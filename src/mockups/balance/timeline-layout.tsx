@@ -1,6 +1,7 @@
 import React from 'react';
 import { ENTRIES, byHour, sum } from './data';
-import { ColumnHead, EntryRow, Rule, RowMode, Subtotal, label, num } from './ledger';
+import { Plus } from 'lucide-react';
+import { ColumnHead, EntryRow, GroupSummary, Rule, RowMode, label, num } from './ledger';
 
 /* ============================================================
    Disposicion A — Riel por hora.
@@ -15,8 +16,8 @@ import { ColumnHead, EntryRow, Rule, RowMode, Subtotal, label, num } from './led
    vacia.
    ============================================================ */
 
-const RAIL_W = 54;
-const DOT = 9;
+const RAIL_W = 56;
+const DOT = 20;
 
 /** Nodo del riel: el punto y su hora. Es el boton de registrar. */
 const HourNode: React.FC<{ hour: string; filled: boolean }> = ({ hour, filled }) => {
@@ -53,10 +54,15 @@ const HourNode: React.FC<{ hour: string; filled: boolean }> = ({ hour, filled })
           height: DOT,
           borderRadius: '50%',
           flex: 'none',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
           background: filled ? 'var(--sk-ink)' : 'var(--sk-bg)',
           border: filled ? 'none' : '1px solid var(--sk-line)',
-        }}
-      />
+          color: filled ? 'var(--sk-bg)' : 'var(--sk-faint)',
+        }}>
+        <Plus size={12} strokeWidth={filled ? 2.5 : 2} />
+      </span>
     </button>
   );
 };
@@ -97,22 +103,24 @@ export const TimelineLayout: React.FC<{ mode: RowMode }> = ({ mode }) => {
                   background: 'var(--sk-line)',
                 }}
               />
-              <div style={{ position: 'absolute', left: 0, top: filled ? 9 : 11 }}>
+              <div style={{ position: 'absolute', left: 0, top: filled ? 4 : 6 }}>
                 <HourNode hour={hour} filled={filled} />
               </div>
             </div>
 
             <div style={{ flex: 1, minWidth: 0 }}>
               {filled ? (
-                <div style={{ paddingTop: 4 }}>
+                <div style={{ paddingTop: 8 }}>
+                  {/* Titular del grupo, a la altura de la hora. Se omite
+                      cuando hay un solo alimento: repetiria la fila. */}
+                  {entries!.length > 1 ? (
+                    <GroupSummary totals={sum(entries!)} mode={mode} />
+                  ) : null}
+
                   {entries!.map((entry) => (
                     <EntryRow key={entry.id} entry={entry} mode={mode} showTime />
                   ))}
-                  {entries!.length > 1 ? (
-                    <Subtotal totals={sum(entries!)} />
-                  ) : (
-                    <div style={{ height: 6 }} />
-                  )}
+                  <div style={{ height: 6 }} />
                 </div>
               ) : null}
             </div>

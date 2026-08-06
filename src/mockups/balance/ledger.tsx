@@ -147,23 +147,41 @@ export const EntryRow: React.FC<{ entry: Entry; mode: RowMode; showTime?: boolea
   );
 };
 
-/** Subtotal del bloque, bajo su filete. Es lo que lo hace leerse como cuenta. */
-export const Subtotal: React.FC<{ totals: Totals }> = ({ totals }) => (
-  <div style={{ padding: '0 16px' }}>
-    <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end', paddingBottom: 4 }}>
-      {COLUMNS.map((c) => (
-        <span key={c.key} style={{ width: NUM_W, height: 1, background: line }} />
-      ))}
-    </div>
-    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8, paddingBottom: 10 }}>
+/**
+ * Resumen del grupo, en la fila de la hora. Va arriba y no abajo
+ * porque en una lista que se recorre scrolleando conviene leer el
+ * titular antes que el detalle; en las mismas columnas que los
+ * asientos, para que la vista baje en linea recta.
+ */
+export const GroupSummary: React.FC<{ totals: Totals; mode: RowMode }> = ({ totals, mode }) => {
+  if (mode === 'amplio') {
+    return (
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'baseline',
+          justifyContent: 'space-between',
+          gap: 10,
+          padding: '0 16px 2px',
+        }}>
+        <span style={{ ...num('0.62rem'), color: quiet, letterSpacing: '0.02em' }}>
+          {totals.protein} P · {totals.carbs} C · {totals.fat} G
+        </span>
+        <span style={{ ...num('0.85rem', 700), color: ink }}>{totals.kcal}</span>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'baseline', padding: '0 16px 3px', gap: 8 }}>
       <span style={{ flex: 1 }} />
-      <span style={{ ...num('0.82rem', 700), width: NUM_W, color: ink }}>{totals.kcal}</span>
-      <span style={{ ...num('0.8rem', 600), width: NUM_W, color: ink }}>{totals.protein}</span>
-      <span style={{ ...num('0.8rem', 600), width: NUM_W, color: ink }}>{totals.carbs}</span>
-      <span style={{ ...num('0.8rem', 600), width: NUM_W, color: ink }}>{totals.fat}</span>
+      <span style={{ ...num('0.85rem', 700), width: NUM_W, color: ink }}>{totals.kcal}</span>
+      <span style={{ ...num('0.78rem', 600), width: NUM_W, color: quiet }}>{totals.protein}</span>
+      <span style={{ ...num('0.78rem', 600), width: NUM_W, color: quiet }}>{totals.carbs}</span>
+      <span style={{ ...num('0.78rem', 600), width: NUM_W, color: quiet }}>{totals.fat}</span>
     </div>
-  </div>
-);
+  );
+};
 
 /**
  * Balance del dia en una sola franja. Cada cuenta se pone en rojo por
