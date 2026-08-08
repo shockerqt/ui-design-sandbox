@@ -18,7 +18,7 @@ export const MockupViewer: React.FC<{ mockup: MockupItem }> = ({ mockup }) => {
   const isFull = viewport === '100%';
 
   return (
-    <div style={{ height: '100dvh', display: 'flex', flexDirection: 'column' }}>
+    <div className="mockup-viewer">
       {/* Todo el cromo cabe en el riel, para que el mockup se quede con el resto */}
       <div className="rail">
         <Link href="/" className="rail-btn" aria-label="Volver al registro">
@@ -70,17 +70,9 @@ export const MockupViewer: React.FC<{ mockup: MockupItem }> = ({ mockup }) => {
         </button>
       </div>
 
-      <div
-        style={{
-          flex: 1,
-          overflow: 'auto',
-          background: 'var(--ink)',
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center'
-        }}
-      >
+      <div className="mockup-viewer-scroll">
         <div
+          className="mockup-viewer-canvas"
           style={{
             width: isFull ? '100%' : viewport,
             maxWidth: '100%',
