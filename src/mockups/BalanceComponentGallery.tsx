@@ -29,12 +29,33 @@ const DAYS = [
   { day: 'D', date: 9 },
 ];
 
-const MEALS = [
-  { time: '08', name: 'Yogur griego natural', portion: '170 g', kcal: 126, protein: 17 },
-  { time: '08', name: 'Avena tradicional', portion: '45 g', kcal: 171, protein: 6 },
-  { time: '13', name: 'Lentejas con zapallo', portion: '340 g', kcal: 412, protein: 24 },
-  { time: '13', name: 'Ensalada chilena', portion: '180 g', kcal: 86, protein: 2 },
-  { time: '17', name: 'Manzana fuji', portion: '1 un', kcal: 95, protein: 0 },
+const HOUR_GROUPS = [
+  { hour: '07', foods: [] },
+  {
+    hour: '08',
+    foods: [
+      { time: '08:07', name: 'Yogur griego natural', portion: '170 g', kcal: 126, protein: 17, carbs: 8, fat: 3 },
+      { time: '08:24', name: 'Avena tradicional', portion: '45 g', kcal: 171, protein: 6, carbs: 30, fat: 3 },
+    ],
+  },
+  { hour: '10', foods: [] },
+  {
+    hour: '13',
+    foods: [
+      { time: '13:05', name: 'Lentejas con zapallo', portion: '340 g', kcal: 412, protein: 24, carbs: 58, fat: 10 },
+      { time: '13:28', name: 'Ensalada chilena', portion: '180 g', kcal: 86, protein: 2, carbs: 12, fat: 4 },
+      { time: '13:46', name: 'Aceite de oliva', portion: '1 cdta', kcal: 45, protein: 0, carbs: 0, fat: 5 },
+    ],
+  },
+  { hour: '16', foods: [] },
+  {
+    hour: '17',
+    foods: [
+      { time: '17:12', name: 'Manzana fuji', portion: '1 un', kcal: 95, protein: 0, carbs: 25, fat: 0 },
+      { time: '17:38', name: 'Nueces', portion: '15 g', kcal: 98, protein: 2, carbs: 2, fat: 10 },
+    ],
+  },
+  { hour: '20', foods: [] },
 ];
 
 const PALETTES = {
@@ -230,28 +251,64 @@ export const BalanceComponentGallery: React.FC = () => {
             </div>
 
             <div className="bcg-balance-row">
-              <div><span>Restantes</span><strong>1.110</strong><small>de 2.000 kcal</small></div>
-              <div className="bcg-ring"><span>44%</span></div>
+              <div><span>Restantes</span><strong>967</strong><small>de 2.000 kcal</small></div>
+              <div className="bcg-ring"><span>52%</span></div>
               <dl>
-                <div><dt>Proteína</dt><dd>49 / 120 g</dd></div>
-                <div><dt>Carbos</dt><dd>107 / 240 g</dd></div>
-                <div><dt>Grasa</dt><dd>29 / 65 g</dd></div>
+                <div><dt>Proteína</dt><dd>51 / 120 g</dd></div>
+                <div><dt>Carbos</dt><dd>135 / 240 g</dd></div>
+                <div><dt>Grasa</dt><dd>35 / 65 g</dd></div>
               </dl>
             </div>
 
-            <div className="bcg-ledger-head"><span>Hora / alimento</span><span>Porción</span><span>Kcal</span></div>
+            <div className="bcg-ledger-head"><span>Hora / alimento y macros</span><span>Porción</span><span>Kcal</span></div>
             <div className="bcg-hour-ledger">
-              {MEALS.map((meal, index) => (
-                <div className="bcg-meal-row" key={`${meal.name}-${index}`}>
-                  <div className="bcg-time-node" data-filled><span>{meal.time}</span><i><Plus size={11} /></i></div>
-                  <div className="bcg-meal-name"><strong>{meal.name}</strong><small>{meal.protein} g proteína</small></div>
-                  <span>{meal.portion}</span><b>{meal.kcal}</b>
-                </div>
-              ))}
-              <div className="bcg-meal-row bcg-meal-row--empty">
-                <div className="bcg-time-node"><span>20</span><i><Plus size={11} /></i></div>
-                <div className="bcg-empty-copy">Toca la hora para registrar</div>
-              </div>
+              {HOUR_GROUPS.map((group) => {
+                const isEmpty = group.foods.length === 0;
+                const groupMacros = group.foods.reduce(
+                  (total, food) => ({
+                    protein: total.protein + food.protein,
+                    carbs: total.carbs + food.carbs,
+                    fat: total.fat + food.fat,
+                  }),
+                  { protein: 0, carbs: 0, fat: 0 },
+                );
+
+                return (
+                  <div className="bcg-hour-group" data-empty={isEmpty} key={group.hour}>
+                    <div className="bcg-hour-axis">
+                      <span>{group.hour}</span>
+                      <button aria-label={`Registrar a las ${group.hour}:00`}><Plus size={11} /></button>
+                    </div>
+
+                    <div className="bcg-hour-content">
+                      {isEmpty ? (
+                        <button className="bcg-empty-hour">
+                          <span>Hora libre</span>
+                          <strong>Registrar a las {group.hour}:00</strong>
+                        </button>
+                      ) : (
+                        <>
+                          <div className="bcg-hour-summary">
+                            <span>{group.foods.length} registros</span>
+                            <b>{groupMacros.protein} P · {groupMacros.carbs} C · {groupMacros.fat} G</b>
+                          </div>
+                          {group.foods.map((food) => (
+                            <div className="bcg-food-row" key={`${food.time}-${food.name}`}>
+                              <time>{food.time}</time>
+                              <div className="bcg-meal-name">
+                                <strong>{food.name}</strong>
+                                <small>{food.protein} P · {food.carbs} C · {food.fat} G</small>
+                              </div>
+                              <span>{food.portion}</span>
+                              <b>{food.kcal}</b>
+                            </div>
+                          ))}
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
 
             <button className="bcg-fab"><Plus size={19} /> Registrar comida</button>

@@ -12,9 +12,9 @@ export const mockupRegistry: MockupItem[] = [
     title: 'Balance · Atlas de componentes',
     category: 'Base UI Primitives',
     description:
-      'Galería interactiva de las superficies, navegación, controles, estados, modal y drawer que definen el lenguaje visual de Balance.',
+      'Galería interactiva de las superficies, navegación, timeline horario, controles, estados, modal y drawer que definen el lenguaje visual de Balance.',
     tags: ['Balance', 'design system', 'componentes', 'modal', 'drawer', 'Base UI'],
-    version: 'v1.0.0',
+    version: 'v1.1.0',
     updatedAt: '2026-08-08',
     component: BalanceComponentGallery
   },
