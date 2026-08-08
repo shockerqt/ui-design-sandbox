@@ -4,8 +4,20 @@ import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 import { BreakTimer } from './BreakTimer';
 import { SaviaNutrition } from './SaviaNutrition';
+import { BalanceComponentGallery } from './BalanceComponentGallery';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-componentes',
+    title: 'Balance · Atlas de componentes',
+    category: 'Base UI Primitives',
+    description:
+      'Galería interactiva de las superficies, navegación, controles, estados, modal y drawer que definen el lenguaje visual de Balance.',
+    tags: ['Balance', 'design system', 'componentes', 'modal', 'drawer', 'Base UI'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-08',
+    component: BalanceComponentGallery
+  },
   {
     id: 'savia-nutricion',
     title: 'Savia · Nutrición consciente',
@@ -62,4 +74,3 @@ export const mockupRegistry: MockupItem[] = [
     component: PrimitivesWorkbench
   }
 ];
-
