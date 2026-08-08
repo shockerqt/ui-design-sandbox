@@ -178,6 +178,29 @@ a {
 
 /* ---------- Riel del visor ---------- */
 
+.mockup-viewer {
+  display: flex;
+  height: 100dvh;
+  min-height: 0;
+  flex-direction: column;
+  background: var(--ink);
+}
+
+.mockup-viewer-scroll {
+  display: flex;
+  min-height: 0;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  overflow: auto;
+  overscroll-behavior-y: contain;
+  background: var(--ink);
+}
+
+.mockup-viewer-canvas {
+  flex: none;
+}
+
 .rail {
   height: var(--rail-h);
   flex: none;
@@ -830,6 +853,26 @@ a {
 /* ---------- Responsive ---------- */
 
 @media (max-width: 720px) {
+  /* En un telefono el documento es el scroller. Mantener un segundo scroller
+     de 100dvh aqui permite que el gesto se encadene y revele el fondo negro
+     despues del mockup, especialmente cuando el riel ocupa dos lineas. */
+  .mockup-viewer {
+    height: auto;
+    min-height: 100dvh;
+  }
+
+  .mockup-viewer-scroll {
+    min-height: 0;
+    flex: none;
+    align-items: stretch;
+    overflow: visible;
+    overscroll-behavior-y: auto;
+  }
+
+  .mockup-viewer-canvas {
+    min-height: 0 !important;
+  }
+
   .register-head {
     display: none;
   }
