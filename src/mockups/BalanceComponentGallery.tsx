@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { Switch } from '@base-ui/react';
 import { BarChart3, ChevronLeft, ChevronRight, ListChecks, Plus, UserRound } from 'lucide-react';
 
 /* ============================================================
@@ -328,7 +327,6 @@ const SCREENS = [
 
 export const BalanceComponentGallery: React.FC = () => {
   const [paletteKey, setPaletteKey] = useState<PaletteKey>('libro');
-  const [compact, setCompact] = useState(true);
   const palette = PALETTES[paletteKey];
 
   const paletteStyle = {
@@ -343,7 +341,7 @@ export const BalanceComponentGallery: React.FC = () => {
   } as React.CSSProperties;
 
   return (
-    <main className="bcg" style={paletteStyle} data-density={compact ? 'compact' : 'comfortable'}>
+    <main className="bcg" style={paletteStyle}>
       <header className="bcg-masthead">
         <div className="bcg-masthead-title">
           <GalleryLabel>Balance / interfaz viva</GalleryLabel>
@@ -361,12 +359,6 @@ export const BalanceComponentGallery: React.FC = () => {
               ))}
             </div>
           </div>
-          <label className="bcg-density-control">
-            <span><GalleryLabel>Densidad</GalleryLabel>{compact ? 'Compacta' : 'Cómoda'}</span>
-            <Switch.Root className="bcg-switch" checked={!compact} onCheckedChange={(checked) => setCompact(!checked)}>
-              <Switch.Thumb className="bcg-switch-thumb" />
-            </Switch.Root>
-          </label>
         </div>
       </header>
 
