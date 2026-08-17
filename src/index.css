@@ -901,12 +901,28 @@ a {
 }
 
 /* ============================================================
-   Balance Component Gallery — inventario vivo del libro nutricional
+   Balance — pantallas
+
+   Solo las pantallas, cada una en un marco de ancho de telefono.
+
+   Las consultas son @container y no @media por una razon concreta: el
+   marco mide 390 px dentro de una ventana ancha, asi que con media
+   queries se aplicaba la variante de escritorio encogida en vez de la
+   del telefono. Hay dos contenedores con nombre — `bcgroot` para la
+   lamina y `phone` para cada pantalla — para que cada regla consulte
+   el ancho que le corresponde.
+
+   Colores y escala tipografica van tal cual estaban.
    ============================================================ */
 
 .bcg {
+  container: bcgroot / inline-size;
   --bcg-space: 14px;
-  min-height: 100%;
+  /* `min-height: 100%` no resuelve: el visor envuelve el mockup en un
+     div de alto automatico, asi que el porcentaje se quedaba en cero y
+     bajo la lamina asomaba el fondo oscuro del visor. Con la lamina
+     larga del catalogo no se notaba; con dos pantallas, si. */
+  min-height: calc(100dvh - var(--rail-h));
   color: var(--bcg-ink);
   background: var(--bcg-bg);
   font-family: 'IBM Plex Sans', sans-serif;
@@ -918,39 +934,41 @@ a {
 }
 
 .bcg button,
-.bcg input,
-.bcg-dialog-popup button,
-.bcg-drawer-popup button,
-.bcg-drawer-popup input {
+.bcg input {
   font: inherit;
 }
 
-.bcg button,
-.bcg-dialog-popup button,
-.bcg-drawer-popup button {
+.bcg button {
   color: inherit;
 }
+
+/* --- Cabecera de la lamina ---------------------------------------- */
 
 .bcg-masthead {
   display: flex;
   align-items: flex-end;
   justify-content: space-between;
   gap: 40px;
-  padding: 38px clamp(20px, 4vw, 64px) 30px;
+  padding: 38px clamp(20px, 4cqw, 64px) 30px;
   border-bottom: 3px solid var(--bcg-ink);
+}
+
+.bcg-masthead-title {
+  min-width: 0;
 }
 
 .bcg-masthead h1 {
   margin-top: 9px;
   font-family: 'Archivo', sans-serif;
-  font-size: clamp(2.6rem, 6vw, 6.4rem);
+  /* cqw y no vw: con vw el titulo desbordaba la pagina 78 px a 390 px */
+  font-size: clamp(2.6rem, 6cqw, 6.4rem);
   font-variation-settings: 'wdth' 72, 'wght' 760;
   line-height: 0.82;
   letter-spacing: -0.06em;
   text-transform: uppercase;
 }
 
-.bcg-masthead > div:first-child > p {
+.bcg-masthead-title > p {
   max-width: 62ch;
   margin-top: 22px;
   color: var(--bcg-quiet);
@@ -975,6 +993,7 @@ a {
   place-items: center;
   width: 20px;
   height: 20px;
+  flex: none;
   border: 1px solid var(--bcg-line);
   color: var(--bcg-ink);
   border-radius: 50%;
@@ -1030,6 +1049,7 @@ a {
   align-items: center;
   width: 42px;
   height: 24px;
+  flex: none;
   padding: 2px;
   border: 1px solid var(--bcg-line);
   border-radius: 999px;
@@ -1049,75 +1069,44 @@ a {
   transform: translateX(18px);
 }
 
-.bcg-layout {
-  display: grid;
-  grid-template-columns: minmax(420px, 0.92fr) minmax(540px, 1.08fr);
-  min-height: 900px;
-}
+/* --- La lamina de pantallas ---------------------------------------- */
 
-.bcg-composite,
-.bcg-catalog {
-  min-width: 0;
-}
-
-.bcg-composite {
-  padding: 34px clamp(20px, 4vw, 54px) 64px;
-  border-right: 1px solid var(--bcg-line);
-}
-
-.bcg-catalog {
-  background: color-mix(in srgb, var(--bcg-surface) 58%, var(--bcg-bg));
-}
-
-.bcg-section-head {
+.bcg-screens {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 18px;
-  margin-bottom: 18px;
+  justify-content: center;
+  gap: 44px clamp(28px, 4cqw, 64px);
+  padding: 40px clamp(20px, 4cqw, 64px) 80px;
 }
 
-.bcg-section-head h2 {
+.bcg-screen-item {
+  display: grid;
+  gap: 14px;
+  margin: 0;
+}
+
+.bcg-screen-caption h2 {
   margin-top: 7px;
   font-size: 1.08rem;
   line-height: 1.1;
 }
 
-.bcg-status,
-.bcg-count {
-  color: var(--bcg-faint);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.62rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.bcg-status {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-}
-
-.bcg-status i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: #4f7c47;
-  box-shadow: 0 0 0 3px color-mix(in srgb, #4f7c47 18%, transparent);
-}
-
-.bcg-app-surface {
-  position: sticky;
-  top: 20px;
+/* El marco. Ancho de telefono y contenedor de consulta, para que las
+   reglas estrechas de la superficie se apliquen aqui adentro. */
+.bcg-phone {
+  container: phone / inline-size;
   overflow: hidden;
-  max-width: 610px;
-  margin: 0 auto;
+  width: 390px;
+  max-width: 100%;
   border: 1px solid var(--bcg-line);
   border-top: 3px solid var(--bcg-ink);
   border-radius: 18px;
   background: var(--bcg-surface);
   box-shadow: 0 18px 40px color-mix(in srgb, var(--bcg-ink) 8%, transparent);
 }
+
+/* --- Cromo comun de las pantallas ----------------------------------- */
 
 .bcg-top-nav {
   display: grid;
@@ -1134,14 +1123,14 @@ a {
   width: 40px;
   height: 40px;
   padding: 0;
-  border: 1px solid var(--bcg-line, #cfd8c6);
+  border: 1px solid var(--bcg-line);
   border-radius: 50%;
-  background: var(--bcg-raised, #e9eee2);
+  background: var(--bcg-raised);
   cursor: pointer;
 }
 
 .bcg-icon-button:hover {
-  border-color: var(--bcg-ink, #1a1d19);
+  border-color: var(--bcg-ink);
 }
 
 .bcg-date-title {
@@ -1246,7 +1235,7 @@ a {
   width: 64px;
   height: 64px;
   border-radius: 50%;
-  background: conic-gradient(var(--bcg-ink) 52%, var(--bcg-raised) 0);
+  background: conic-gradient(var(--bcg-ink) var(--fill, 52%), var(--bcg-raised) 0);
 }
 
 .bcg-ring::before {
@@ -1283,6 +1272,10 @@ a {
   font-weight: 600;
 }
 
+.bcg-balance-row dd[data-over='true'] {
+  color: var(--bcg-danger);
+}
+
 .bcg-ledger-head {
   display: grid;
   grid-template-columns: 1fr 62px 42px;
@@ -1294,6 +1287,12 @@ a {
 .bcg-ledger-head span:not(:first-child) {
   text-align: right;
 }
+
+.bcg-ledger-head--single {
+  grid-template-columns: 1fr;
+}
+
+/* --- 01 · Registro del dia ------------------------------------------ */
 
 .bcg-hour-ledger {
   --bcg-axis: 38px;
@@ -1430,14 +1429,10 @@ a {
   white-space: nowrap;
 }
 
-.bcg-meal-name small,
-.bcg-empty-copy {
-  color: var(--bcg-faint);
-  font-size: 0.6rem;
-}
-
 .bcg-meal-name small {
+  color: var(--bcg-faint);
   font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.6rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -1491,6 +1486,167 @@ a {
   font-weight: 700 !important;
 }
 
+/* --- 02 · Resumen de la semana --------------------------------------- */
+
+.bcg-chart {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 14px 18px 12px;
+  border-bottom: 1px solid var(--bcg-line);
+}
+
+.bcg-chart-col {
+  display: grid;
+  gap: 5px;
+  justify-items: center;
+}
+
+.bcg-chart-value {
+  color: var(--bcg-faint);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.bcg-chart-bar {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 84px;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--bcg-line);
+}
+
+/* La meta como referencia: sin ella las barras solo se comparan entre
+   si y no contra el presupuesto, que es la pregunta real. Va detras de
+   la barra: encima se leia como una marca sobre el dato. */
+.bcg-chart-bar::before {
+  content: '';
+  position: absolute;
+  z-index: 0;
+  left: 0;
+  right: 0;
+  bottom: var(--goal);
+  border-top: 1px dashed var(--bcg-line);
+}
+
+.bcg-chart-bar i {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  border-radius: 2px 2px 0 0;
+  background: var(--bcg-ink);
+}
+
+.bcg-chart-col[data-over='true'] .bcg-chart-bar i {
+  background: var(--bcg-danger);
+}
+
+/* El dia en curso se dibuja pero no cuenta: va en gris para que no se
+   lea como un dia cerrado muy por debajo de la meta. */
+.bcg-chart-col[data-running='true'] .bcg-chart-bar i {
+  background: var(--bcg-quiet);
+}
+
+.bcg-chart-dow {
+  color: var(--bcg-faint);
+  font-size: 0.58rem;
+  font-weight: 700;
+}
+
+.bcg-chart-date {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.76rem;
+}
+
+.bcg-macro-summary {
+  display: grid;
+  gap: 12px;
+  padding: 14px 18px;
+}
+
+.bcg-macro-summary > div {
+  display: grid;
+  gap: 6px;
+}
+
+.bcg-macro-summary > div > div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bcg-macro-summary span {
+  color: var(--bcg-faint);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.bcg-macro-summary b {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.bcg-macro-summary b small {
+  color: var(--bcg-quiet);
+  font-weight: 500;
+}
+
+.bcg-progress {
+  overflow: hidden;
+  height: 5px;
+  border-radius: 99px;
+  background: var(--bcg-raised);
+}
+
+.bcg-progress i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--bcg-ink);
+}
+
+.bcg-progress[data-over='true'] i {
+  background: var(--bcg-danger);
+}
+
+.bcg-stat-list {
+  padding: 2px 18px 16px;
+}
+
+.bcg-stat-list div {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 9px 0;
+  border-top: 1px solid color-mix(in srgb, var(--bcg-line) 72%, transparent);
+}
+
+.bcg-stat-list dt {
+  font-size: 0.7rem;
+}
+
+.bcg-stat-list dd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.62rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+.bcg-stat-list dd[data-over='true'] {
+  color: var(--bcg-danger);
+}
+
+/* --- Barra inferior -------------------------------------------------- */
+
 .bcg-bottom-nav {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -1525,493 +1681,15 @@ a {
   background: var(--bcg-ink);
 }
 
-.bcg-specimen {
-  padding: 34px clamp(20px, 4vw, 50px);
-  border-bottom: 1px solid var(--bcg-line);
-}
-
-.bcg-specimen:last-child {
-  border-bottom: 0;
-}
-
-.bcg-button-grid,
-.bcg-overlay-actions {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 9px;
-}
-
-.bcg-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 10px 15px;
-  border: 1px solid transparent;
-  border-radius: 13px;
-  cursor: pointer;
-  font-size: 0.76rem !important;
-  font-weight: 650 !important;
-  transition: transform 120ms ease, opacity 120ms ease, background-color 120ms ease;
-}
-
-.bcg-button:hover:not(:disabled) {
-  transform: translateY(-1px);
-}
-
-.bcg-button:active:not(:disabled) {
-  transform: translateY(0);
-}
-
-.bcg-button--primary {
-  color: var(--bcg-bg, #f2f5ee) !important;
-  background: var(--bcg-ink, #1a1d19);
-}
-
-.bcg-button--secondary {
-  color: var(--bcg-ink, #1a1d19) !important;
-  border-color: var(--bcg-line, #cfd8c6);
-  background: var(--bcg-raised, #e9eee2);
-}
-
-.bcg-button--ghost {
-  color: var(--bcg-ink, #1a1d19) !important;
-  border-color: var(--bcg-line, #cfd8c6);
-  background: transparent;
-}
-
-.bcg-button--danger {
-  color: #fff !important;
-  background: var(--bcg-danger, #b4232a);
-}
-
-.bcg-button:disabled {
-  cursor: not-allowed;
-  opacity: 0.42;
-}
-
-.bcg-control-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 18px 12px;
-}
-
-.bcg-field {
-  display: grid;
-  gap: 6px;
-}
-
-.bcg-field > span:first-child {
-  color: var(--bcg-quiet, #6f776a);
-  font-size: 0.66rem;
-  font-weight: 700;
-}
-
-.bcg-field > small {
-  color: var(--bcg-faint, #9aa393);
-  font-size: 0.6rem;
-}
-
-.bcg-input-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 42px;
-  padding: 0 12px;
-  border: 1px solid var(--bcg-line, #cfd8c6);
-  border-radius: 11px;
-  background: var(--bcg-surface, #fff);
-}
-
-.bcg-input-wrap:focus-within {
-  border-color: var(--bcg-ink, #1a1d19);
-  box-shadow: 0 0 0 2px color-mix(in srgb, var(--bcg-ink, #1a1d19) 12%, transparent);
-}
-
-.bcg-input-wrap input {
-  width: 100%;
-  min-width: 0;
-  border: 0;
-  outline: 0;
-  color: var(--bcg-ink, #1a1d19);
-  background: transparent;
-  font-size: 0.76rem;
-}
-
-.bcg-input-wrap input::placeholder {
-  color: var(--bcg-faint, #9aa393);
-}
-
-.bcg-input-wrap b {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.7rem;
-}
-
-.bcg-check {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--bcg-quiet);
-  cursor: pointer;
-  font-size: 0.72rem;
-}
-
-.bcg-check input {
-  position: absolute;
-  opacity: 0;
-}
-
-.bcg-check > span {
-  display: grid;
-  place-items: center;
-  width: 19px;
-  height: 19px;
-  border: 1px solid var(--bcg-line);
-  border-radius: 5px;
-  color: transparent;
-  background: var(--bcg-surface);
-}
-
-.bcg-check input:checked + span {
-  color: var(--bcg-bg);
-  border-color: var(--bcg-ink);
-  background: var(--bcg-ink);
-}
-
-.bcg-check input:focus-visible + span {
-  outline: 2px solid var(--bcg-ink);
-  outline-offset: 2px;
-}
-
-.bcg-select {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 42px;
-  padding: 0 12px;
-  border: 1px solid var(--bcg-line);
-  border-radius: 11px;
-  background: var(--bcg-surface);
-  cursor: pointer;
-  font-size: 0.74rem !important;
-}
-
-.bcg-progress-card {
-  display: grid;
-  gap: 10px;
-  padding: 14px;
-  border: 1px solid var(--bcg-line);
-  border-radius: 13px;
-  background: var(--bcg-surface);
-}
-
-.bcg-progress-card > div:first-child {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 12px;
-  font-size: 0.7rem;
-}
-
-.bcg-progress-card strong {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.76rem;
-}
-
-.bcg-progress-card strong small {
-  color: var(--bcg-faint);
-  font-weight: 500;
-}
-
-.bcg-progress {
-  overflow: hidden;
-  height: 5px;
-  border-radius: 99px;
-  background: var(--bcg-raised);
-}
-
-.bcg-progress i {
-  display: block;
-  height: 100%;
-  border-radius: inherit;
-  background: var(--bcg-ink);
-}
-
-.bcg-notice,
-.bcg-over {
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  margin-top: 10px;
-  padding: 12px 14px;
-  border: 1px solid var(--bcg-line);
-  border-radius: 13px;
-  background: var(--bcg-raised);
-}
-
-.bcg-notice-icon {
-  display: grid;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  flex: none;
-  border-radius: 50%;
-  color: var(--bcg-bg);
-  background: var(--bcg-ink);
-}
-
-.bcg-notice > div,
-.bcg-over > span {
-  display: flex;
-  min-width: 0;
-  flex: 1;
-  flex-direction: column;
-}
-
-.bcg-notice strong,
-.bcg-over strong {
-  font-size: 0.7rem;
-}
-
-.bcg-notice small,
-.bcg-over small {
-  color: var(--bcg-quiet);
-  font-size: 0.62rem;
-}
-
-.bcg-notice > button {
-  display: grid;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.bcg-over {
-  color: var(--bcg-danger);
-  border-color: color-mix(in srgb, var(--bcg-danger) 35%, var(--bcg-line));
-  background: color-mix(in srgb, var(--bcg-danger) 7%, var(--bcg-surface));
-}
-
-.bcg-over small {
-  color: color-mix(in srgb, var(--bcg-danger) 68%, var(--bcg-quiet));
-}
-
-.bcg-specimen-copy {
-  max-width: 52ch;
-  margin: -5px 0 16px;
-  color: var(--bcg-quiet);
-  font-size: 0.72rem;
-}
-
-.bcg-dialog-backdrop {
-  position: fixed;
-  z-index: 1100;
-  inset: 0;
-  background: rgba(8, 10, 7, 0.62);
-  backdrop-filter: blur(4px);
-  animation: bcg-fade-in 160ms ease-out;
-}
-
-.bcg-dialog-popup,
-.bcg-drawer-popup {
-  position: fixed;
-  z-index: 1101;
-  color: #1a1d19;
-  background: #fff;
-  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
-}
-
-.bcg-dialog-popup {
-  top: 50%;
-  left: 50%;
-  width: min(440px, calc(100vw - 32px));
-  padding: 24px;
-  transform: translate(-50%, -50%);
-  border: 1px solid #cfd8c6;
-  border-top: 3px solid #1a1d19;
-  border-radius: 16px;
-  animation: bcg-dialog-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.bcg-dialog-icon {
-  display: grid;
-  place-items: center;
-  width: 38px;
-  height: 38px;
-  margin-bottom: 18px;
-  border-radius: 50%;
-  color: #b4232a;
-  background: #f8e8e7;
-}
-
-.bcg-dialog-title {
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-size: 1.1rem;
-  font-weight: 700;
-}
-
-.bcg-dialog-description {
-  margin: 8px 0 22px;
-  color: #6f776a;
-  font-size: 0.78rem;
-  line-height: 1.55;
-}
-
-.bcg-dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.bcg-drawer-popup {
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  width: min(440px, 100vw);
-  flex-direction: column;
-  animation: bcg-drawer-in 240ms cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.bcg-drawer-rule {
-  height: 3px;
-  flex: none;
-  background: #1a1d19;
-}
-
-.bcg-drawer-head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 20px;
-  border-bottom: 1px solid #cfd8c6;
-}
-
-.bcg-drawer-time {
-  margin-top: 2px;
-  color: #6f776a;
-  font-size: 0.7rem;
-}
-
-.bcg-drawer-body {
-  flex: 1;
-  overflow: auto;
-  padding: 20px;
-}
-
-.bcg-suggestion-head {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  margin-top: 26px;
-  padding-bottom: 9px;
-  border-bottom: 2px solid #1a1d19;
-  color: #6f776a;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.bcg-food-pick {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  padding: 13px 2px;
-  border: 0;
-  border-bottom: 1px solid #cfd8c6;
-  background: transparent;
-  cursor: pointer;
-  text-align: left;
-}
-
-.bcg-food-pick > span {
-  display: flex;
-  flex-direction: column;
-}
-
-.bcg-food-pick strong {
-  font-size: 0.78rem;
-}
-
-.bcg-food-pick small {
-  color: #6f776a;
-  font-size: 0.65rem;
-}
-
-.bcg-drawer-footer {
-  padding: 14px 20px 20px;
-  border-top: 2px solid #1a1d19;
-}
-
-.bcg-drawer-footer .bcg-button {
-  width: 100%;
-}
-
-@keyframes bcg-fade-in {
-  from { opacity: 0; }
-}
-
-@keyframes bcg-dialog-in {
-  from { opacity: 0; transform: translate(-50%, -47%) scale(0.98); }
-}
-
-@keyframes bcg-drawer-in {
-  from { transform: translateX(100%); }
-}
-
-@media (max-width: 1050px) {
-  .bcg-masthead {
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .bcg-layout {
-    grid-template-columns: 1fr;
-  }
-
-  .bcg-composite {
-    border-right: 0;
-    border-bottom: 1px solid var(--bcg-line);
-  }
-
-  .bcg-app-surface {
-    position: static;
-  }
-}
-
-@media (max-width: 620px) {
-  .bcg-masthead {
-    gap: 28px;
-    padding-top: 28px;
-  }
-
-  .bcg-masthead h1 {
-    font-size: clamp(2.8rem, 16vw, 4.4rem);
-  }
-
-  .bcg-lab-controls {
-    width: 100%;
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .bcg-composite,
-  .bcg-specimen {
-    padding-right: 14px;
-    padding-left: 14px;
-  }
-
-  .bcg-app-surface {
-    border-right: 0;
-    border-left: 0;
-    border-radius: 0;
-  }
-
+/* ============================================================
+   Consultas de contenedor
+
+   `phone` gobierna lo que pasa dentro de una pantalla; `bcgroot`, la
+   lamina que las contiene. Antes esto eran media queries y por eso el
+   marco de 390 px mostraba la variante ancha.
+   ============================================================ */
+
+@container phone (max-width: 620px) {
   .bcg-balance-row {
     grid-template-columns: 1fr 60px;
   }
@@ -2060,18 +1738,51 @@ a {
   .bcg-empty-hour strong {
     display: none;
   }
+}
 
-  .bcg-button-grid,
-  .bcg-overlay-actions,
-  .bcg-control-grid {
-    grid-template-columns: 1fr;
+@container bcgroot (max-width: 1050px) {
+  .bcg-masthead {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}
+
+@container bcgroot (max-width: 620px) {
+  .bcg-masthead {
+    gap: 28px;
+    padding-top: 28px;
   }
 
-  .bcg-dialog-actions {
-    flex-direction: column-reverse;
+  .bcg-masthead h1 {
+    font-size: clamp(2.8rem, 16cqw, 4.4rem);
   }
 
-  .bcg-dialog-actions .bcg-button {
+  .bcg-lab-controls {
     width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  /* En telefono la pantalla ocupa el ancho completo y suelta el marco */
+  .bcg-screens {
+    gap: 0;
+    padding: 0;
+  }
+
+  .bcg-screen-item {
+    width: 100%;
+    gap: 0;
+  }
+
+  .bcg-screen-caption {
+    padding: 26px 14px 12px;
+  }
+
+  .bcg-phone {
+    width: 100%;
+    border-right: 0;
+    border-left: 0;
+    border-radius: 0;
+    box-shadow: none;
   }
 }
