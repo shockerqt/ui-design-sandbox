@@ -5,7 +5,7 @@ import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 import { BreakTimer } from './BreakTimer';
 import { SaviaNutrition } from './SaviaNutrition';
 import { BalanceComponentGallery } from './BalanceComponentGallery';
-import { BalanceVimLogReactive } from './BalanceVimLogReactive';
+import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 
 export const mockupRegistry: MockupItem[] = [
   {
@@ -15,9 +15,9 @@ export const mockupRegistry: MockupItem[] = [
     description:
       'Registro nutricional terminal-first con buffers por día, navegación Vim, agrupación por hora, macros por alimento y subtotal de cada bloque.',
     tags: ['Balance', 'terminal', 'Vim', 'keyboard-first', 'visual mode', 'food log'],
-    version: 'v2.1.0',
-    updatedAt: '2026-08-19',
-    component: BalanceVimLogReactive
+    version: 'v2.2.0',
+    updatedAt: '2026-08-20',
+    component: BalanceVimLogWithHelp
   },
   {
     id: 'balance-componentes',
