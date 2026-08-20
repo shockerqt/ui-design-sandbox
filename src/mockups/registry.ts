@@ -13,9 +13,9 @@ export const mockupRegistry: MockupItem[] = [
     title: 'Balance · Terminal food log',
     category: 'Dashboards',
     description:
-      'Registro nutricional terminal-first con buffers por día, navegación Vim, agrupación por hora, macros por alimento y subtotal de cada bloque.',
-    tags: ['Balance', 'terminal', 'Vim', 'keyboard-first', 'visual mode', 'food log'],
-    version: 'v2.2.0',
+      'Registro nutricional terminal-first con gramática Vim, selección por bloques, register persistente, edición inline de cantidad/hora, búsqueda, historial y sync status.',
+    tags: ['Balance', 'terminal', 'Vim', 'keyboard-first', 'visual mode', 'register', 'food log'],
+    version: 'v3.0.0',
     updatedAt: '2026-08-20',
     component: BalanceVimLogWithHelp
   },
