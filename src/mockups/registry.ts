@@ -15,7 +15,7 @@ export const mockupRegistry: MockupItem[] = [
     description:
       'Registro diario keyboard-first inspirado en Neovim: cursor, selección visual, copiar, cortar, eliminar, pegar, undo y búsqueda rápida de alimentos.',
     tags: ['Balance', 'Vim', 'keyboard-first', 'visual mode', 'food log', 'React'],
-    version: 'v1.0.0',
+    version: 'v1.1.0',
     updatedAt: '2026-08-19',
     component: BalanceVimLog
   },
