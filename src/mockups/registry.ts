@@ -10,12 +10,12 @@ import { BalanceVimLog } from './BalanceVimLog';
 export const mockupRegistry: MockupItem[] = [
   {
     id: 'balance-vim-log',
-    title: 'Balance · Registro Vim',
+    title: 'Balance · Terminal food log',
     category: 'Dashboards',
     description:
-      'Registro diario keyboard-first inspirado en Neovim: cursor, selección visual, copiar, cortar, eliminar, pegar, undo y búsqueda rápida de alimentos.',
-    tags: ['Balance', 'Vim', 'keyboard-first', 'visual mode', 'food log', 'React'],
-    version: 'v1.1.0',
+      'Registro nutricional terminal-first con buffers por día, navegación Vim, agrupación por hora, macros por alimento y subtotal de cada bloque.',
+    tags: ['Balance', 'terminal', 'Vim', 'keyboard-first', 'visual mode', 'food log'],
+    version: 'v2.0.0',
     updatedAt: '2026-08-19',
     component: BalanceVimLog
   },
