@@ -1,5 +1,6 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Clipboard, Copy, Plus, RotateCcw, Scissors, Trash2 } from 'lucide-react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Dialog } from '@base-ui/react/dialog';
+import { Clipboard, Copy, Plus, RotateCcw, Scissors, Search, Trash2 } from 'lucide-react';
 
 type Mode = 'normal' | 'visual' | 'insert';
 
@@ -69,7 +70,10 @@ const LIBRARY: Omit<FoodRow, 'id' | 'time'>[] = [
   { name: 'Palta', quantity: '80 g', kcal: 128, protein: 2, carbs: 7, fat: 12 },
 ];
 
-const cloneDays = (days: DayLog[]) => days.map((day) => ({ ...day, rows: day.rows.map((row) => ({ ...row })) }));
+const cloneDays = (days: DayLog[]) => days.map((day) => ({
+  ...day,
+  rows: day.rows.map((row) => ({ ...row })),
+}));
 
 const groupByMoment = (rows: FoodRow[]) => {
   const groups: Array<{ time: string; rows: Array<{ row: FoodRow; index: number }> }> = [];
@@ -79,10 +83,12 @@ const groupByMoment = (rows: FoodRow[]) => {
   rows.forEach((row, index) => {
     const [hour, minute] = row.time.split(':').map(Number);
     const minutes = hour * 60 + minute;
+
     if (lastMinutes === null || minutes - lastMinutes > 20) {
       current = { time: row.time, rows: [] };
       groups.push(current);
     }
+
     current?.rows.push({ row, index });
     lastMinutes = minutes;
   });
@@ -100,6 +106,7 @@ export const BalanceVimLog: React.FC = () => {
   const [history, setHistory] = useState<DayLog[][]>([]);
   const [search, setSearch] = useState('');
   const [notice, setNotice] = useState('');
+  const searchRef = useRef<HTMLInputElement>(null);
 
   const day = days[dayIndex];
   const rows = day.rows;
@@ -107,6 +114,7 @@ export const BalanceVimLog: React.FC = () => {
   const selectedIndexes = useMemo(() => {
     if (!rows.length) return [];
     if (mode !== 'visual' || visualAnchor === null) return [cursor];
+
     const from = Math.min(visualAnchor, cursor);
     const to = Math.max(visualAnchor, cursor);
     return Array.from({ length: to - from + 1 }, (_, index) => from + index);
@@ -115,22 +123,21 @@ export const BalanceVimLog: React.FC = () => {
   const selected = useMemo(() => new Set(selectedIndexes), [selectedIndexes]);
 
   const totals = useMemo(
-    () =>
-      rows.reduce(
-        (acc, row) => ({
-          kcal: acc.kcal + row.kcal,
-          protein: acc.protein + row.protein,
-          carbs: acc.carbs + row.carbs,
-          fat: acc.fat + row.fat,
-        }),
-        { kcal: 0, protein: 0, carbs: 0, fat: 0 }
-      ),
+    () => rows.reduce(
+      (acc, row) => ({
+        kcal: acc.kcal + row.kcal,
+        protein: acc.protein + row.protein,
+        carbs: acc.carbs + row.carbs,
+        fat: acc.fat + row.fat,
+      }),
+      { kcal: 0, protein: 0, carbs: 0, fat: 0 }
+    ),
     [rows]
   );
 
   const filteredLibrary = useMemo(() => {
     const query = search.trim().toLowerCase();
-    return LIBRARY.filter((item) => item.name.toLowerCase().includes(query)).slice(0, 5);
+    return LIBRARY.filter((item) => item.name.toLowerCase().includes(query)).slice(0, 6);
   }, [search]);
 
   const checkpoint = useCallback(() => {
@@ -139,64 +146,55 @@ export const BalanceVimLog: React.FC = () => {
 
   const flash = useCallback((message: string) => {
     setNotice(message);
-    window.setTimeout(() => setNotice(''), 1300);
+    window.setTimeout(() => setNotice(''), 1400);
   }, []);
 
-  const changeDay = useCallback(
-    (delta: number) => {
-      setDayIndex((current) => {
-        const next = Math.max(0, Math.min(days.length - 1, current + delta));
-        const nextLength = days[next].rows.length;
-        setCursor((value) => Math.min(value, Math.max(0, nextLength - 1)));
-        setMode('normal');
-        setVisualAnchor(null);
-        return next;
-      });
-    },
-    [days]
-  );
-
-  const moveCursor = useCallback(
-    (delta: number) => {
-      if (!rows.length) return;
-      setCursor((current) => Math.max(0, Math.min(rows.length - 1, current + delta)));
-    },
-    [rows.length]
-  );
-
-  const copyOrCut = useCallback(
-    (kind: 'copy' | 'cut') => {
-      if (!selectedIndexes.length) return;
-      const picked = selectedIndexes.map((index) => ({ ...rows[index] }));
-      setRegister({ kind, rows: picked });
-
-      if (kind === 'cut') {
-        checkpoint();
-        setDays((current) =>
-          current.map((item, index) =>
-            index === dayIndex
-              ? { ...item, rows: item.rows.filter((_, rowIndex) => !selected.has(rowIndex)) }
-              : item
-          )
-        );
-        setCursor(Math.min(selectedIndexes[0], Math.max(0, rows.length - selectedIndexes.length - 1)));
-      }
-
+  const changeDay = useCallback((delta: number) => {
+    setDayIndex((current) => {
+      const next = Math.max(0, Math.min(days.length - 1, current + delta));
+      const nextLength = days[next].rows.length;
+      setCursor((value) => Math.min(value, Math.max(0, nextLength - 1)));
       setMode('normal');
       setVisualAnchor(null);
-      flash(`${picked.length} registro${picked.length === 1 ? '' : 's'} ${kind === 'copy' ? 'copiado' : 'cortado'}`);
-    }, [checkpoint, dayIndex, flash, rows, selected, selectedIndexes]);
+      return next;
+    });
+  }, [days]);
 
-  const remove = useCallback(() => {
+  const moveCursor = useCallback((delta: number) => {
+    if (!rows.length) return;
+    setCursor((current) => Math.max(0, Math.min(rows.length - 1, current + delta)));
+  }, [rows.length]);
+
+  const copyOrCut = useCallback((kind: 'copy' | 'cut') => {
     if (!selectedIndexes.length) return;
-    checkpoint();
-    setDays((current) =>
-      current.map((item, index) =>
+
+    const picked = selectedIndexes.map((index) => ({ ...rows[index] }));
+    setRegister({ kind, rows: picked });
+
+    if (kind === 'cut') {
+      checkpoint();
+      setDays((current) => current.map((item, index) =>
         index === dayIndex
           ? { ...item, rows: item.rows.filter((_, rowIndex) => !selected.has(rowIndex)) }
           : item
-      )
-    );
+      ));
+      setCursor(Math.min(selectedIndexes[0], Math.max(0, rows.length - selectedIndexes.length - 1)));
+    }
+
+    setMode('normal');
+    setVisualAnchor(null);
+    flash(`${picked.length} registro${picked.length === 1 ? '' : 's'} ${kind === 'copy' ? 'copiado' : 'cortado'}`);
+  }, [checkpoint, dayIndex, flash, rows, selected, selectedIndexes]);
+
+  const remove = useCallback(() => {
+    if (!selectedIndexes.length) return;
+
+    checkpoint();
+    setDays((current) => current.map((item, index) =>
+      index === dayIndex
+        ? { ...item, rows: item.rows.filter((_, rowIndex) => !selected.has(rowIndex)) }
+        : item
+    ));
     setCursor(Math.min(selectedIndexes[0], Math.max(0, rows.length - selectedIndexes.length - 1)));
     setMode('normal');
     setVisualAnchor(null);
@@ -205,7 +203,7 @@ export const BalanceVimLog: React.FC = () => {
 
   const paste = useCallback(() => {
     if (!register?.rows.length) {
-      flash('El registro está vacío');
+      flash('El register está vacío');
       return;
     }
 
@@ -213,17 +211,16 @@ export const BalanceVimLog: React.FC = () => {
     const position = rows.length ? Math.min(cursor + 1, rows.length) : 0;
     const pasted = register.rows.map((row) => ({
       ...row,
-      id: register.kind === 'cut' ? row.id : `${row.id}-${Date.now()}-${Math.random()}`,
+      id: register.kind === 'cut' ? row.id : crypto.randomUUID(),
     }));
 
-    setDays((current) =>
-      current.map((item, index) => {
-        if (index !== dayIndex) return item;
-        const nextRows = [...item.rows];
-        nextRows.splice(position, 0, ...pasted);
-        return { ...item, rows: nextRows };
-      })
-    );
+    setDays((current) => current.map((item, index) => {
+      if (index !== dayIndex) return item;
+      const nextRows = [...item.rows];
+      nextRows.splice(position, 0, ...pasted);
+      return { ...item, rows: nextRows };
+    }));
+
     setCursor(position);
     if (register.kind === 'cut') setRegister(null);
     flash(`${pasted.length} registro${pasted.length === 1 ? '' : 's'} pegado`);
@@ -235,6 +232,7 @@ export const BalanceVimLog: React.FC = () => {
       flash('Nada que deshacer');
       return;
     }
+
     setDays(cloneDays(previous));
     setHistory((items) => items.slice(0, -1));
     setMode('normal');
@@ -243,45 +241,40 @@ export const BalanceVimLog: React.FC = () => {
     flash('Deshecho');
   }, [dayIndex, flash, history]);
 
-  const addFood = useCallback(
-    (food: (typeof LIBRARY)[number]) => {
-      checkpoint();
-      const position = rows.length ? Math.min(cursor + 1, rows.length) : 0;
-      const currentTime = rows[cursor]?.time ?? '12:00';
-      const next: FoodRow = {
-        ...food,
-        id: `new-${Date.now()}`,
-        time: currentTime,
-      };
-      setDays((current) =>
-        current.map((item, index) => {
-          if (index !== dayIndex) return item;
-          const nextRows = [...item.rows];
-          nextRows.splice(position, 0, next);
-          return { ...item, rows: nextRows };
-        })
-      );
-      setCursor(position);
-      setMode('normal');
-      setSearch('');
-      flash(`${food.name} agregado`);
-    }, [checkpoint, cursor, dayIndex, flash, rows]
-  );
+  const addFood = useCallback((food: (typeof LIBRARY)[number]) => {
+    checkpoint();
+    const position = rows.length ? Math.min(cursor + 1, rows.length) : 0;
+    const currentTime = rows[cursor]?.time ?? '12:00';
+    const next: FoodRow = {
+      ...food,
+      id: crypto.randomUUID(),
+      time: currentTime,
+    };
+
+    setDays((current) => current.map((item, index) => {
+      if (index !== dayIndex) return item;
+      const nextRows = [...item.rows];
+      nextRows.splice(position, 0, next);
+      return { ...item, rows: nextRows };
+    }));
+
+    setCursor(position);
+    setMode('normal');
+    setSearch('');
+    flash(`${food.name} agregado`);
+  }, [checkpoint, cursor, dayIndex, flash, rows]);
+
+  const openAdd = useCallback(() => {
+    setMode('insert');
+    setSearch('');
+  }, []);
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
       const typing = target?.tagName === 'INPUT' || target?.tagName === 'TEXTAREA';
 
-      if (mode === 'insert') {
-        if (event.key === 'Escape') {
-          event.preventDefault();
-          setMode('normal');
-          setSearch('');
-        }
-        return;
-      }
-
+      if (mode === 'insert') return;
       if (typing || event.metaKey || event.ctrlKey || event.altKey) return;
 
       const commands: Record<string, () => void> = {
@@ -304,10 +297,7 @@ export const BalanceVimLog: React.FC = () => {
         x: remove,
         p: paste,
         u: undo,
-        a: () => {
-          setMode('insert');
-          window.setTimeout(() => document.getElementById('balance-vim-search')?.focus(), 0);
-        },
+        a: openAdd,
         Escape: () => {
           setMode('normal');
           setVisualAnchor(null);
@@ -315,83 +305,89 @@ export const BalanceVimLog: React.FC = () => {
       };
 
       const command = commands[event.key];
-      if (command) {
-        event.preventDefault();
-        command();
-      }
+      if (!command) return;
+      event.preventDefault();
+      command();
     };
 
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
-  }, [changeDay, copyOrCut, cursor, mode, moveCursor, paste, remove, undo]);
+  }, [changeDay, copyOrCut, cursor, mode, moveCursor, openAdd, paste, remove, undo]);
 
   return (
-    <div className="skin skin-tabla" style={pageStyle}>
-      <div style={appStyle}>
-        <header style={headerStyle}>
-          <div>
-            <div style={eyebrowStyle}>BALANCE / DAILY BUFFER</div>
-            <div style={brandStyle}>registro.</div>
-          </div>
-          <div style={headerHelpStyle}>
-            <Key>j</Key><Key>k</Key> mover&nbsp;&nbsp; <Key>v</Key> seleccionar&nbsp;&nbsp; <Key>a</Key> agregar
+    <div className="bvl-root">
+      <style>{styles}</style>
+
+      <div className="bvl-app">
+        <header className="bvl-topbar">
+          <div className="bvl-brand">balance/food-log</div>
+          <div className="bvl-top-hints" aria-label="Atajos principales">
+            <span><Key>/</Key> buscar</span>
+            <span><Key>:</Key> comandos</span>
+            <span><Key>?</Key> ayuda</span>
           </div>
         </header>
 
-        <section style={dateNavStyle}>
-          <button type="button" style={navButtonStyle} onClick={() => changeDay(-1)} disabled={dayIndex === 0}>
-            <span style={navHintStyle}>h</span>
-            {days[Math.max(0, dayIndex - 1)].label}
+        <section className="bvl-day-nav">
+          <button
+            type="button"
+            className="bvl-day-side bvl-day-prev"
+            onClick={() => changeDay(-1)}
+            disabled={dayIndex === 0}>
+            <Key>h</Key>
+            <span>{days[Math.max(0, dayIndex - 1)].label}</span>
           </button>
 
-          <div style={{ textAlign: 'center' }}>
-            <div style={relationStyle}>{day.relation}</div>
-            <div style={dateStyle}>{day.label}</div>
-            <div style={markerStyle} />
+          <div className="bvl-day-main">
+            <div className="bvl-relation">{day.relation}</div>
+            <h2>{day.label}</h2>
+            <div className="bvl-scribble" />
           </div>
 
-          <button type="button" style={navButtonStyle} onClick={() => changeDay(1)} disabled={dayIndex === days.length - 1}>
-            {days[Math.min(days.length - 1, dayIndex + 1)].label}
-            <span style={navHintStyle}>l</span>
+          <button
+            type="button"
+            className="bvl-day-side bvl-day-next"
+            onClick={() => changeDay(1)}
+            disabled={dayIndex === days.length - 1}>
+            <span>{days[Math.min(days.length - 1, dayIndex + 1)].label}</span>
+            <Key>l</Key>
           </button>
         </section>
 
-        <section style={macroGridStyle}>
+        <section className="bvl-summary" aria-label="Resumen nutricional">
           <Macro value={totals.kcal} label="kcal" />
           <Macro value={totals.protein} label="protein" />
           <Macro value={totals.carbs} label="carbs" />
           <Macro value={totals.fat} label="fat" />
         </section>
 
-        <main style={timelineStyle}>
+        <main className="bvl-timeline">
           {groupByMoment(rows).map((group) => (
-            <section key={`${group.time}-${group.rows[0]?.row.id}`} style={momentStyle}>
-              <div style={timeStyle}>{group.time}</div>
-              <div>
+            <section key={`${group.time}-${group.rows[0]?.row.id}`} className="bvl-moment">
+              <div className="bvl-time">{group.time}</div>
+
+              <div className="bvl-moment-rows">
                 {group.rows.map(({ row, index }) => {
                   const isCursor = index === cursor;
                   const isSelected = mode === 'visual' && selected.has(index);
+
                   return (
                     <button
                       type="button"
                       key={row.id}
+                      className={`bvl-row${isCursor ? ' is-cursor' : ''}${isSelected ? ' is-selected' : ''}`}
                       onClick={() => {
                         setCursor(index);
                         setMode('normal');
                         setVisualAnchor(null);
-                      }}
-                      style={{
-                        ...rowStyle,
-                        ...(isCursor ? cursorRowStyle : {}),
-                        ...(isSelected ? selectedRowStyle : {}),
                       }}>
-                      <span style={{ ...gutterStyle, opacity: isCursor || isSelected ? 1 : 0.18 }} />
-                      <span style={{ minWidth: 0 }}>
-                        <span style={foodNameStyle}>{row.name}</span>
-                        <span style={foodMetaStyle}>{row.protein}P · {row.carbs}C · {row.fat}F</span>
+                      <span className="bvl-gutter" />
+                      <span className="bvl-food-copy">
+                        <span className="bvl-food-name">{row.name}</span>
+                        <span className="bvl-food-meta">{row.protein}P · {row.carbs}C · {row.fat}F</span>
                       </span>
-                      <span style={quantityStyle}>{row.quantity}</span>
-                      <span style={calorieStyle}>{row.kcal}</span>
+                      <span className="bvl-quantity">{row.quantity}</span>
+                      <span className="bvl-kcal">{row.kcal} kcal</span>
                     </button>
                   );
                 })}
@@ -400,143 +396,644 @@ export const BalanceVimLog: React.FC = () => {
           ))}
 
           {!rows.length && (
-            <button type="button" style={emptyStyle} onClick={() => setMode('insert')}>
+            <button type="button" className="bvl-empty" onClick={openAdd}>
               Día vacío. Presiona <Key>a</Key> para agregar el primer alimento.
             </button>
           )}
         </main>
 
-        {mode === 'insert' && (
-          <section style={paletteStyle}>
-            <div style={paletteLabelStyle}>ADD FOOD</div>
-            <input
-              id="balance-vim-search"
-              value={search}
-              onChange={(event) => setSearch(event.target.value)}
-              placeholder="buscar biblioteca…"
-              style={searchStyle}
-            />
-            <div style={resultsStyle}>
-              {filteredLibrary.map((food, index) => (
-                <button type="button" key={food.name} style={resultStyle} onClick={() => addFood(food)}>
-                  <span><span style={resultNumberStyle}>{index + 1}</span>{food.name}</span>
-                  <span style={resultMetaStyle}>{food.quantity} · {food.kcal} kcal</span>
-                </button>
-              ))}
-            </div>
-            <div style={paletteFooterStyle}><Key>esc</Key> cancelar · click para agregar</div>
-          </section>
-        )}
-
-        <footer style={statusStyle}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 10, minWidth: 0 }}>
-            <span style={{ ...modeStyle, ...(mode === 'visual' ? visualModeStyle : {}) }}>{mode.toUpperCase()}</span>
-            <span style={statusTextStyle}>
+        <footer className="bvl-statusbar">
+          <div className="bvl-status-left">
+            <span className={`bvl-mode bvl-mode-${mode}`}>{mode.toUpperCase()}</span>
+            <span className="bvl-status-text">
               {notice || (mode === 'visual'
-                ? `${selectedIndexes.length} items · ${selectedIndexes.reduce((sum, index) => sum + (rows[index]?.kcal ?? 0), 0)} kcal`
+                ? `${selectedIndexes.length} items · ${selectedIndexes.reduce((sum, index) => sum + (rows[index]?.kcal ?? 0), 0)} kcal seleccionadas`
                 : register
                   ? `${register.rows.length} item${register.rows.length === 1 ? '' : 's'} en register · p para pegar`
                   : 'j/k navegar · h/l día · v visual · y copiar · d cortar · x eliminar · p pegar')}
             </span>
           </div>
 
-          <div style={actionStripStyle}>
-            <Action icon={<Copy size={14} />} label="y copy" onClick={() => copyOrCut('copy')} />
-            <Action icon={<Scissors size={14} />} label="d cut" onClick={() => copyOrCut('cut')} />
-            <Action icon={<Trash2 size={14} />} label="x delete" onClick={remove} />
-            <Action icon={<Clipboard size={14} />} label="p paste" onClick={paste} />
-            <Action icon={<RotateCcw size={14} />} label="u undo" onClick={undo} />
-            <Action icon={<Plus size={14} />} label="a add" onClick={() => setMode('insert')} />
+          <div className="bvl-actions">
+            <Action icon={<Copy size={13} />} label="y copy" onClick={() => copyOrCut('copy')} />
+            <Action icon={<Scissors size={13} />} label="d cut" onClick={() => copyOrCut('cut')} />
+            <Action icon={<Trash2 size={13} />} label="x delete" onClick={remove} />
+            <Action icon={<Clipboard size={13} />} label="p paste" onClick={paste} />
+            <Action icon={<RotateCcw size={13} />} label="u undo" onClick={undo} />
+            <Action icon={<Plus size={13} />} label="a add" onClick={openAdd} />
           </div>
         </footer>
       </div>
+
+      <Dialog.Root
+        open={mode === 'insert'}
+        onOpenChange={(open) => {
+          if (!open) {
+            setMode('normal');
+            setSearch('');
+          }
+        }}>
+        <Dialog.Portal>
+          <Dialog.Backdrop className="bvl-dialog-backdrop" />
+          <Dialog.Viewport className="bvl-dialog-viewport">
+            <Dialog.Popup className="bvl-dialog" initialFocus={searchRef}>
+              <div className="bvl-dialog-heading">
+                <div>
+                  <Dialog.Title className="bvl-dialog-title">Add food</Dialog.Title>
+                  <Dialog.Description className="bvl-dialog-description">
+                    Busca en tu biblioteca y agrega un alimento al registro actual.
+                  </Dialog.Description>
+                </div>
+                <Key>esc</Key>
+              </div>
+
+              <div className="bvl-search-wrap">
+                <Search size={16} />
+                <input
+                  ref={searchRef}
+                  value={search}
+                  onChange={(event) => setSearch(event.target.value)}
+                  placeholder="avena, pollo, arroz…"
+                  className="bvl-search"
+                />
+              </div>
+
+              <div className="bvl-results">
+                <div className="bvl-result-section">RECENT / MATCHES</div>
+                {filteredLibrary.map((food, index) => (
+                  <button
+                    type="button"
+                    key={food.name}
+                    className="bvl-result"
+                    onClick={() => addFood(food)}>
+                    <span className="bvl-result-index">{index + 1}</span>
+                    <span className="bvl-result-name">{food.name}</span>
+                    <span className="bvl-result-meta">{food.quantity} · {food.kcal} kcal</span>
+                  </button>
+                ))}
+              </div>
+
+              <div className="bvl-dialog-footer">
+                <span><Key>↑</Key><Key>↓</Key> seleccionar</span>
+                <span><Key>↵</Key> agregar</span>
+                <span><Key>esc</Key> cancelar</span>
+              </div>
+            </Dialog.Popup>
+          </Dialog.Viewport>
+        </Dialog.Portal>
+      </Dialog.Root>
     </div>
   );
 };
 
 const Key: React.FC<React.PropsWithChildren> = ({ children }) => (
-  <kbd style={keyStyle}>{children}</kbd>
+  <kbd className="bvl-key">{children}</kbd>
 );
 
 const Macro: React.FC<{ value: number; label: string }> = ({ value, label }) => (
-  <div style={macroStyle}>
-    <strong style={macroValueStyle}>{Math.round(value)}</strong>
-    <span style={macroLabelStyle}>{label}</span>
+  <div className="bvl-macro">
+    <strong>{Math.round(value)}</strong>
+    <span>{label}</span>
   </div>
 );
 
 const Action: React.FC<{ icon: React.ReactNode; label: string; onClick: () => void }> = ({ icon, label, onClick }) => (
-  <button type="button" onClick={onClick} style={actionStyle}>{icon}{label}</button>
+  <button type="button" className="bvl-action" onClick={onClick}>
+    {icon}
+    <span>{label}</span>
+  </button>
 );
 
-const pageStyle: React.CSSProperties = {
-  minHeight: '100%',
-  background: 'var(--sk-bg)',
-  color: 'var(--sk-ink)',
-  fontFamily: 'var(--sk-font-ui)',
-};
+const styles = `
+  .bvl-root {
+    --bvl-bg: #f3f4f6;
+    --bvl-panel: #ffffff;
+    --bvl-panel-soft: #fafbfc;
+    --bvl-text: #17191d;
+    --bvl-muted: #7b808a;
+    --bvl-faint: #a9afb8;
+    --bvl-line: #e2e5e9;
+    --bvl-line-strong: #cfd4db;
+    --bvl-accent: #4f7cff;
+    --bvl-accent-soft: #edf2ff;
+    --bvl-accent-line: #a9bcff;
+    min-height: 100%;
+    padding: 34px;
+    background: var(--bvl-bg);
+    color: var(--bvl-text);
+    font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
 
-const appStyle: React.CSSProperties = {
-  minHeight: 'calc(100vh - 48px)',
-  display: 'flex',
-  flexDirection: 'column',
-  backgroundImage: 'linear-gradient(var(--sk-line) 1px, transparent 1px)',
-  backgroundSize: '100% 46px',
-};
+  .bvl-app {
+    width: min(1080px, 100%);
+    min-height: calc(100vh - 116px);
+    margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border: 1px solid var(--bvl-line-strong);
+    border-radius: 18px;
+    background: var(--bvl-panel);
+    box-shadow: 0 18px 55px rgba(21, 28, 38, 0.08);
+  }
 
-const headerStyle: React.CSSProperties = {
-  minHeight: 70,
-  display: 'flex',
-  alignItems: 'center',
-  justifyContent: 'space-between',
-  gap: 20,
-  padding: '14px 28px',
-  borderBottom: 'var(--sk-rule-heavy) solid var(--sk-ink)',
-  background: 'var(--sk-bg)',
-};
+  .bvl-topbar {
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 0 18px;
+    border-bottom: 1px solid var(--bvl-line);
+    background: var(--bvl-panel-soft);
+  }
 
-const eyebrowStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.16em', color: 'var(--sk-quiet)' };
-const brandStyle: React.CSSProperties = { fontFamily: 'var(--sk-font-display)', fontSize: '1.55rem', fontWeight: 800, letterSpacing: '-0.04em' };
-const headerHelpStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.68rem', color: 'var(--sk-quiet)', textAlign: 'right' };
+  .bvl-brand,
+  .bvl-key,
+  .bvl-top-hints,
+  .bvl-relation,
+  .bvl-time,
+  .bvl-food-meta,
+  .bvl-quantity,
+  .bvl-kcal,
+  .bvl-statusbar,
+  .bvl-dialog,
+  .bvl-macro {
+    font-family: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  }
 
-const dateNavStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: '1fr minmax(220px, 320px) 1fr', alignItems: 'center', gap: 22, padding: '24px 28px 16px', background: 'var(--sk-bg)' };
-const navButtonStyle: React.CSSProperties = { border: 0, background: 'transparent', color: 'var(--sk-quiet)', font: 'inherit', fontSize: '0.78rem', cursor: 'pointer', display: 'flex', gap: 8, alignItems: 'center', justifyContent: 'center' };
-const navHintStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.62rem', border: '1px solid var(--sk-line)', padding: '2px 6px' };
-const relationStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.62rem', textTransform: 'uppercase', letterSpacing: '0.14em', color: 'var(--sk-accent)' };
-const dateStyle: React.CSSProperties = { marginTop: 3, fontFamily: 'var(--sk-font-display)', fontSize: '2rem', fontWeight: 760, letterSpacing: '-0.045em' };
-const markerStyle: React.CSSProperties = { width: 126, height: 6, margin: '4px auto 0', borderTop: '3px solid var(--sk-accent)', borderRadius: '48% 54% 44% 56%', transform: 'rotate(-1deg)' };
+  .bvl-brand {
+    font-size: 0.78rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
 
-const macroGridStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: 'repeat(4, minmax(0, 1fr))', borderTop: 'var(--sk-rule-mid) solid var(--sk-line)', borderBottom: 'var(--sk-rule-heavy) solid var(--sk-ink)', background: 'var(--sk-bg)' };
-const macroStyle: React.CSSProperties = { padding: '14px 18px', textAlign: 'center', borderRight: '1px solid var(--sk-line)' };
-const macroValueStyle: React.CSSProperties = { display: 'block', fontFamily: 'var(--font-mono)', fontSize: '1.15rem', fontWeight: 800 };
-const macroLabelStyle: React.CSSProperties = { display: 'block', marginTop: 2, fontFamily: 'var(--font-mono)', color: 'var(--sk-quiet)', fontSize: '0.59rem', textTransform: 'uppercase', letterSpacing: '0.11em' };
+  .bvl-top-hints {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    color: var(--bvl-muted);
+    font-size: 0.66rem;
+  }
 
-const timelineStyle: React.CSSProperties = { width: 'min(920px, calc(100% - 48px))', margin: '0 auto', flex: 1, padding: '26px 0 120px' };
-const momentStyle: React.CSSProperties = { display: 'grid', gridTemplateColumns: '68px minmax(0, 1fr)', gap: 14, marginBottom: 18 };
-const timeStyle: React.CSSProperties = { paddingTop: 13, fontFamily: 'var(--font-mono)', fontSize: '0.64rem', color: 'var(--sk-quiet)', textAlign: 'right' };
-const rowStyle: React.CSSProperties = { width: '100%', display: 'grid', gridTemplateColumns: '7px minmax(0, 1fr) 92px 64px', gap: 12, alignItems: 'center', minHeight: 54, padding: '7px 12px 7px 8px', border: '1px solid transparent', borderBottomColor: 'var(--sk-line)', background: 'var(--sk-bg)', color: 'var(--sk-ink)', textAlign: 'left', cursor: 'pointer', font: 'inherit' };
-const cursorRowStyle: React.CSSProperties = { borderColor: 'var(--sk-ink)', boxShadow: 'inset 0 0 0 1px var(--sk-bg)' };
-const selectedRowStyle: React.CSSProperties = { background: 'var(--sk-tint)', borderColor: 'var(--sk-accent)' };
-const gutterStyle: React.CSSProperties = { display: 'block', width: 5, height: 30, background: 'var(--sk-accent)' };
-const foodNameStyle: React.CSSProperties = { display: 'block', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontWeight: 690, letterSpacing: '-0.015em' };
-const foodMetaStyle: React.CSSProperties = { display: 'block', marginTop: 3, fontFamily: 'var(--font-mono)', fontSize: '0.6rem', color: 'var(--sk-faint)' };
-const quantityStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.72rem', textAlign: 'right', color: 'var(--sk-quiet)' };
-const calorieStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.78rem', textAlign: 'right', fontWeight: 700 };
-const emptyStyle: React.CSSProperties = { width: '100%', padding: 30, border: '1px dashed var(--sk-line)', background: 'var(--sk-bg)', color: 'var(--sk-quiet)', font: 'inherit', cursor: 'pointer' };
+  .bvl-top-hints > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
 
-const paletteStyle: React.CSSProperties = { position: 'fixed', left: '50%', top: 112, transform: 'translateX(-50%)', width: 'min(620px, calc(100vw - 48px))', zIndex: 10, border: 'var(--sk-rule-heavy) solid var(--sk-ink)', background: 'var(--sk-panel)', boxShadow: '10px 10px 0 color-mix(in srgb, var(--sk-ink) 14%, transparent)' };
-const paletteLabelStyle: React.CSSProperties = { padding: '10px 13px', borderBottom: '1px solid var(--sk-line)', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', letterSpacing: '0.14em', color: 'var(--sk-quiet)' };
-const searchStyle: React.CSSProperties = { width: '100%', boxSizing: 'border-box', border: 0, borderBottom: 'var(--sk-rule-mid) solid var(--sk-ink)', background: 'var(--sk-bg)', color: 'var(--sk-ink)', padding: '15px 16px', outline: 'none', font: 'inherit', fontSize: '1rem' };
-const resultsStyle: React.CSSProperties = { padding: 6 };
-const resultStyle: React.CSSProperties = { width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, border: 0, borderBottom: '1px solid var(--sk-line)', background: 'transparent', color: 'var(--sk-ink)', padding: '11px 10px', textAlign: 'left', cursor: 'pointer', font: 'inherit' };
-const resultNumberStyle: React.CSSProperties = { display: 'inline-block', width: 24, fontFamily: 'var(--font-mono)', fontSize: '0.62rem', color: 'var(--sk-faint)' };
-const resultMetaStyle: React.CSSProperties = { fontFamily: 'var(--font-mono)', fontSize: '0.66rem', color: 'var(--sk-quiet)' };
-const paletteFooterStyle: React.CSSProperties = { padding: '8px 12px', borderTop: '1px solid var(--sk-line)', color: 'var(--sk-faint)', fontFamily: 'var(--font-mono)', fontSize: '0.6rem' };
+  .bvl-key {
+    display: inline-flex;
+    min-width: 22px;
+    height: 22px;
+    align-items: center;
+    justify-content: center;
+    padding: 0 6px;
+    border: 1px solid var(--bvl-line-strong);
+    border-bottom-width: 2px;
+    border-radius: 6px;
+    background: #fff;
+    color: #616772;
+    font-size: 0.64rem;
+    line-height: 1;
+    box-shadow: 0 1px 0 rgba(20, 25, 32, 0.03);
+  }
 
-const statusStyle: React.CSSProperties = { position: 'sticky', bottom: 0, zIndex: 8, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 20, minHeight: 48, padding: '7px 12px', borderTop: 'var(--sk-rule-heavy) solid var(--sk-ink)', background: 'var(--sk-panel)' };
-const modeStyle: React.CSSProperties = { flexShrink: 0, padding: '5px 8px', background: 'var(--sk-ink)', color: 'var(--sk-bg)', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', fontWeight: 800, letterSpacing: '0.09em' };
-const visualModeStyle: React.CSSProperties = { background: 'var(--sk-accent)', color: 'var(--sk-bg)' };
-const statusTextStyle: React.CSSProperties = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontFamily: 'var(--font-mono)', fontSize: '0.65rem', color: 'var(--sk-quiet)' };
-const actionStripStyle: React.CSSProperties = { display: 'flex', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 4 };
-const actionStyle: React.CSSProperties = { display: 'inline-flex', alignItems: 'center', gap: 5, border: '1px solid var(--sk-line)', background: 'var(--sk-bg)', color: 'var(--sk-ink)', padding: '6px 8px', cursor: 'pointer', fontFamily: 'var(--font-mono)', fontSize: '0.61rem' };
-const keyStyle: React.CSSProperties = { display: 'inline-block', minWidth: 18, padding: '1px 4px', border: '1px solid var(--sk-line)', background: 'var(--sk-panel)', color: 'var(--sk-ink)', fontFamily: 'var(--font-mono)', fontSize: '0.62rem', textAlign: 'center' };
+  .bvl-day-nav {
+    display: grid;
+    grid-template-columns: 1fr minmax(250px, 330px) 1fr;
+    align-items: center;
+    gap: 24px;
+    padding: 34px 34px 23px;
+  }
+
+  .bvl-day-side {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: 0;
+    background: transparent;
+    color: var(--bvl-muted);
+    font: inherit;
+    font-size: 0.78rem;
+    cursor: pointer;
+  }
+
+  .bvl-day-side:disabled {
+    opacity: 0.28;
+    cursor: default;
+  }
+
+  .bvl-day-prev { justify-content: flex-end; }
+  .bvl-day-next { justify-content: flex-start; }
+
+  .bvl-day-main {
+    text-align: center;
+  }
+
+  .bvl-relation {
+    color: var(--bvl-accent);
+    font-size: 0.64rem;
+    font-weight: 700;
+    letter-spacing: 0.13em;
+    text-transform: uppercase;
+  }
+
+  .bvl-day-main h2 {
+    margin: 4px 0 0;
+    font-size: clamp(1.55rem, 3vw, 2.05rem);
+    font-weight: 760;
+    letter-spacing: -0.05em;
+  }
+
+  .bvl-scribble {
+    width: 132px;
+    height: 7px;
+    margin: 5px auto 0;
+    border-top: 3px solid var(--bvl-accent);
+    border-radius: 52% 41% 58% 44%;
+    transform: rotate(-1.2deg);
+    opacity: 0.86;
+  }
+
+  .bvl-summary {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
+    padding: 0 30px 22px;
+  }
+
+  .bvl-macro {
+    padding: 12px 16px 11px;
+    border-top: 1px solid var(--bvl-line);
+    text-align: center;
+  }
+
+  .bvl-macro + .bvl-macro {
+    border-left: 1px solid transparent;
+  }
+
+  .bvl-macro strong {
+    display: block;
+    font-size: 1.18rem;
+    font-weight: 750;
+    letter-spacing: -0.045em;
+  }
+
+  .bvl-macro span {
+    display: block;
+    margin-top: 3px;
+    color: var(--bvl-muted);
+    font-size: 0.61rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+  }
+
+  .bvl-timeline {
+    width: min(900px, calc(100% - 52px));
+    flex: 1;
+    margin: 0 auto;
+    padding: 18px 0 82px;
+  }
+
+  .bvl-moment {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 14px;
+    margin-bottom: 17px;
+  }
+
+  .bvl-time {
+    padding-top: 17px;
+    color: var(--bvl-muted);
+    font-size: 0.67rem;
+    text-align: right;
+  }
+
+  .bvl-moment-rows {
+    min-width: 0;
+  }
+
+  .bvl-row {
+    width: 100%;
+    min-height: 54px;
+    display: grid;
+    grid-template-columns: 6px minmax(0, 1fr) 96px 82px;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 11px 7px 8px;
+    border: 1px solid transparent;
+    border-radius: 11px;
+    background: transparent;
+    color: var(--bvl-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 100ms ease, border-color 100ms ease;
+  }
+
+  .bvl-row:hover {
+    background: #fafbfc;
+  }
+
+  .bvl-row.is-cursor {
+    border-color: var(--bvl-line-strong);
+    background: var(--bvl-panel-soft);
+  }
+
+  .bvl-row.is-selected {
+    border-color: var(--bvl-accent-line);
+    background: var(--bvl-accent-soft);
+  }
+
+  .bvl-gutter {
+    width: 5px;
+    height: 29px;
+    justify-self: center;
+    border-radius: 99px;
+    background: transparent;
+  }
+
+  .bvl-row.is-cursor .bvl-gutter,
+  .bvl-row.is-selected .bvl-gutter {
+    background: var(--bvl-accent);
+  }
+
+  .bvl-food-copy {
+    min-width: 0;
+  }
+
+  .bvl-food-name {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.88rem;
+    font-weight: 650;
+    letter-spacing: -0.018em;
+  }
+
+  .bvl-food-meta {
+    display: block;
+    margin-top: 4px;
+    color: var(--bvl-faint);
+    font-size: 0.61rem;
+  }
+
+  .bvl-quantity,
+  .bvl-kcal {
+    color: #5f6570;
+    font-size: 0.7rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .bvl-kcal {
+    color: var(--bvl-muted);
+  }
+
+  .bvl-empty {
+    width: 100%;
+    padding: 42px 20px;
+    border: 1px dashed var(--bvl-line-strong);
+    border-radius: 12px;
+    background: transparent;
+    color: var(--bvl-muted);
+    cursor: pointer;
+  }
+
+  .bvl-statusbar {
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 8px 11px;
+    border-top: 1px solid var(--bvl-line);
+    background: var(--bvl-panel-soft);
+    font-size: 0.65rem;
+  }
+
+  .bvl-status-left {
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .bvl-mode {
+    flex: 0 0 auto;
+    padding: 5px 8px;
+    border-radius: 6px;
+    background: #1f2329;
+    color: #fff;
+    font-weight: 750;
+    letter-spacing: 0.06em;
+  }
+
+  .bvl-mode-visual,
+  .bvl-mode-insert {
+    background: var(--bvl-accent);
+  }
+
+  .bvl-status-text {
+    overflow: hidden;
+    color: var(--bvl-muted);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .bvl-actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .bvl-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    min-height: 29px;
+    padding: 0 7px;
+    border: 0;
+    border-radius: 6px;
+    background: transparent;
+    color: var(--bvl-muted);
+    font: inherit;
+    cursor: pointer;
+  }
+
+  .bvl-action:hover {
+    background: #eef0f3;
+    color: var(--bvl-text);
+  }
+
+  .bvl-dialog-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(20, 24, 31, 0.28);
+    backdrop-filter: blur(3px);
+  }
+
+  .bvl-dialog-viewport {
+    position: fixed;
+    inset: 0;
+    z-index: 101;
+    display: grid;
+    place-items: start center;
+    padding: 110px 20px 30px;
+  }
+
+  .bvl-dialog {
+    width: min(560px, 100%);
+    overflow: hidden;
+    border: 1px solid var(--bvl-line-strong);
+    border-radius: 15px;
+    background: #fff;
+    color: var(--bvl-text);
+    box-shadow: 0 28px 80px rgba(16, 21, 29, 0.2);
+  }
+
+  .bvl-dialog-heading {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 17px 17px 12px;
+  }
+
+  .bvl-dialog-title {
+    margin: 0;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.025em;
+  }
+
+  .bvl-dialog-description {
+    margin: 4px 0 0;
+    color: var(--bvl-muted);
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.73rem;
+  }
+
+  .bvl-search-wrap {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    margin: 0 12px;
+    padding: 0 11px;
+    border: 1px solid var(--bvl-line-strong);
+    border-radius: 10px;
+    color: var(--bvl-muted);
+  }
+
+  .bvl-search-wrap:focus-within {
+    border-color: var(--bvl-accent);
+    box-shadow: 0 0 0 3px var(--bvl-accent-soft);
+  }
+
+  .bvl-search {
+    width: 100%;
+    min-width: 0;
+    height: 42px;
+    padding: 0;
+    border: 0;
+    outline: 0;
+    background: transparent;
+    color: var(--bvl-text);
+    font: inherit;
+    font-size: 0.82rem;
+  }
+
+  .bvl-search::placeholder {
+    color: var(--bvl-faint);
+  }
+
+  .bvl-results {
+    padding: 9px 7px 8px;
+  }
+
+  .bvl-result-section {
+    padding: 5px 10px 7px;
+    color: var(--bvl-faint);
+    font-size: 0.58rem;
+    letter-spacing: 0.09em;
+  }
+
+  .bvl-result {
+    width: 100%;
+    min-height: 42px;
+    display: grid;
+    grid-template-columns: 28px minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 9px;
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--bvl-text);
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .bvl-result:hover,
+  .bvl-result:focus-visible {
+    outline: 0;
+    background: var(--bvl-accent-soft);
+  }
+
+  .bvl-result-index {
+    color: var(--bvl-faint);
+    font-size: 0.62rem;
+  }
+
+  .bvl-result-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+
+  .bvl-result-meta {
+    color: var(--bvl-muted);
+    font-size: 0.62rem;
+  }
+
+  .bvl-dialog-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 13px;
+    padding: 9px 12px;
+    border-top: 1px solid var(--bvl-line);
+    background: var(--bvl-panel-soft);
+    color: var(--bvl-muted);
+    font-size: 0.6rem;
+  }
+
+  .bvl-dialog-footer > span {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  @media (max-width: 760px) {
+    .bvl-root { padding: 14px; }
+    .bvl-app { min-height: calc(100vh - 76px); border-radius: 13px; }
+    .bvl-top-hints { display: none; }
+    .bvl-day-nav { grid-template-columns: 1fr; gap: 8px; padding: 25px 18px 17px; }
+    .bvl-day-side { display: none; }
+    .bvl-summary { grid-template-columns: repeat(2, 1fr); padding-inline: 16px; }
+    .bvl-timeline { width: calc(100% - 24px); }
+    .bvl-moment { grid-template-columns: 45px minmax(0, 1fr); gap: 7px; }
+    .bvl-row { grid-template-columns: 5px minmax(0, 1fr) 68px; gap: 8px; padding-inline: 5px 8px; }
+    .bvl-kcal { display: none; }
+    .bvl-actions { display: none; }
+    .bvl-status-text { white-space: normal; }
+    .bvl-dialog-viewport { padding-top: 70px; }
+  }
+`;
