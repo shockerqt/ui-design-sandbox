@@ -5,8 +5,20 @@ import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 import { BreakTimer } from './BreakTimer';
 import { SaviaNutrition } from './SaviaNutrition';
 import { BalanceComponentGallery } from './BalanceComponentGallery';
+import { BalanceVimLog } from './BalanceVimLog';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-vim-log',
+    title: 'Balance · Registro Vim',
+    category: 'Dashboards',
+    description:
+      'Registro diario keyboard-first inspirado en Neovim: cursor, selección visual, copiar, cortar, eliminar, pegar, undo y búsqueda rápida de alimentos.',
+    tags: ['Balance', 'Vim', 'keyboard-first', 'visual mode', 'food log', 'React'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-19',
+    component: BalanceVimLog
+  },
   {
     id: 'balance-componentes',
     title: 'Balance · Atlas de componentes',
