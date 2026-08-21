@@ -5,8 +5,20 @@ import { PrimitivesWorkbench } from './PrimitivesWorkbench';
 import { BreakTimer } from './BreakTimer';
 import { SaviaNutrition } from './SaviaNutrition';
 import { BalanceComponentGallery } from './BalanceComponentGallery';
+import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-vim-log',
+    title: 'Balance · Terminal food log',
+    category: 'Dashboards',
+    description:
+      'Registro nutricional terminal-first con gramática Vim, selección por bloques, register persistente, edición inline de cantidad/hora, búsqueda, historial y sync status.',
+    tags: ['Balance', 'terminal', 'Vim', 'keyboard-first', 'visual mode', 'register', 'food log'],
+    version: 'v3.0.0',
+    updatedAt: '2026-08-20',
+    component: BalanceVimLogWithHelp
+  },
   {
     id: 'balance-componentes',
     title: 'Balance · Pantallas',
