@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Tabs } from '@base-ui/react';
 import { BarChart3, ChevronLeft, ChevronRight, ListChecks, Plus, UserRound } from 'lucide-react';
 
 /* ============================================================
@@ -351,13 +352,15 @@ export const BalanceComponentGallery: React.FC = () => {
         <div className="bcg-lab-controls" aria-label="Controles del laboratorio">
           <div>
             <GalleryLabel>Paleta</GalleryLabel>
-            <div className="bcg-segments">
-              {(Object.keys(PALETTES) as PaletteKey[]).map((key) => (
-                <button key={key} data-active={paletteKey === key} onClick={() => setPaletteKey(key)}>
-                  {PALETTES[key].label}
-                </button>
-              ))}
-            </div>
+            <Tabs.Root value={paletteKey} onValueChange={(value) => setPaletteKey(value as PaletteKey)}>
+              <Tabs.List className="bcg-segments" aria-label="Paleta del mockup">
+                {(Object.keys(PALETTES) as PaletteKey[]).map((key) => (
+                  <Tabs.Tab key={key} value={key}>
+                    {PALETTES[key].label}
+                  </Tabs.Tab>
+                ))}
+              </Tabs.List>
+            </Tabs.Root>
           </div>
         </div>
       </header>

@@ -1021,7 +1021,7 @@ a {
   font-weight: 600;
 }
 
-.bcg-segments button[data-active='true'] {
+.bcg-segments button[data-active] {
   color: var(--bcg-bg);
   background: var(--bcg-ink);
 }
