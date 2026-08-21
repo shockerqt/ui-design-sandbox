@@ -21,13 +21,13 @@ export const mockupRegistry: MockupItem[] = [
   },
   {
     id: 'balance-componentes',
-    title: 'Balance · Atlas de componentes',
-    category: 'Base UI Primitives',
+    title: 'Balance · Pantallas',
+    category: 'Dashboards',
     description:
-      'Galería interactiva de las superficies, navegación, timeline horario, controles, estados, modal y drawer que definen el lenguaje visual de Balance.',
-    tags: ['Balance', 'design system', 'componentes', 'modal', 'drawer', 'Base UI'],
-    version: 'v1.2.0',
-    updatedAt: '2026-08-08',
+      'Las pantallas de Balance a ancho de teléfono para iterarlas de a una: el registro del día sobre el riel horario y el resumen de la semana. Full width en móvil.',
+    tags: ['Balance', 'pantallas', 'teléfono', 'container queries', 'Base UI'],
+    version: 'v2.0.0',
+    updatedAt: '2026-08-17',
     component: BalanceComponentGallery
   },
   {
