@@ -6,8 +6,20 @@ import { BreakTimer } from './BreakTimer';
 import { SaviaNutrition } from './SaviaNutrition';
 import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
+import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-vim-log-redesign',
+    title: 'Balance · Terminal food log (Rediseño Impeccable)',
+    category: 'Dashboards',
+    description:
+      'Nueva iteración y rediseño visual de Balance Vim Food Log con dirección de arte mejorada, tipografía de alta fidelidad, microinteracciones y acabado terminal.',
+    tags: ['Balance', 'terminal', 'Vim', 'redesign', 'impeccable', 'food log'],
+    version: 'v1.0.0',
+    updatedAt: '2026-08-22',
+    component: BalanceVimLogStudio
+  },
   {
     id: 'balance-vim-log',
     title: 'Balance · Terminal food log',
