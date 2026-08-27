@@ -38,8 +38,8 @@ export const mockupRegistry: MockupItem[] = [
     description:
       'Las pantallas de Balance a ancho de teléfono para iterarlas de a una: el registro del día sobre el riel horario y el resumen de la semana. Full width en móvil.',
     tags: ['Balance', 'pantallas', 'teléfono', 'container queries', 'Base UI'],
-    version: 'v2.0.0',
-    updatedAt: '2026-08-17',
+    version: 'v2.1.0',
+    updatedAt: '2026-08-27',
     component: BalanceComponentGallery
   },
   {
