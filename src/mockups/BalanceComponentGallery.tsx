@@ -82,14 +82,15 @@ const PALETTES = {
   },
   noche: {
     label: 'Noche',
-    bg: '#12160F',
-    surface: '#1A1F16',
-    raised: '#232A1E',
-    ink: '#EEF2E6',
-    quiet: '#9AA392',
-    faint: '#656E5D',
-    line: '#333C2C',
-    danger: '#FF6B6B',
+    bg: '#0B1218',
+    surface: '#101C24',
+    raised: '#172832',
+    ink: '#E7F0F2',
+    quiet: '#A0B2B6',
+    faint: '#7F969B',
+    line: '#2B424C',
+    accent: '#67C1B5',
+    danger: '#E7906F',
   },
   tinta: {
     label: 'Alta tinta',
@@ -338,11 +339,12 @@ export const BalanceComponentGallery: React.FC = () => {
     '--bcg-quiet': palette.quiet,
     '--bcg-faint': palette.faint,
     '--bcg-line': palette.line,
+    '--bcg-accent': 'accent' in palette ? palette.accent : palette.ink,
     '--bcg-danger': palette.danger,
   } as React.CSSProperties;
 
   return (
-    <main className="bcg" style={paletteStyle}>
+    <main className="bcg" data-palette={paletteKey} style={paletteStyle}>
       <header className="bcg-masthead">
         <div className="bcg-masthead-title">
           <GalleryLabel>Balance / interfaz viva</GalleryLabel>
