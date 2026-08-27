@@ -328,7 +328,7 @@ const SCREENS = [
 ];
 
 export const BalanceComponentGallery: React.FC = () => {
-  const [paletteKey, setPaletteKey] = useState<PaletteKey>('libro');
+  const [paletteKey, setPaletteKey] = useState<PaletteKey>('noche');
   const palette = PALETTES[paletteKey];
 
   const paletteStyle = {
