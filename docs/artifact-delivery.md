@@ -23,6 +23,11 @@ switches current with an expected-current guard, checks public HTTPS root,
 previous release without rebuilding. Infrastructure owns installation and
 Cloudflare/Nginx configuration.
 
+CI builds Vite assets under `/releases/<source_sha>/`. Nginx serves those
+immutable URLs from retained release directories, while the root HTML comes
+from `current` without caching. This lets an already open page continue loading
+its version's assets during deployment or rollback.
+
 The old automatic SSH rebuild job is removed by this proposal. Do not merge
 this delivery cutover until the compatible helper, protected environment and
 rollback declaration have been reviewed and provisioned. The legacy deploy.sh
