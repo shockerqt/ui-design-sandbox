@@ -1,6 +1,6 @@
 name: Sandbox delivery
 
-run-name: Sandbox ${{ inputs.operation }} / ${{ inputs.request_id }}
+run-name: Sandbox ${{ inputs.operation }} / ${{ inputs.request_id }} / ${{ inputs.request_binding }}
 
 on:
   workflow_dispatch:
@@ -12,6 +12,10 @@ on:
         options: [deploy, rollback]
       request_id:
         description: Durable workspace request correlation ID
+        required: true
+        type: string
+      request_binding:
+        description: SHA-256 of the canonical delivery inputs
         required: true
         type: string
       source_sha:
@@ -69,6 +73,7 @@ jobs:
           OPERATION: ${{ inputs.operation }}
           REPOSITORY_ID: ${{ github.repository_id }}
           REQUEST_ID: ${{ inputs.request_id }}
+          REQUEST_BINDING: ${{ inputs.request_binding }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           TRANSPORT_DIGEST: ${{ inputs.transport_digest }}
         run: |
@@ -79,7 +84,7 @@ jobs:
           test "$GITHUB_REF" = refs/heads/main
           test "$INVOKER_ID" = 325457439
           python3 - <<'PYTHON'
-          import os, re
+          import hashlib, json, os, re
           request_id = os.environ["REQUEST_ID"]
           operation = os.environ["OPERATION"]
           hex40 = re.compile(r"[0-9a-f]{40}\Z")
@@ -87,6 +92,8 @@ jobs:
           positive = re.compile(r"[1-9][0-9]*\Z")
           if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{7,127}", request_id):
               raise SystemExit("invalid request_id")
+          if not hex64.fullmatch(os.environ["REQUEST_BINDING"]):
+              raise SystemExit("invalid request_binding")
           if not hex40.fullmatch(os.environ["SOURCE_SHA"]):
               raise SystemExit("invalid source_sha")
           if not hex64.fullmatch(os.environ["ARTIFACT_DIGEST"]):
@@ -105,6 +112,27 @@ jobs:
                       raise SystemExit(f"{name.lower()} is forbidden for rollback")
           else:
               raise SystemExit("unsupported operation")
+          binding_inputs = {
+              "operation": operation,
+              "request_id": request_id,
+              "source_sha": os.environ["SOURCE_SHA"],
+              "artifact_sha256": os.environ["ARTIFACT_DIGEST"],
+              "expected_current": os.environ["EXPECTED_CURRENT"],
+          }
+          if operation == "deploy":
+              binding_inputs.update({
+                  "artifact_run_id": os.environ["ARTIFACT_RUN_ID"],
+                  "artifact_run_attempt": os.environ["ARTIFACT_RUN_ATTEMPT"],
+                  "artifact_id": os.environ["ARTIFACT_ID"],
+                  "transport_digest": os.environ["TRANSPORT_DIGEST"],
+              })
+          observed_binding = hashlib.sha256(
+              json.dumps(
+                  binding_inputs, allow_nan=False, separators=(",", ":"), sort_keys=True
+              ).encode("utf-8")
+          ).hexdigest()
+          if observed_binding != os.environ["REQUEST_BINDING"]:
+              raise SystemExit("request_binding does not match canonical inputs")
           PYTHON
 
       - name: Checkout integrated delivery verifier
@@ -261,6 +289,7 @@ jobs:
           OPERATION: ${{ inputs.operation }}
           REPRESENTATION_OUTCOME: ${{ steps.representation.outcome }}
           REQUEST_ID: ${{ inputs.request_id }}
+          REQUEST_BINDING: ${{ inputs.request_binding }}
           SOURCE_SHA: ${{ inputs.source_sha }}
           TRANSPORT_DIGEST: ${{ inputs.transport_digest }}
         run: |
@@ -277,11 +306,14 @@ jobs:
           stages.append(("delivery", os.environ["DELIVERY_OUTCOME"]))
           failure = next((name for name, outcome in stages if outcome != "success"), None)
           request_id = os.environ["REQUEST_ID"]
+          request_binding = os.environ["REQUEST_BINDING"]
           source_sha = os.environ["SOURCE_SHA"]
           artifact_digest = os.environ["ARTIFACT_DIGEST"]
           expected_current = os.environ["EXPECTED_CURRENT"]
           if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{7,127}", request_id):
               request_id = "invalid"
+          if not re.fullmatch(r"[0-9a-f]{64}", request_binding):
+              request_binding = None
           if not re.fullmatch(r"[0-9a-f]{40}", source_sha):
               source_sha = None
           if not re.fullmatch(r"[0-9a-f]{64}", artifact_digest):
@@ -292,6 +324,7 @@ jobs:
               "schema_version": 1,
               "kind": "sandbox.delivery.result",
               "request_id": request_id,
+              "request_binding": request_binding,
               "operation": operation,
               "source_sha": source_sha,
               "artifact_sha256": artifact_digest,

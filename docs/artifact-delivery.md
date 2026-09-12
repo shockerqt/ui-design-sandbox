@@ -41,9 +41,11 @@ dispatch-only, runs solely from integrated `main`, requires the protected
 `sandbox-production` environment and accepts only the verified Control App bot
 identity. A deploy request binds the durable request ID, desired source, CI
 run/attempt, artifact ID, outer ZIP digest, inner tar digest and exact current
-release. A rollback request binds the desired prior source/digest and exact
-current source. The workflow proves the desired source is an ancestor of its
-integrated revision before it can reach the host.
+release. A canonical digest of those inputs is included in the run name so an
+ambiguous dispatch can be reconciled against the exact frozen request. A rollback
+request binds the desired prior source/digest and exact current source. The
+workflow proves the desired source is an ancestor of its integrated revision
+before it can reach the host.
 
 The workflow reads GitHub's artifact and run metadata with `actions: read`,
 downloads the exact artifact ID, and runs `verify-delivery-candidate.py`. The
