@@ -1,44 +1,68 @@
-name: CI & CD Pipeline
+name: CI artifact
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
+
+permissions:
+  contents: read
 
 jobs:
   build:
     name: Build & Validate
     runs-on: ubuntu-latest
-
+    env:
+      SOURCE_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Checkout exact source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
-          node-version-file: '.node-version'
-          cache: 'npm'
-
+          ref: ${{ env.SOURCE_SHA }}
+          persist-credentials: false
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version-file: .node-version
+          cache: npm
+      - name: Test artifact packaging
+        run: |
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-package-artifact.py
+          PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-verify-delivery-candidate.py
       - name: Install dependencies
         run: npm ci
-
-      - name: Check TypeScript & Build
-        run: npm run build
-
-  deploy:
-    name: Deploy to OCI VPS
-    needs: build
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Execute Remote Deploy via SSH
-        uses: appleboy/ssh-action@v1.0.3
+      - name: Check TypeScript and build once
+        run: npm run build -- --base "/releases/$SOURCE_SHA/"
+      - name: Package exact build with release identity
+        run: |
+          python3 scripts/package-artifact.py \
+            --dist dist --output artifact/sandbox.tar.gz \
+            --source-sha "$SOURCE_SHA" \
+            --workflow-run-id "$GITHUB_RUN_ID" \
+            --workflow-run-attempt "$GITHUB_RUN_ATTEMPT" > package-result.json
+      - name: Upload immutable release candidate
+        id: artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          script: |
-            /home/ubuntu/workspace/ui-design-sandbox/deploy.sh
+          name: sandbox-${{ env.SOURCE_SHA }}-${{ github.run_attempt }}
+          path: |
+            artifact/sandbox.tar.gz
+            artifact/sandbox.tar.gz.sha256
+            package-result.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
+      - name: Record artifact reference
+        env:
+          ARTIFACT_ID: ${{ steps.artifact.outputs.artifact-id }}
+          ARTIFACT_URL: ${{ steps.artifact.outputs.artifact-url }}
+          ARTIFACT_DIGEST: ${{ steps.artifact.outputs.artifact-digest }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os
+          result = json.load(open("package-result.json", encoding="utf-8"))
+          result.update(artifact_id=os.environ["ARTIFACT_ID"], artifact_url=os.environ["ARTIFACT_URL"], transport_digest=os.environ["ARTIFACT_DIGEST"])
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("```json\n" + json.dumps(result, indent=2) + "\n```\n")
+          PYTHON
