@@ -1,0 +1,330 @@
+name: Sandbox delivery
+
+run-name: Sandbox ${{ inputs.operation }} / ${{ inputs.request_id }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Fixed delivery operation
+        required: true
+        type: choice
+        options: [deploy, rollback]
+      request_id:
+        description: Durable workspace request correlation ID
+        required: true
+        type: string
+      source_sha:
+        description: Desired integrated Sandbox source SHA
+        required: true
+        type: string
+      artifact_sha256:
+        description: Desired inner tar SHA-256
+        required: true
+        type: string
+      expected_current:
+        description: Exact current source SHA before the operation
+        required: true
+        type: string
+      artifact_run_id:
+        description: Successful CI run ID; deploy only
+        required: false
+        type: string
+      artifact_run_attempt:
+        description: Successful CI run attempt; deploy only
+        required: false
+        type: string
+      artifact_id:
+        description: Immutable Actions artifact ID; deploy only
+        required: false
+        type: string
+      transport_digest:
+        description: Downloaded artifact ZIP SHA-256; deploy only
+        required: false
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: sandbox-production-delivery
+  cancel-in-progress: false
+
+jobs:
+  deliver:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: sandbox-production
+    steps:
+      - name: Guard integrated Control invocation
+        id: guard
+        env:
+          ARTIFACT_DIGEST: ${{ inputs.artifact_sha256 }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_RUN_ATTEMPT: ${{ inputs.artifact_run_attempt }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+          EXPECTED_CURRENT: ${{ inputs.expected_current }}
+          INVOKER_ID: ${{ github.actor_id }}
+          OPERATION: ${{ inputs.operation }}
+          REPOSITORY_ID: ${{ github.repository_id }}
+          REQUEST_ID: ${{ inputs.request_id }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          TRANSPORT_DIGEST: ${{ inputs.transport_digest }}
+        run: |
+          set -euo pipefail
+          test "$GITHUB_EVENT_NAME" = workflow_dispatch
+          test "$GITHUB_REPOSITORY" = shockerqt/ui-design-sandbox
+          test "$REPOSITORY_ID" = 1324116785
+          test "$GITHUB_REF" = refs/heads/main
+          test "$INVOKER_ID" = 325457439
+          python3 - <<'PYTHON'
+          import os, re
+          request_id = os.environ["REQUEST_ID"]
+          operation = os.environ["OPERATION"]
+          hex40 = re.compile(r"[0-9a-f]{40}\Z")
+          hex64 = re.compile(r"[0-9a-f]{64}\Z")
+          positive = re.compile(r"[1-9][0-9]*\Z")
+          if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{7,127}", request_id):
+              raise SystemExit("invalid request_id")
+          if not hex40.fullmatch(os.environ["SOURCE_SHA"]):
+              raise SystemExit("invalid source_sha")
+          if not hex64.fullmatch(os.environ["ARTIFACT_DIGEST"]):
+              raise SystemExit("invalid artifact_sha256")
+          if not hex40.fullmatch(os.environ["EXPECTED_CURRENT"]):
+              raise SystemExit("invalid expected_current")
+          if operation == "deploy":
+              for name in ("ARTIFACT_ID", "ARTIFACT_RUN_ID", "ARTIFACT_RUN_ATTEMPT"):
+                  if not positive.fullmatch(os.environ[name]):
+                      raise SystemExit(f"invalid {name.lower()}")
+              if not hex64.fullmatch(os.environ["TRANSPORT_DIGEST"]):
+                  raise SystemExit("invalid transport_digest")
+          elif operation == "rollback":
+              for name in ("ARTIFACT_ID", "ARTIFACT_RUN_ID", "ARTIFACT_RUN_ATTEMPT", "TRANSPORT_DIGEST"):
+                  if os.environ[name]:
+                      raise SystemExit(f"{name.lower()} is forbidden for rollback")
+          else:
+              raise SystemExit("unsupported operation")
+          PYTHON
+
+      - name: Checkout integrated delivery verifier
+        id: checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prove desired source is represented in integrated main
+        id: representation
+        env:
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          set -euo pipefail
+          git cat-file -e "$SOURCE_SHA^{commit}"
+          git merge-base --is-ancestor "$SOURCE_SHA" "$GITHUB_SHA"
+
+      - name: Fetch and verify the exact CI artifact
+        id: candidate
+        if: inputs.operation == 'deploy'
+        env:
+          ARTIFACT_DIGEST: ${{ inputs.artifact_sha256 }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_RUN_ATTEMPT: ${{ inputs.artifact_run_attempt }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+          GH_TOKEN: ${{ github.token }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          TRANSPORT_DIGEST: ${{ inputs.transport_digest }}
+        run: |
+          set -euo pipefail
+          candidate_dir="$RUNNER_TEMP/sandbox-candidate"
+          install -d -m 0700 "$candidate_dir"
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID" > "$candidate_dir/artifact.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/runs/$ARTIFACT_RUN_ID/attempts/$ARTIFACT_RUN_ATTEMPT" > "$candidate_dir/run.json"
+          gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$ARTIFACT_ID/zip" > "$candidate_dir/artifact.zip"
+          python3 scripts/verify-delivery-candidate.py \
+            --artifact-zip "$candidate_dir/artifact.zip" \
+            --artifact-metadata "$candidate_dir/artifact.json" \
+            --workflow-run "$candidate_dir/run.json" \
+            --output-archive "$candidate_dir/sandbox.tar.gz" \
+            --source-sha "$SOURCE_SHA" \
+            --workflow-run-id "$ARTIFACT_RUN_ID" \
+            --workflow-run-attempt "$ARTIFACT_RUN_ATTEMPT" \
+            --artifact-id "$ARTIFACT_ID" \
+            --transport-digest "$TRANSPORT_DIGEST" \
+            --artifact-sha256 "$ARTIFACT_DIGEST" > "$candidate_dir/verification.json"
+
+      - name: Execute or reconcile the guarded delivery
+        id: delivery
+        env:
+          ARTIFACT_DIGEST: ${{ inputs.artifact_sha256 }}
+          EXPECTED_CURRENT: ${{ inputs.expected_current }}
+          OPERATION: ${{ inputs.operation }}
+          SANDBOX_DEPLOY_HOST: ${{ vars.SANDBOX_DEPLOY_HOST }}
+          SANDBOX_DEPLOY_SSH_KEY: ${{ secrets.SANDBOX_DEPLOY_SSH_KEY }}
+          SANDBOX_DEPLOY_USER: ${{ vars.SANDBOX_DEPLOY_USER }}
+          SANDBOX_KNOWN_HOSTS: ${{ vars.SANDBOX_KNOWN_HOSTS }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+        run: |
+          set -euo pipefail
+          ssh_dir="$RUNNER_TEMP/sandbox-ssh"
+          install -d -m 0700 "$ssh_dir"
+          printf '%s\n' "$SANDBOX_DEPLOY_SSH_KEY" > "$ssh_dir/key"
+          printf '%s\n' "$SANDBOX_KNOWN_HOSTS" > "$ssh_dir/known_hosts"
+          chmod 0600 "$ssh_dir/key" "$ssh_dir/known_hosts"
+          ssh_args=(-F /dev/null -i "$ssh_dir/key" -o BatchMode=yes -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile="$ssh_dir/known_hosts" -o ConnectTimeout=10)
+          target="$SANDBOX_DEPLOY_USER@$SANDBOX_DEPLOY_HOST"
+          ssh "${ssh_args[@]}" "$target" status > "$RUNNER_TEMP/status-before.json"
+          MODE_FILE="$RUNNER_TEMP/delivery-mode" python3 - <<'PYTHON'
+          import json, os
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "status-before.json"), encoding="utf-8") as source:
+              status = json.load(source)
+          if status.get("status") != "ok" or status.get("journal_pending") is not False:
+              raise SystemExit("destination status is invalid or requires recovery")
+          current = status.get("current")
+          previous = status.get("previous")
+          expected = os.environ["EXPECTED_CURRENT"]
+          desired = {"source": os.environ["SOURCE_SHA"], "digest": os.environ["ARTIFACT_DIGEST"]}
+          operation = os.environ["OPERATION"]
+          if operation == "deploy":
+              if current == desired:
+                  mode = "reconciled"
+              elif isinstance(current, dict) and current.get("source") == expected:
+                  mode = "execute"
+              else:
+                  raise SystemExit("destination current release differs from expected_current")
+          else:
+              if current == desired and isinstance(previous, dict) and previous.get("source") == expected:
+                  mode = "reconciled"
+              elif isinstance(current, dict) and current.get("source") == expected and previous == desired:
+                  mode = "execute"
+              else:
+                  raise SystemExit("rollback current/previous releases differ from the reviewed pair")
+          with open(os.environ["MODE_FILE"], "w", encoding="utf-8") as output:
+              output.write(mode + "\n")
+          PYTHON
+          mode=$(<"$RUNNER_TEMP/delivery-mode")
+          if test "$mode" = execute && test "$OPERATION" = deploy; then
+            ssh "${ssh_args[@]}" "$target" \
+              "deploy --source-sha $SOURCE_SHA --artifact-sha256 $ARTIFACT_DIGEST --expected-current $EXPECTED_CURRENT" \
+              < "$RUNNER_TEMP/sandbox-candidate/sandbox.tar.gz" > "$RUNNER_TEMP/delivery-response.json"
+          elif test "$mode" = execute && test "$OPERATION" = rollback; then
+            ssh "${ssh_args[@]}" "$target" \
+              "rollback --expected-current $EXPECTED_CURRENT" > "$RUNNER_TEMP/delivery-response.json"
+          else
+            cp "$RUNNER_TEMP/status-before.json" "$RUNNER_TEMP/delivery-response.json"
+          fi
+          DELIVERY_MODE="$mode" python3 - <<'PYTHON'
+          import json, os
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "delivery-response.json"), encoding="utf-8") as source:
+              response = json.load(source)
+          desired_source = os.environ["SOURCE_SHA"]
+          desired_digest = os.environ["ARTIFACT_DIGEST"]
+          if response.get("status") != "ok":
+              raise SystemExit("delivery helper returned a non-success result")
+          if os.environ["DELIVERY_MODE"] == "execute":
+              if response.get("source_sha") != desired_source or response.get("artifact_sha256") != desired_digest:
+                  raise SystemExit("delivery helper result does not match the desired release")
+              if response.get("previous") != os.environ["EXPECTED_CURRENT"]:
+                  raise SystemExit("delivery helper result does not bind expected_current")
+          else:
+              current = response.get("current")
+              if not isinstance(current, dict) or current.get("source") != desired_source or current.get("digest") != desired_digest:
+                  raise SystemExit("reconciled status does not match the desired release")
+          PYTHON
+          ssh "${ssh_args[@]}" "$target" \
+            "verify --source-sha $SOURCE_SHA" > "$RUNNER_TEMP/public-verification.json"
+          python3 - <<'PYTHON'
+          import json, os
+          with open(os.path.join(os.environ["RUNNER_TEMP"], "public-verification.json"), encoding="utf-8") as source:
+              result = json.load(source)
+          if result != {
+              "operation": "verify",
+              "source_sha": os.environ["SOURCE_SHA"],
+              "status": "ok",
+          }:
+              raise SystemExit("public verification result does not match the desired release")
+          PYTHON
+
+      - name: Record bounded result
+        if: always()
+        env:
+          ARTIFACT_DIGEST: ${{ inputs.artifact_sha256 }}
+          ARTIFACT_ID: ${{ inputs.artifact_id }}
+          ARTIFACT_RUN_ATTEMPT: ${{ inputs.artifact_run_attempt }}
+          ARTIFACT_RUN_ID: ${{ inputs.artifact_run_id }}
+          CANDIDATE_OUTCOME: ${{ steps.candidate.outcome }}
+          CHECKOUT_OUTCOME: ${{ steps.checkout.outcome }}
+          DELIVERY_OUTCOME: ${{ steps.delivery.outcome }}
+          EXPECTED_CURRENT: ${{ inputs.expected_current }}
+          GUARD_OUTCOME: ${{ steps.guard.outcome }}
+          OPERATION: ${{ inputs.operation }}
+          REPRESENTATION_OUTCOME: ${{ steps.representation.outcome }}
+          REQUEST_ID: ${{ inputs.request_id }}
+          SOURCE_SHA: ${{ inputs.source_sha }}
+          TRANSPORT_DIGEST: ${{ inputs.transport_digest }}
+        run: |
+          python3 - <<'PYTHON'
+          import json, os, re
+          operation = os.environ["OPERATION"]
+          stages = [
+              ("guard", os.environ["GUARD_OUTCOME"]),
+              ("checkout", os.environ["CHECKOUT_OUTCOME"]),
+              ("representation", os.environ["REPRESENTATION_OUTCOME"]),
+          ]
+          if operation == "deploy":
+              stages.append(("candidate", os.environ["CANDIDATE_OUTCOME"]))
+          stages.append(("delivery", os.environ["DELIVERY_OUTCOME"]))
+          failure = next((name for name, outcome in stages if outcome != "success"), None)
+          request_id = os.environ["REQUEST_ID"]
+          source_sha = os.environ["SOURCE_SHA"]
+          artifact_digest = os.environ["ARTIFACT_DIGEST"]
+          expected_current = os.environ["EXPECTED_CURRENT"]
+          if not re.fullmatch(r"[a-z0-9][a-z0-9._-]{7,127}", request_id):
+              request_id = "invalid"
+          if not re.fullmatch(r"[0-9a-f]{40}", source_sha):
+              source_sha = None
+          if not re.fullmatch(r"[0-9a-f]{64}", artifact_digest):
+              artifact_digest = None
+          if not re.fullmatch(r"[0-9a-f]{40}", expected_current):
+              expected_current = None
+          result = {
+              "schema_version": 1,
+              "kind": "sandbox.delivery.result",
+              "request_id": request_id,
+              "operation": operation,
+              "source_sha": source_sha,
+              "artifact_sha256": artifact_digest,
+              "expected_current": expected_current,
+              "workflow_run_id": int(os.environ["GITHUB_RUN_ID"]),
+              "workflow_run_attempt": int(os.environ["GITHUB_RUN_ATTEMPT"]),
+              "status": "failed" if failure else "succeeded",
+          }
+          if operation == "deploy" and os.environ["GUARD_OUTCOME"] == "success":
+              result["candidate"] = {
+                  "workflow_run_id": int(os.environ["ARTIFACT_RUN_ID"]),
+                  "workflow_run_attempt": int(os.environ["ARTIFACT_RUN_ATTEMPT"]),
+                  "artifact_id": int(os.environ["ARTIFACT_ID"]),
+                  "transport_digest": os.environ["TRANSPORT_DIGEST"],
+              }
+          if failure:
+              result["code"] = f"{failure}_failed"
+          else:
+              with open(os.path.join(os.environ["RUNNER_TEMP"], "delivery-mode"), encoding="utf-8") as mode:
+                  result["disposition"] = mode.read().strip()
+          with open("sandbox-delivery-result.json", "w", encoding="utf-8") as output:
+              json.dump(result, output, indent=2, sort_keys=True)
+              output.write("\n")
+          with open(os.environ["GITHUB_STEP_SUMMARY"], "a", encoding="utf-8") as summary:
+              summary.write("```json\n" + json.dumps(result, indent=2, sort_keys=True) + "\n```\n")
+          PYTHON
+
+      - name: Upload bounded result
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: sandbox-delivery-result-${{ github.run_id }}-${{ github.run_attempt }}
+          path: sandbox-delivery-result.json
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 30
