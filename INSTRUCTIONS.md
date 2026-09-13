@@ -94,13 +94,22 @@ una entrada en `SKINS` dentro del mockup. Ver `NutritionApp.tsx`.
   - `updatedAt`: Fecha actual (YYYY-MM-DD).
   - `component`: Referencia al componente React.
 
-### 4. Verificación de Compilación
-- Ejecutar `npm run build` para asegurar 0 errores de TypeScript y empaquetado Vite limpio.
+### 4. Verificación y artefacto
+- Usar la tarea, rama y run de Governance. En ChatGPT Web, registrar el perfil
+  remoto y consultar la evidencia de CI del SHA exacto; no declarar pruebas
+  locales que el conector no puede ejecutar.
+- CI ejecuta los tests de empaquetado, `npm ci` y `npm run build` una sola vez.
+  Publica un artefacto identificado por SHA de origen y ejecución de Actions.
+- El archivo incluye `release.json`. El digest del tar.gz y el digest del
+  contenedor de Actions son identidades distintas y deben conservarse separados.
 
-### 5. Git & Despliegue Automático (CD)
-- Hacer commit siguiendo *Conventional Commits*:
-  - `feat: add <id> mockup` o `feat: iterate <id> mockup`
-- Hacer `git push origin main`.
-- GitHub Actions valida el build y luego ejecuta `deploy.sh` por SSH en la VPS OCI,
-  que recompila y deja el bundle estático servido por Nginx en:
-  `https://sandbox.shocker.cl`
+### 5. Publicación y entrega
+- Crear un commit Conventional Commits en la rama exclusiva de la tarea,
+  abrir/reutilizar su PR y comprobar CI sobre el SHA que se integrará.
+- El servidor recibe el artefacto validado; no hace fetch de main ni recompila.
+- La entrega por artefactos está en implementación bajo UDS-007 e INF-014.
+  Este cambio retira el job antiguo que recompilaba por SSH. Mantener el PR en
+  draft hasta revisar el procedimiento de instalación y migración del host.
+- El despliegue debe verificar SHA/digest, hacer activación con estado esperado,
+  comprobar HTTPS y disponer de rollback a la release previa sin reconstruirla.
+  Ver `docs/artifact-delivery.md` y los runbooks de Infrastructure.
