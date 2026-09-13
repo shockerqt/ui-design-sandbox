@@ -7,8 +7,20 @@ import { SaviaNutrition } from './SaviaNutrition';
 import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
+import { BaseUIColorSystem } from './BaseUIColorSystem';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'base-ui-color-system',
+    title: 'Base UI · Sistema de color',
+    category: 'Base UI Primitives',
+    description:
+      'Specimen de sistema de color con superficies azuladas profundas, una sola familia de accent, tonos pastel intensos y variantes solid, soft, outline y ghost sobre primitivas reales de Base UI.',
+    tags: ['Base UI', 'design system', 'tokens', 'OKLCH', 'button', 'chip', 'input'],
+    version: 'v1.0.0',
+    updatedAt: '2026-09-07',
+    component: BaseUIColorSystem
+  },
   {
     id: 'balance-vim-log-redesign',
     title: 'Balance · Terminal food log (Rediseño Impeccable)',
