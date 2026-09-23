@@ -191,7 +191,7 @@ jobs:
           SANDBOX_DEPLOY_HOST: ${{ vars.SANDBOX_DEPLOY_HOST }}
           SANDBOX_DEPLOY_SSH_KEY: ${{ secrets.SANDBOX_DEPLOY_SSH_KEY }}
           SANDBOX_DEPLOY_USER: ${{ vars.SANDBOX_DEPLOY_USER }}
-          SANDBOX_KNOWN_HOSTS: ${{ vars.SANDBOX_KNOWN_HOSTS }}
+          SANDBOX_KNOWN_HOSTS: ${{ vars.SANDBOX_DEPLOY_KNOWN_HOSTS }}
           SOURCE_SHA: ${{ inputs.source_sha }}
         run: |
           set -euo pipefail
