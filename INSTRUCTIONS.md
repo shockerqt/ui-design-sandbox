@@ -103,6 +103,42 @@ una entrada en `SKINS` dentro del mockup. Ver `NutritionApp.tsx`.
 - El archivo incluye `release.json`. El digest del tar.gz y el digest del
   contenedor de Actions son identidades distintas y deben conservarse separados.
 
+### Preview temporal del worktree
+
+Para revisar cambios antes del merge, puedes pedir: *"Muéstrame una preview de
+los cambios de esta tarea en `/m/<id>`"*.
+
+- El agente debe leer la tarea canónica y su run, confirmar la rama y el
+  worktree exclusivos de UDS y elegir la ruta del mockup que se va a revisar.
+- Seguir el [runbook de previews de Infrastructure](https://github.com/shockerqt/infrastructure/blob/ff06c34bbeeb4327c409987057215078618912cd/runbooks/workspace-preview-session.md).
+  Su ruta propietaria es `infrastructure/runbooks/workspace-preview-session.md`;
+  el enlace fija la versión revisada de INF-013 mientras su PR está pendiente.
+  Resolver el repositorio desde `governance/projects.yaml` y consultar la tarea
+  INF-013 y su último run, incluso si sus registros siguen en su rama de tarea.
+- Comprobar la instalación y las sesiones existentes. Preparar `plan` con el
+  ID de la tarea UDS, su worktree, perfil `vite`, ruta `/m/<id>` y plazo `2h`.
+  Si falta la instalación o un registro canónico, resolverlo siguiendo el
+  runbook antes de iniciar; no usar otro checkout ni inventar una tarea.
+- Revisar el plan, el estado de red y el rollback. Obtener aprobación explícita
+  para iniciar la sesión pública, salvo que ya exista para ese plan exacto.
+  La aprobación para editar un mockup no autoriza exponerlo públicamente.
+- El controlador ejecuta `npm run build` y sirve el resultado estático en un
+  puerto asignado de 8083-8085, con vencimiento independiente. El plazo
+  predeterminado es de dos horas y el máximo de ocho. Durante la sesión, la URL
+  usa HTTP público sin autenticación ni TLS; revisar ese alcance en el plan.
+- Verificar la ruta por loopback y por la URL pública. Consultar
+  `status --lease-id ID`, exigir exactamente un resultado en `.sessions` y
+  comprobar esa sesión mediante `.sessions[0]`.
+  Entregar al usuario la URL verificada, el ID completo de la sesión y su
+  vencimiento; guardar la evidencia en el run.
+- Tras nuevas ediciones, detener esa sesión por su ID completo y solicitar un
+  nuevo inicio para reconstruir los cambios. `renew` solo prolonga el plazo.
+  Al terminar la revisión, detenerla o verificar su expiración y limpieza según
+  el runbook. La preview temporal no activa una release en `sandbox.shocker.cl`.
+- Este procedimiento requiere ejecución local en el host. Un agente que solo
+  tiene el conector GitHub prepara el plan y registra esa limitación; no afirma
+  haber iniciado ni comprobado una preview que no puede operar.
+
 ### 5. Publicación y entrega
 - Crear un commit Conventional Commits en la rama exclusiva de la tarea,
   abrir/reutilizar su PR y comprobar CI sobre el SHA que se integrará.
