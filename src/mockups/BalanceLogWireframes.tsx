@@ -150,7 +150,7 @@ export function BalanceLogWireframes() {
     finishAction(`${food.name} agregado al día de ejemplo.`);
   };
 
-  return <div className="blw">
+  return <div className="blw-root"><div className="blw">
     <section className="blw-review" aria-label="Controles del wireframe">
       <div className="blw-intro"><span className="blw-kicker">Balance / Registros</span><h1>Anatomía primero.</h1><p>El mismo día, tres estados. Solo estructura e interacción; la apariencia viene después.</p></div>
       <Tabs.Root value={view} onValueChange={(value) => changeView(value as View)}>
@@ -216,5 +216,5 @@ export function BalanceLogWireframes() {
         <Dialog.Close className="blw-sheet-close">Cerrar</Dialog.Close>
       </Dialog.Popup></Dialog.Portal>
     </Dialog.Root>
-  </div>;
+  </div></div>;
 }
