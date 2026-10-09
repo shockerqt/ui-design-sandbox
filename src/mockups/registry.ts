@@ -8,8 +8,19 @@ import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
+import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-log-wireframes',
+    title: 'Balance · Wireframes de Registros',
+    category: 'Dashboards',
+    description: 'Wireframes móviles en grises: seis grupos horarios, 22 alimentos, registros de dos líneas, imágenes neutras y estados interactivos de detalle y selección.',
+    tags: ['Balance', 'wireframes', 'mobile', 'two-line rows', 'Base UI'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-09',
+    component: BalanceLogWireframes
+  },
   {
     id: 'base-ui-color-system',
     title: 'Base UI · Sistema de color',
