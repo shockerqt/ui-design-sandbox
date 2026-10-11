@@ -74,6 +74,13 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
   return <button type="button" className="blw-food" data-selected={selected || undefined}
     aria-label={`${food.name}, ${food.portion}, ${food.time}, ${food.calories} kilocalorías, proteínas ${food.protein} gramos, carbohidratos ${food.carbs} gramos, grasas ${food.fat} gramos`}
     aria-pressed={selectionMode ? selected : undefined}
+    aria-keyshortcuts="Shift+Enter Shift+Space"
+    onKeyDown={(event) => {
+      if (event.shiftKey && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        if (!event.repeat) selectionMode ? onSelect() : onStartSelection();
+      }
+    }}
     onClick={() => { if (held.current) { held.current = false; return; } selectionMode ? onSelect() : onEdit(); }}
     onPointerDown={(event) => {
       held.current = false;
@@ -218,7 +225,6 @@ export function BalanceLogWireframes() {
           <div className="blw-summary-macros">{([['P', 'Proteínas', 'protein'], ['C', 'Carbohidratos', 'carbs'], ['G', 'Grasas', 'fat'], ['F', 'Fibra', 'fiber']] as const).map(([short, label, key]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} gramos`}><abbr title={label}>{short}</abbr> <strong>{sum(activeFoods, key)}<small> g</small></strong></span>)}</div>
         </section>
         <div className="blw-feed" ref={scrollRef}>
-          <div className="blw-list-tools"><span>{activeFoods.length} alimentos · {groups.length} grupos</span><button disabled={!activeFoods.length} onClick={() => selectionMode ? exitSelection() : setSelectionMode(true)}>{selectionMode ? 'Cancelar selección' : 'Seleccionar'}</button></div>
           {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openSheet({ kind: 'add', time: '08:00' })}>Registrar alimento</button></div> :
             <Accordion.Root className="blw-groups" multiple value={opened} onValueChange={setOpened}>
               {groups.map(([hour, groupFoods]) => <Accordion.Item key={hour} value={hour} className="blw-group">

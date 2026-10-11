@@ -67,7 +67,9 @@ This is a deliberate prototype tradeoff to review, not a production typography
 decision. No manual meal naming or food categorization is introduced.
 
 Tap a food to edit its time/quantity; nutrition snapshots are preserved. Hold
-for 550 ms to select, or use the explicit selection control. Moving/deleting and
+for 550 ms to select (Shift+Enter or Shift+Space with keyboard focus). The list
+has no permanent food/group count or selection toolbar; count and actions appear
+only during selection. Moving/deleting and
 adding a sample food affect only this instance in memory; reset reloads samples.
 The bottom app-navigation labels are contextual references, not additional
 implemented screens. No network calls or real-data persistence are implemented.

@@ -45,8 +45,6 @@
 .blw-summary-macros strong { font-weight: 500; }
 .blw-summary-macros strong small { font-size: 10px; font-weight: 400; color: var(--blw-muted); }
 .blw-feed { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
-.blw-list-tools { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 12px 14px; font-size: 10px; color: var(--blw-muted); }
-.blw-list-tools button { min-height: 30px; background: transparent; border: 0; text-decoration: underline; font-size: 10px; }
 .blw-group { border-top: 1px solid var(--blw-line); }
 .blw-group:last-child { border-bottom: 1px solid var(--blw-line); }
 .blw-group-top { display: flex; align-items: stretch; background: #fafafa; }
