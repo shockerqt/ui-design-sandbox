@@ -188,7 +188,7 @@ export function BalanceLogWireframes() {
         <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>
         <button onClick={() => changeView(view)}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: aro vacío = sin alimentos; avance = kcal / meta. El exceso inicia una segunda vuelta interior ámbar. Ninguna señal confirma que el día esté completo.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: el aro avanza con las kcal registradas y cambia a ámbar al superar la meta. El porcentaje exacto está en el resumen del día. Ninguna señal confirma que el día esté completo.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
@@ -199,12 +199,12 @@ export function BalanceLogWireframes() {
             const dayFoods = emptyDay && offset === dayOffset ? [] : foodsByDay[dayOffset] ?? [];
             const calories = sum(dayFoods, 'calories');
             const progress = Math.round(calories / CALORIE_TARGET * 100);
-            const turns = calories / CALORIE_TARGET;
+            const ratio = calories / CALORIE_TARGET;
             return <button key={dayOffset} className="blw-day" aria-pressed={offset === dayOffset}
               aria-label={`${dateLabel(dayOffset)}: ${dayFoods.length ? `${dayFoods.length} alimentos registrados, ${format(calories)} de ${format(CALORIE_TARGET)} kcal, ${progress}% de la meta${calories > CALORIE_TARGET ? ', por encima de la meta' : ''}` : 'sin registros'}`}
               onClick={() => setDate(dayOffset)}>
               <span className="blw-weekday">{['L', 'M', 'M', 'J', 'V', 'S', 'D'][dayOffset + 4]}</span>
-              <span className="blw-day-number"><svg viewBox="0 0 36 36" aria-hidden="true"><circle className="blw-ring-track" cx="18" cy="18" r="15" /><circle className="blw-ring-value" cx="18" cy="18" r="15" pathLength="100" strokeDasharray={`${Math.min(1, turns) * 100} 100`} />{turns > 1 && <circle className="blw-ring-overflow" cx="18" cy="18" r="11.5" pathLength="100" strokeDasharray={`${Math.min(1, turns - 1) * 100} 100`} />}</svg><span>{dayOffset + 9}</span></span>
+              <span className="blw-day-number"><svg viewBox="0 0 36 36" aria-hidden="true"><circle className="blw-ring-track" cx="18" cy="18" r="15" /><circle className={`blw-ring-value${ratio > 1 ? ' blw-ring-overflow' : ''}`} cx="18" cy="18" r="15" pathLength="100" strokeDasharray={`${Math.min(1, ratio) * 100} 100`} /></svg><span>{dayOffset + 9}</span></span>
             </button>;
           })}</div>
           {offset !== 0 && <button className="blw-today" onClick={() => setDate(0)}>Volver a hoy</button>}
