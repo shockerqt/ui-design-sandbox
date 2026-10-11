@@ -1,7 +1,7 @@
 /* Neutral review geometry with one amber overflow signal. Independent of Balance skins. */
 .blw-root { container-type: inline-size; container-name: blw-review; }
 .blw { --blw-text: #222; --blw-muted: #666; --blw-line: #d4d4d4; --blw-soft: #f4f4f4; background: #e9e9e9; color: var(--blw-text); font-family: Arial, sans-serif; display: grid; grid-template-columns: minmax(240px, 340px) minmax(0, 520px); justify-content: center; align-items: start; gap: 64px; padding: 48px 32px; min-height: calc(100dvh - 48px); }
-.blw button, .blw input, .blw-dialog button, .blw-dialog input { font: inherit; color: inherit; }
+.blw button, .blw input, .blw select, .blw-dialog button, .blw-dialog input { font: inherit; color: inherit; }
 .blw button, .blw-dialog button { cursor: pointer; }
 .blw button:disabled, .blw-dialog button:disabled { cursor: default; opacity: .4; }
 .blw :focus-visible, .blw-dialog :focus-visible { outline: 2px solid #444; outline-offset: 3px; }
@@ -86,8 +86,10 @@
 .blw-action > span { display: block; font-size: 11px; margin-bottom: 8px; }
 .blw-action > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .blw-action > div button { min-height: 36px; border: 1px solid #bbb; background: white; font-size: 11px; }
-.blw-bottom-nav { flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr 48px 2fr; align-items: center; min-height: 56px; padding: 6px 10px; border-top: 1px solid var(--blw-line); font-size: 11px; text-align: center; color: var(--blw-muted); }
+.blw-bottom-nav { flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr 48px 1fr; align-items: center; min-height: 56px; padding: 6px 10px; border-top: 1px solid var(--blw-line); font-size: 11px; text-align: center; color: var(--blw-muted); }
 .blw-bottom-nav strong { color: #222; font-weight: 600; }
+.blw-nav-destination { min-height: 44px; display: grid; justify-items: center; align-content: center; gap: 4px; border: 0; background: transparent; font-size: 10px !important; }
+.blw-nav-destination[aria-current="page"] { color: #222; font-weight: 700; background: #f2f2f2; }
 .blw button.blw-nav-add { display: grid; place-items: center; width: 44px; height: 44px; justify-self: center; border: 1px solid #555; border-radius: 50%; background: #333; color: white; }
 .blw-caption { font-size: 11px; color: #666; margin-top: 16px; text-align: center; }
 .blw-empty { padding: 64px 32px; text-align: center; color: #777; }
@@ -122,5 +124,82 @@
 .blw-example-library { max-height: 300px; overflow-y: auto; }
 .blw-example-library button { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; padding: 12px 0; text-align: left; border: 0; border-top: 1px solid #ddd; background: white; }
 .blw-example-library small { display: block; color: #777; font-size: 11px; }
+.blw-page-header { flex-shrink: 0; padding: 18px 16px 12px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.blw-page-header h2 { font-size: 19px; font-weight: 600; margin: 0; }
+.blw-page-header > span { font-size: 10px; color: #777; }
+.blw-segments { display: flex; margin: 0 14px 12px; padding: 3px; background: #eee; gap: 3px; }
+.blw-segments button { flex: 1; min-height: 44px; padding: 8px; font-size: 12px; border: 0; background: transparent; }
+.blw-segments button[data-active] { background: white; outline: 1px solid #ccc; font-weight: 600; }
+.blw-calendar { padding: 0 14px 12px; border-bottom: 1px solid var(--blw-line); }
+.blw-month-navigation { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.blw-month-navigation > button { flex-shrink: 0; min-width: 44px; height: 44px; border: 0; background: transparent; display: grid; place-items: center; }
+.blw-month-picker { position: relative; flex: 1; min-width: 0; min-height: 44px; display: grid; place-items: center; text-transform: capitalize; font-size: 14px; font-weight: 600; }
+.blw-month-picker > span { display: flex; align-items: center; gap: 8px; }
+.blw-month-picker input { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.blw-month-picker:focus-within { outline: 2px solid #444; outline-offset: 1px; }
+.blw-month-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.blw-month-weekday { text-align: center; padding: 8px 0; font-size: 10px; color: #777; }
+.blw-month-grid button { min-height: 44px; padding: 5px 0 3px; border: 1px solid transparent; background: white; display: grid; place-items: center; gap: 3px; font-size: 12px; font-variant-numeric: tabular-nums; }
+.blw-month-grid button[aria-pressed="true"] { background: #eee; border-color: #777; font-weight: 700; }
+.blw-calendar-mark { height: 5px; display: grid; place-items: center; }
+.blw-calendar-mark i, .blw-calendar-key i { display: inline-block; width: 4px; height: 4px; background: #555; border-radius: 50%; }
+.blw-calendar-key { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 6px; font-size: 10px; color: #777; }
+.blw-calendar-key > span { display: flex; align-items: center; gap: 6px; }
+.blw-calendar-key button { min-height: 36px; padding: 6px 0; border: 0; background: transparent; font-size: 10px; text-decoration: underline; }
+.blw-day-measurements { padding: 20px 16px; }
+.blw-day-measurements h3 { margin: 0 0 12px; font-size: 13px; font-weight: 600; }
+.blw-measurement-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 64px; padding: 10px 0; border: 0; border-block: 1px solid #ddd; background: white; text-align: left; }
+.blw-measurement-row > span { flex: 1; }
+.blw-measurement-row small { display: block; color: #777; font-size: 10px; margin-top: 4px; }
+.blw-measurement-row strong { font-size: 20px; font-weight: 500; white-space: nowrap; }
+.blw-measurement-row strong small { display: inline; font-size: 11px; }
+.blw-measurement-empty { color: #777; font-size: 12px; }
+.blw-measurement-empty > p { margin: 0 0 12px; }
+.blw-measurement-empty button { min-height: 44px; border: 1px solid #aaa; background: white; padding: 8px 14px; color: #222; }
+.blw-body-record { margin: 0; font-variant-numeric: tabular-nums; }
+.blw-body-record > div { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; min-height: 44px; padding: 12px 0; border-top: 1px solid #ddd; font-size: 12px; }
+.blw-body-record dd { margin: 0; flex-shrink: 0; }
+.blw-body-record small { font-size: 10px; color: #777; }
+.blw-body-record dt small { display: block; margin-top: 4px; }
+.blw-inline-action { min-height: 44px; padding: 8px 0; border: 0; background: transparent; text-decoration: underline; font-size: 12px !important; }
+.blw-latest-measures { padding: 0 16px 20px; }
+.blw-form-hint { margin: 0 0 18px; color: #666; font-size: 12px; line-height: 1.6; }
+.blw-body-fields { min-width: 0; border: 0; border-top: 1px solid #ddd; margin: 0; padding: 16px 0 0; }
+.blw-body-fields legend { font-size: 12px; font-weight: 600; padding: 0 8px 0 0; }
+.blw-body-fields > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.blw-body-fields .blw-field { font-size: 11px; }
+.blw-period-controls { flex-shrink: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px; padding: 0 14px 10px; border-bottom: 1px solid #ddd; font-size: 11px; }
+.blw-period-controls button { min-height: 44px; padding: 6px 12px; border: 1px solid transparent; background: transparent; }
+.blw-period-controls button[aria-pressed="true"] { border-color: #bbb; background: #f4f4f4; font-weight: 600; }
+.blw-period-controls > label { margin-left: auto; display: flex; align-items: center; gap: 4px; color: #777; font-size: 10px; }
+.blw-period-controls input { width: 105px; min-width: 0; min-height: 44px; border: 0; padding: 0; background: transparent; font-size: 10px; }
+.blw-chart-section { padding: 18px 14px 14px; border-bottom: 1px solid #ddd; }
+.blw-chart-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+.blw-chart-heading h3 { font-size: 14px; margin: 0; font-weight: 600; }
+.blw-chart-heading > small { font-size: 10px; color: #777; }
+.blw-chart-readout { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; padding: 14px 0 6px; font-variant-numeric: tabular-nums; }
+.blw-chart-readout > span { color: #777; font-size: 11px; }
+.blw-chart-readout > div { display: flex; gap: 8px; }
+.blw-chart-readout strong { font-size: 16px; font-weight: 500; }
+.blw-chart-readout small { font-size: 10px; color: #777; }
+.blw-chart-touch { display: block; width: 100%; border: 0; padding: 0; background: white; }
+.blw-chart-touch svg { display: block; width: 100%; height: auto; overflow: visible; }
+.blw-chart-touch text { font-size: 9px; fill: #777; }
+.blw-chart-grid { stroke: #eee; }
+.blw-chart-target { stroke: #999; stroke-dasharray: 4 4; }
+.blw-chart-line { stroke: #555; stroke-width: 1.7; }
+.blw-chart-point, .blw-chart-bar { fill: #666; }
+.blw-chart-cursor { stroke: #aaa; stroke-dasharray: 2 3; }
+.blw-chart-legend { display: flex; flex-wrap: wrap; gap: 8px 16px; font-size: 10px; color: #666; margin-top: 8px; }
+.blw-chart-legend > span { display: inline-flex; align-items: center; gap: 6px; }
+.blw-chart-legend i { width: 15px; border-top: 2px solid #666; }
+.blw-chart-date-picker { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-size: 10px; color: #777; margin-top: 12px; }
+.blw-chart-date-picker select { min-width: 0; min-height: 44px; max-width: 62%; border: 1px solid #ccc; background: white; padding: 5px 8px; font-size: 11px; }
+.blw-chart-open { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 8px 0; border: 0; background: transparent; font-size: 11px !important; text-align: left; text-decoration: underline; }
+.blw-chart-empty { padding: 28px 0; color: #777; font-size: 12px; }
+.blw-chart-footnote { padding: 14px 16px 24px; font-size: 10px; color: #777; line-height: 1.6; margin: 0; }
+.blw-body-chart-picker { padding: 18px 14px 0; }
+.blw-body-chart-picker label { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 12px; }
+.blw-body-chart-picker select { min-width: 0; min-height: 44px; border: 1px solid #bbb; background: white; padding: 8px; font-size: 12px; }
 @container blw-review (max-width: 800px) { .blw { display: block; padding: 24px 16px; } .blw-review { position: static; max-width: 480px; margin: 0 auto 24px; } .blw-intro h1 { font-size: 24px; } .blw-review-notes { display: none; } .blw-views { margin-top: 16px; } .blw-options { padding: 14px 0; } .blw-device { height: 760px; } }
 @container blw-review (max-width: 420px) { .blw { padding: 20px 0 0; } .blw-review { padding: 0 16px; } .blw-device { width: 100%; height: 760px; border-left: 0; border-right: 0; } .blw-caption { padding: 12px; margin-top: 0; } }

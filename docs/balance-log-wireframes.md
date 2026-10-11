@@ -1,4 +1,4 @@
-# Balance log wireframes
+# Balance multiview wireframes
 
 Review route: `/m/balance-log-wireframes`.
 
@@ -6,6 +6,8 @@ This iteration explores the anatomy agreed with the user before visual styling.
 It uses 22 synthetic food records grouped into six hours: five groups of four
 foods and one group of peanuts/raisins. It does not read Balance data or reuse
 its theme, targets or food imagery. The sample calorie target is illustrative.
+Three functional app destinations share the same in-memory records:
+Alimentos, Mediciones and Resumen.
 
 ## Review states
 
@@ -15,11 +17,13 @@ its theme, targets or food imagery. The sample calorie target is illustrative.
   cancel/move/delete actions. Group check controls select or deselect all foods.
 
 Changing the review preset restores its original example data. A separate reset
-control does the same. The empty-day toggle exposes the selected day's empty
+control does the same while retaining the current app destination. The empty-day toggle exposes the selected day's empty
 layout. Date controls show partial example intake on October 5, 7 and 8,
 initially empty days on October 6, 10 and 11, and the populated reference day,
 2026-10-09. Adding, moving, editing and deleting operate within the selected
-day; navigating preserves each day's in-memory changes.
+day; navigating preserves each day's in-memory changes. The reference day is
+2026-10-09, rather than the machine's current date. The food week follows the
+selected date, including dates reached from a graph or measurement calendar.
 
 ## Date strip and compact totals
 
@@ -76,16 +80,54 @@ for 550 ms to select (Shift+Enter or Shift+Space with keyboard focus). The list
 has no permanent food/group count or selection toolbar; count and actions appear
 only during selection. Moving/deleting and
 adding a sample food affect only this instance in memory; reset reloads samples.
-The bottom app-navigation labels are contextual references, not additional
-implemented screens. No network calls or real-data persistence are implemented.
+The bottom navigation now opens actual food, measurement and summary views.
+No network calls or real-data persistence are implemented.
+
+## Measurement calendar and recording
+
+Mediciones separates Peso from Medidas corporales. Both use a monthly calendar
+with previous/next month arrows and a native month/year selector. The selected
+filter determines the recording dots and legend; no progress or overdue state
+is shown. Selecting a date shows that day's values and editing action. Calendar
+navigation and filter switching retain the selected date; month navigation
+selects the first day of the destination month.
+
+Weight is one kg value per day, prefilled for editing. Body sessions contain
+optional cm values for waist, hips, chest, neck, paired arms, thighs and calves.
+Left and right inputs appear together. Changing the form date loads the values
+for that date; saving upserts the day's session. Blank fields are absent, rather
+than zero; clearing an existing field removes that value from that date. An
+expandable latest-by-zone list includes each zone's own last measurement date.
+This view has no trend charts or prescribed recording schedule.
+
+Fixtures include frequent weights over 43 days, with explicit gaps, and body
+sessions on September 1, September 27 and October 9. The most recent body
+session only measures waist and neck, so other zones retain September dates.
+
+## Separate statistics
+
+Resumen has Alimentación / Cuerpo tabs and a shared 7/30/90-day period, including
+an editable end date. Alimentación includes calorie bars and P/C/G curves;
+Cuerpo includes weight and one selectable circumference chart. Paired zones
+compare left/right lines. All figures derive from the same editable memory
+records; missing days are not filled with zero. Nutrition curves break at
+unrecorded dates; body curves connect actual measurements over elapsed time.
+The chart labels and axes preserve units and dates. Grayscale line patterns
+distinguish series for this diagramming iteration.
+
+Tap a chart to inspect the nearest recorded date; arrow keys and a date selector
+provide equivalent navigation. A link beneath each plot opens that date in
+Alimentos or the appropriate Peso/Medidas calendar, where it can be edited.
+Returning to Resumen preserves its area, period, end date and body metric.
 
 ## Central registration action
 
 The bottom navigation contains a central 44px plus button. It opens a bottom
-sheet with Alimento and Peso actions for the selected day. Alimento continues
+sheet with Alimento, Peso and Medidas corporales actions for the selected day. Alimento continues
 to the existing example search and recording flow; Peso opens a kg input and
-stores one example value per day in memory, prefilled when reopened. Resetting
-the example clears these weights as well as food edits. Weight is not added to
+stores one example value per day in memory, prefilled when reopened. Body
+measurements use the optional grouped form. Resetting the example restores the
+synthetic weights/body sessions as well as food records. Weight is not added to
 the food feed, summary or calorie ring.
 
 The previous separate registration row is removed. Selection actions replace

@@ -13,11 +13,11 @@ import { BalanceLogWireframes } from './BalanceLogWireframes';
 export const mockupRegistry: MockupItem[] = [
   {
     id: 'balance-log-wireframes',
-    title: 'Balance · Wireframes de Registros',
+    title: 'Balance · Wireframes multivista',
     category: 'Dashboards',
-    description: 'Wireframes móviles en grises: progreso por día, resumen compacto, macros por grupo y registro de alimento o peso desde el + central de navegación.',
-    tags: ['Balance', 'wireframes', 'mobile', 'two-line rows', 'Base UI'],
-    version: 'v1.4.0',
+    description: 'Alimentos, calendario mensual de peso y medidas corporales, y gráficos separados en Resumen. Navegación funcional y registro desde el + compartido.',
+    tags: ['Balance', 'wireframes', 'mobile', 'measurements', 'charts', 'Base UI'],
+    version: 'v1.5.0',
     updatedAt: '2026-10-11',
     component: BalanceLogWireframes
   },
