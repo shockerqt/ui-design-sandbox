@@ -37,6 +37,14 @@ const SAMPLE_FOODS: Food[] = [
   sample('f4', 'Galletas de arroz', '2 unidades', '22:08', 56, 1, 12, 0, 1),
 ];
 const sum = (foods: Food[], key: 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber') => foods.reduce((total, food) => total + food[key], 0);
+const CALORIE_TARGET = 2200;
+// Neighboring historical days demonstrate partial intake; future days start empty.
+const sampleDays = (): Record<number, Food[]> => ({
+  [-4]: SAMPLE_FOODS.slice(0, 8),
+  [-2]: SAMPLE_FOODS.slice(0, 12),
+  [-1]: SAMPLE_FOODS.slice(0, 18),
+  [0]: [...SAMPLE_FOODS],
+});
 const hourGroup = (time: string) => {
   const [hour, minute] = time.split(':').map(Number);
   return `${String((hour + (minute > 30 ? 1 : 0)) % 24).padStart(2, '0')}:00`;
@@ -80,13 +88,12 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
 }
 
 export function BalanceLogWireframes() {
-  const [foods, setFoods] = useState<Food[]>(SAMPLE_FOODS);
+  const [foodsByDay, setFoodsByDay] = useState<Record<number, Food[]>>(sampleDays);
   const [view, setView] = useState<View>('day');
   const [opened, setOpened] = useState<string[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [selectionMode, setSelectionMode] = useState(false);
   const [emptyDay, setEmptyDay] = useState(false);
-  const [showWeight, setShowWeight] = useState(false);
   const [offset, setOffset] = useState(0);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [time, setTime] = useState('13:00');
@@ -95,7 +102,11 @@ export function BalanceLogWireframes() {
   const [announcement, setAnnouncement] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
-  const activeFoods = emptyDay || offset !== 0 ? [] : foods;
+  const activeFoods = emptyDay ? [] : foodsByDay[offset] ?? [];
+  const dailyCalories = sum(activeFoods, 'calories');
+  const dailyProgress = Math.round(dailyCalories / CALORIE_TARGET * 100);
+  const updateFoods = (update: (foods: Food[]) => Food[]) =>
+    setFoodsByDay((previous) => ({ ...previous, [offset]: update(emptyDay ? [] : previous[offset] ?? []) }));
   const groups = useMemo(() => {
     const byHour = new Map<string, Food[]>();
     for (const food of activeFoods) {
@@ -106,7 +117,7 @@ export function BalanceLogWireframes() {
   }, [activeFoods]);
   const exitSelection = () => { setSelectionMode(false); setSelected(new Set()); };
   const changeView = (next: View) => {
-    setView(next); setOffset(0); setEmptyDay(false); setFoods(SAMPLE_FOODS); setAnnouncement('');
+    setView(next); setOffset(0); setEmptyDay(false); setFoodsByDay(sampleDays()); setAnnouncement('');
     setOpened(next === 'day' ? [] : ['13:00', '18:00']);
     setSelectionMode(next === 'selection');
     setSelected(next === 'selection' ? new Set(['c1', 'c2', 'd1']) : new Set());
@@ -128,26 +139,26 @@ export function BalanceLogWireframes() {
     setTime(next.kind === 'edit' ? next.food.time : next.kind === 'add' ? next.time : '13:00');
     setPortion(next.kind === 'edit' ? next.food.portion : '');
   };
-  const setDate = (next: number) => { setOffset(next); exitSelection(); setOpened([]); scrollRef.current?.scrollTo({ top: 0 }); };
+  const setDate = (next: number) => { setOffset(next); setEmptyDay(false); setAnnouncement(''); exitSelection(); setOpened([]); scrollRef.current?.scrollTo({ top: 0 }); };
   const finishAction = (message: string) => { setSheet(null); setAnnouncement(message); };
   const saveEdit = () => {
     if (sheet?.kind !== 'edit') return;
-    setFoods((previous) => previous.map((food) => food.id === sheet.food.id ? { ...food, time, portion: portion.trim() } : food));
+    updateFoods((previous) => previous.map((food) => food.id === sheet.food.id ? { ...food, time, portion: portion.trim() } : food));
     setOpened((previous) => [...new Set([...previous, hourGroup(time)])]);
     finishAction('Registro de ejemplo actualizado. La nutrición histórica se conserva.');
   };
   const moveSelected = () => {
-    setFoods((previous) => previous.map((food) => selected.has(food.id) ? { ...food, time } : food));
+    updateFoods((previous) => previous.map((food) => selected.has(food.id) ? { ...food, time } : food));
     setOpened([hourGroup(time)]); exitSelection(); finishAction('Registros de ejemplo movidos.');
   };
   const deleteSelected = () => {
-    setFoods((previous) => previous.filter((food) => !selected.has(food.id))); exitSelection(); finishAction('Registros de ejemplo eliminados.');
+    updateFoods((previous) => previous.filter((food) => !selected.has(food.id))); exitSelection(); finishAction('Registros de ejemplo eliminados.');
   };
   const addExample = (food: Food) => {
     const id = `example-${Date.now()}-${nextId.current++}`;
-    setFoods((previous) => [...previous, { ...food, id, time }]);
-    setOffset(0); setEmptyDay(false); setOpened((previous) => [...new Set([...previous, hourGroup(time)])]);
-    finishAction(`${food.name} agregado al día de ejemplo.`);
+    updateFoods((previous) => [...previous, { ...food, id, time }]);
+    setEmptyDay(false); setOpened((previous) => [...new Set([...previous, hourGroup(time)])]);
+    finishAction(`${food.name} agregado al día seleccionado.`);
   };
 
   return <div className="blw-root"><div className="blw">
@@ -160,33 +171,40 @@ export function BalanceLogWireframes() {
       </Tabs.Root>
       <div className="blw-options">
         <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>
-        <label><input type="checkbox" checked={showWeight} onChange={(event) => setShowWeight(event.target.checked)} /> Peso diario</label>
         <button onClick={() => changeView(view)}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> 22 alimentos en seis grupos horarios. No corresponden a tu consumo real.</p><p>Toca un grupo para abrirlo. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales.</p><p>En la semana: punto = hay registros; aro = kcal / meta. El signo + indica más del 100%. Ninguna señal confirma que el día esté completo.</p><p>Toca un grupo para abrirlo. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
       <div className="blw-device">
         <header className="blw-date">
           <div className="blw-date-main"><button aria-label="Día anterior" onClick={() => setDate(offset - 1)}><ChevronLeft size={20} /></button><span><strong>{offset === 0 ? 'Hoy' : dateLabel(offset)}</strong><small>{dateLabel(offset)} de 2026</small></span><button aria-label="Día siguiente" onClick={() => setDate(offset + 1)}><ChevronRight size={20} /></button></div>
-          <div className="blw-week" aria-label="Elegir día">{Array.from({ length: 7 }, (_, i) => i - 4).map((dayOffset) => <button key={dayOffset} aria-pressed={offset === dayOffset} onClick={() => setDate(dayOffset)}><span>{['L', 'M', 'M', 'J', 'V', 'S', 'D'][dayOffset + 4]}</span>{dayOffset + 9}</button>)}</div>
+          <div className="blw-week" aria-label="Elegir día y consultar kcal registradas">{Array.from({ length: 7 }, (_, i) => i - 4).map((dayOffset) => {
+            const dayFoods = emptyDay && offset === dayOffset ? [] : foodsByDay[dayOffset] ?? [];
+            const calories = sum(dayFoods, 'calories');
+            const progress = Math.round(calories / CALORIE_TARGET * 100);
+            return <button key={dayOffset} className="blw-day" aria-pressed={offset === dayOffset}
+              aria-label={`${dateLabel(dayOffset)}: ${dayFoods.length ? `${dayFoods.length} alimentos registrados, ${format(calories)} de ${format(CALORIE_TARGET)} kcal, ${progress}% de la meta${calories > CALORIE_TARGET ? ', por encima de la meta' : ''}` : 'sin registros'}`}
+              data-logged={dayFoods.length > 0 || undefined} onClick={() => setDate(dayOffset)}>
+              <span className="blw-weekday">{['L', 'M', 'M', 'J', 'V', 'S', 'D'][dayOffset + 4]}<span className="blw-logged-dot" aria-hidden="true" /></span>
+              <span className="blw-day-number"><svg viewBox="0 0 36 36" aria-hidden="true"><circle className="blw-ring-track" cx="18" cy="18" r="15" /><circle className="blw-ring-value" cx="18" cy="18" r="15" pathLength="100" strokeDasharray={`${Math.min(100, calories / CALORIE_TARGET * 100)} 100`} /></svg><span>{dayOffset + 9}</span>{calories > CALORIE_TARGET && <small aria-hidden="true">+</small>}</span>
+            </button>;
+          })}</div>
           {offset !== 0 && <button className="blw-today" onClick={() => setDate(0)}>Volver a hoy</button>}
         </header>
-        {showWeight && <div className="blw-weight"><span>Peso del día</span><span>{offset > 0 ? 'Fecha futura' : '72,4 kg · ejemplo'}</span></div>}
         <section className="blw-summary" aria-label="Totales del día">
-          <div className="blw-energy"><span><strong>{format(sum(activeFoods, 'calories'))}</strong> / 2.200 kcal</span><small>Consumidas / objetivo</small></div>
-          <div className="blw-progress" aria-hidden="true"><span style={{ width: `${Math.min(100, sum(activeFoods, 'calories') / 22)}%` }} /></div>
-          <div className="blw-summary-macros">{([['Proteínas', 'protein'], ['Carbos', 'carbs'], ['Grasas', 'fat'], ['Fibra', 'fiber']] as const).map(([label, key]) => <span key={key}><small>{label}</small><strong>{sum(activeFoods, key)}<small> g</small></strong></span>)}</div>
+          <div className="blw-energy"><span><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</span><small>{dailyProgress}% de la meta</small></div>
+          <div className="blw-summary-macros">{([['P', 'Proteínas', 'protein'], ['C', 'Carbohidratos', 'carbs'], ['G', 'Grasas', 'fat'], ['F', 'Fibra', 'fiber']] as const).map(([short, label, key]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} gramos`}><abbr title={label}>{short}</abbr> <strong>{sum(activeFoods, key)}<small> g</small></strong></span>)}</div>
         </section>
         <div className="blw-feed" ref={scrollRef}>
           <div className="blw-list-tools"><span>{activeFoods.length} alimentos · {groups.length} grupos</span><button disabled={!activeFoods.length} onClick={() => selectionMode ? exitSelection() : setSelectionMode(true)}>{selectionMode ? 'Cancelar selección' : 'Seleccionar'}</button></div>
-          {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>{offset !== 0 ? 'El ejemplo solo contiene datos en Hoy.' : 'Agrega el primer alimento de este día.'}</p><button onClick={() => openSheet({ kind: 'add', time: '08:00' })}>Registrar alimento</button></div> :
+          {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openSheet({ kind: 'add', time: '08:00' })}>Registrar alimento</button></div> :
             <Accordion.Root className="blw-groups" multiple value={opened} onValueChange={setOpened}>
               {groups.map(([hour, groupFoods]) => <Accordion.Item key={hour} value={hour} className="blw-group">
                 <div className="blw-group-top">
                   {selectionMode && <button className="blw-group-select" aria-label={`Seleccionar grupo de ${hour}`} aria-pressed={groupFoods.every((food) => selected.has(food.id))} onClick={() => toggleGroup(groupFoods)}><span className="blw-check">{groupFoods.every((food) => selected.has(food.id)) && <Check size={12} />}</span></button>}
-                  <Accordion.Header className="blw-group-heading"><Accordion.Trigger className="blw-group-trigger"><ChevronDown size={15} /><span><strong>{hour}</strong><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small></span><span className="blw-group-calories">{sum(groupFoods, 'calories')}<small> kcal</small></span></Accordion.Trigger></Accordion.Header>
+                  <Accordion.Header className="blw-group-heading"><Accordion.Trigger className="blw-group-trigger"><ChevronDown size={15} /><span className="blw-group-content"><span className="blw-group-line"><strong>{hour}</strong><span className="blw-group-calories">{sum(groupFoods, 'calories')}<small> kcal</small></span></span><span className="blw-group-line"><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small><span className="blw-group-macros" aria-label={`Proteínas ${sum(groupFoods, 'protein')} gramos, carbohidratos ${sum(groupFoods, 'carbs')} gramos, grasas ${sum(groupFoods, 'fat')} gramos`}>P {sum(groupFoods, 'protein')}g · C {sum(groupFoods, 'carbs')}g · G {sum(groupFoods, 'fat')}g</span></span></span></Accordion.Trigger></Accordion.Header>
                   <button className="blw-group-add" aria-label={`Agregar alimento a las ${hour}`} disabled={selectionMode} onClick={() => openSheet({ kind: 'add', time: hour })}><Plus size={18} /></button>
                 </div>
                 <Accordion.Panel className="blw-group-panel">{groupFoods.map((food) => <FoodRow key={food.id} food={food} selectionMode={selectionMode} selected={selected.has(food.id)} onEdit={() => openSheet({ kind: 'edit', food })} onSelect={() => toggleFood(food.id)} onStartSelection={() => startSelection([food.id])} />)}</Accordion.Panel>

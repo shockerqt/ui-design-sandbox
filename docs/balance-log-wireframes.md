@@ -9,15 +9,33 @@ its theme, targets or food imagery. The sample calorie target is illustrative.
 
 ## Review states
 
-- **Día plegado:** six time groups, counts and energy subtotals.
+- **Día plegado:** six time groups, counts, energy and P/C/G subtotals.
 - **Detalle:** the 13:00 and 18:00 groups expanded, showing the same sample data.
 - **Selección:** those groups expanded with three food records selected and
   cancel/move/delete actions. Group check controls select or deselect all foods.
 
 Changing the review preset restores its original example data. A separate reset
-control does the same. The empty-day and daily-weight toggles expose conditional
-layout states. Date controls show empty neighboring example days and return to
-the populated reference day, 2026-10-09.
+control does the same. The empty-day toggle exposes the selected day's empty
+layout. Date controls show partial example intake on October 5, 7 and 8,
+initially empty days on October 6, 10 and 11, and the populated reference day,
+2026-10-09. Adding, moving, editing and deleting operate within the selected
+day; navigating preserves each day's in-memory changes.
+
+## Date strip and compact totals
+
+The weekday dot means the day has at least one record. The ring around the day
+number represents recorded calories divided by the illustrative 2,200 kcal
+target. An empty day has a dashed outline. The ring stops at 100%; a plus sign
+indicates intake above the target, and the selected day's totals show the
+uncapped percentage and exact amounts. Accessible day labels include record
+count, calorie amounts and percentage. A recording indicator does not declare
+the day completely logged, and a full ring is not an assessment of dietary quality.
+
+The daily summary uses two compact lines: calorie total/target and percentage,
+then P/C/G/F amounts (fiber is retained). The previous large progress bar and
+four-column macro cards are removed. Daily weight is removed from this tab.
+Collapsed and expanded group headings show two lines: hour/calorie subtotal,
+then food count/P/C/G amounts. Food-row anatomy remains unchanged.
 
 ## Food-row anatomy
 
@@ -35,8 +53,7 @@ Tap a food to edit its time/quantity; nutrition snapshots are preserved. Hold
 for 550 ms to select, or use the explicit selection control. Moving/deleting and
 adding a sample food affect only this instance in memory; reset reloads samples.
 The bottom app-navigation labels are contextual references, not additional
-implemented screens. Weight is a layout-only example. No network calls or
-real-data persistence are implemented.
+implemented screens. No network calls or real-data persistence are implemented.
 
 ## Worktree review
 

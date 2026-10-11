@@ -15,10 +15,10 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-log-wireframes',
     title: 'Balance · Wireframes de Registros',
     category: 'Dashboards',
-    description: 'Wireframes móviles en grises: seis grupos horarios, 22 alimentos, registros de dos líneas, imágenes neutras y estados interactivos de detalle y selección.',
+    description: 'Wireframes móviles en grises: indicadores de registro y progreso por día, resumen compacto, macros por grupo y alimentos de dos líneas.',
     tags: ['Balance', 'wireframes', 'mobile', 'two-line rows', 'Base UI'],
-    version: 'v1.0.0',
-    updatedAt: '2026-10-09',
+    version: 'v1.1.0',
+    updatedAt: '2026-10-11',
     component: BalanceLogWireframes
   },
   {
