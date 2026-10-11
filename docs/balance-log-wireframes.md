@@ -26,8 +26,11 @@ day; navigating preserves each day's in-memory changes.
 The continuous ring around the day number represents recorded calories divided
 by the illustrative 2,200 kcal target. There is no extra recording dot or plus
 character. An empty day has only the muted track. A single ring fills up to
-100% in gray; above the calorie target, that same filled ring turns amber
-(#b66a12). No concentric inner ring is rendered. The selected-day summary and
+100% in gray; above the calorie target, amber (#b66a12) progressively covers
+the same perimeter. At 120% intake, the ring shows 20% amber and 80% gray.
+At 200% or more it is fully amber. The overlay shares the main ring's radius,
+center and stroke width, so there is one visible ring with no inner ring.
+The selected-day summary and
 accessible labels retain the uncapped percentage and exact amounts, including
 food-record counts. A full ring does not declare the day completely logged or
 assess dietary quality. Exact amounts remain available independently of color.

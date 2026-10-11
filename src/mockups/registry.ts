@@ -17,7 +17,7 @@ export const mockupRegistry: MockupItem[] = [
     category: 'Dashboards',
     description: 'Wireframes móviles en grises: progreso por día, resumen compacto, macros por grupo y registro de alimento o peso desde el + central de navegación.',
     tags: ['Balance', 'wireframes', 'mobile', 'two-line rows', 'Base UI'],
-    version: 'v1.3.3',
+    version: 'v1.3.4',
     updatedAt: '2026-10-11',
     component: BalanceLogWireframes
   },
