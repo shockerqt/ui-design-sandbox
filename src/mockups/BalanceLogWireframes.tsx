@@ -22,7 +22,8 @@ const SAMPLE_FOODS: Food[] = [
   sample('b3', 'Arándanos', '60 g', '11:12', 34, 0, 9, 0, 1),
   sample('b4', 'Miel', '1 cucharadita · 7 g', '11:12', 21, 0, 6, 0),
   sample('c1', 'Pechuga de pollo', '150 g', '13:10', 248, 46, 0, 5),
-  sample('c2', 'Arroz integral', '160 g', '13:12', 180, 4, 38, 2, 3),
+  // Larger illustrative portion exercises three-digit carbs in detail/selection.
+  sample('c2', 'Arroz integral', '450 g', '13:12', 506, 11, 107, 6, 8),
   sample('c3', 'Ensalada de tomate y pepino', '1 plato · 180 g', '13:12', 38, 2, 8, 0, 2),
   sample('c4', 'Aceite de oliva', '1 cucharadita · 5 g', '13:12', 45, 0, 0, 5),
   sample('d1', 'Maní', '30 g', '17:40', 170, 7, 5, 14, 3),
@@ -55,6 +56,12 @@ const dateLabel = (offset: number) => {
   return new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(date);
 };
 
+function MacroValues({ protein, carbs, fat }: Pick<Food, 'protein' | 'carbs' | 'fat'>) {
+  return <span className="blw-macro-grid" aria-label={`Proteínas ${protein} gramos, carbohidratos ${carbs} gramos, grasas ${fat} gramos`}>
+    {([['P', protein], ['C', carbs], ['G', fat]] as const).map(([label, value]) => <span key={label}><small>{label}</small><span>{value}<small> g</small></span></span>)}
+  </span>;
+}
+
 function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelection }: {
   food: Food; selectionMode: boolean; selected: boolean;
   onEdit: () => void; onSelect: () => void; onStartSelection: () => void;
@@ -82,7 +89,7 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
     <span className="blw-image" aria-hidden="true"><Image size={18} strokeWidth={1.2} /></span>
     <span className="blw-food-content">
       <span className="blw-line-one"><span className="blw-food-name" title={food.name}>{food.name}</span><span className="blw-calories">{food.calories}<small> kcal</small></span></span>
-      <span className="blw-line-two"><span className="blw-quantity-time"><span className="blw-portion" title={food.portion}>{food.portion}</span><span className="blw-time">· {food.time}</span></span><span className="blw-macros">P {food.protein}g · C {food.carbs}g · G {food.fat}g</span></span>
+      <span className="blw-line-two"><span className="blw-quantity-time"><span className="blw-portion" title={food.portion}>{food.portion}</span><span className="blw-time">· {food.time}</span></span><MacroValues protein={food.protein} carbs={food.carbs} fat={food.fat} /></span>
     </span>
   </button>;
 }
@@ -181,7 +188,7 @@ export function BalanceLogWireframes() {
         <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>
         <button onClick={() => changeView(view)}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales.</p><p>En la semana: punto = hay registros; aro = kcal / meta. El signo + indica más del 100%. Ninguna señal confirma que el día esté completo.</p><p>Toca un grupo para abrirlo. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: aro vacío = sin alimentos; avance = kcal / meta. El exceso inicia una segunda vuelta interior. Ninguna señal confirma que el día esté completo.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
@@ -192,11 +199,12 @@ export function BalanceLogWireframes() {
             const dayFoods = emptyDay && offset === dayOffset ? [] : foodsByDay[dayOffset] ?? [];
             const calories = sum(dayFoods, 'calories');
             const progress = Math.round(calories / CALORIE_TARGET * 100);
+            const turns = calories / CALORIE_TARGET;
             return <button key={dayOffset} className="blw-day" aria-pressed={offset === dayOffset}
               aria-label={`${dateLabel(dayOffset)}: ${dayFoods.length ? `${dayFoods.length} alimentos registrados, ${format(calories)} de ${format(CALORIE_TARGET)} kcal, ${progress}% de la meta${calories > CALORIE_TARGET ? ', por encima de la meta' : ''}` : 'sin registros'}`}
-              data-logged={dayFoods.length > 0 || undefined} onClick={() => setDate(dayOffset)}>
-              <span className="blw-weekday">{['L', 'M', 'M', 'J', 'V', 'S', 'D'][dayOffset + 4]}<span className="blw-logged-dot" aria-hidden="true" /></span>
-              <span className="blw-day-number"><svg viewBox="0 0 36 36" aria-hidden="true"><circle className="blw-ring-track" cx="18" cy="18" r="15" /><circle className="blw-ring-value" cx="18" cy="18" r="15" pathLength="100" strokeDasharray={`${Math.min(100, calories / CALORIE_TARGET * 100)} 100`} /></svg><span>{dayOffset + 9}</span>{calories > CALORIE_TARGET && <small aria-hidden="true">+</small>}</span>
+              onClick={() => setDate(dayOffset)}>
+              <span className="blw-weekday">{['L', 'M', 'M', 'J', 'V', 'S', 'D'][dayOffset + 4]}</span>
+              <span className="blw-day-number"><svg viewBox="0 0 36 36" aria-hidden="true"><circle className="blw-ring-track" cx="18" cy="18" r="15" /><circle className="blw-ring-value" cx="18" cy="18" r="15" pathLength="100" strokeDasharray={`${Math.min(1, turns) * 100} 100`} />{turns > 1 && <circle className="blw-ring-overflow" cx="18" cy="18" r="11.5" pathLength="100" strokeDasharray={`${Math.min(1, turns - 1) * 100} 100`} />}</svg><span>{dayOffset + 9}</span></span>
             </button>;
           })}</div>
           {offset !== 0 && <button className="blw-today" onClick={() => setDate(0)}>Volver a hoy</button>}
@@ -212,7 +220,10 @@ export function BalanceLogWireframes() {
               {groups.map(([hour, groupFoods]) => <Accordion.Item key={hour} value={hour} className="blw-group">
                 <div className="blw-group-top">
                   {selectionMode && <button className="blw-group-select" aria-label={`Seleccionar grupo de ${hour}`} aria-pressed={groupFoods.every((food) => selected.has(food.id))} onClick={() => toggleGroup(groupFoods)}><span className="blw-check">{groupFoods.every((food) => selected.has(food.id)) && <Check size={12} />}</span></button>}
-                  <Accordion.Header className="blw-group-heading"><Accordion.Trigger className="blw-group-trigger"><ChevronDown size={15} /><span className="blw-group-content"><span className="blw-group-line"><strong>{hour}</strong><span className="blw-group-calories">{sum(groupFoods, 'calories')}<small> kcal</small></span></span><span className="blw-group-line"><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small><span className="blw-group-macros" aria-label={`Proteínas ${sum(groupFoods, 'protein')} gramos, carbohidratos ${sum(groupFoods, 'carbs')} gramos, grasas ${sum(groupFoods, 'fat')} gramos`}>P {sum(groupFoods, 'protein')}g · C {sum(groupFoods, 'carbs')}g · G {sum(groupFoods, 'fat')}g</span></span></span></Accordion.Trigger></Accordion.Header>
+                  <Accordion.Header className="blw-group-heading"><Accordion.Trigger className="blw-group-trigger">
+                    <span className="blw-group-line"><span className="blw-group-identity"><strong>{hour}</strong><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small></span><span className="blw-group-energy"><span className="blw-group-calories">{sum(groupFoods, 'calories')}<small> kcal</small></span><ChevronDown size={14} aria-hidden="true" /></span></span>
+                    <MacroValues protein={sum(groupFoods, 'protein')} carbs={sum(groupFoods, 'carbs')} fat={sum(groupFoods, 'fat')} />
+                  </Accordion.Trigger></Accordion.Header>
                   <button className="blw-group-add" aria-label={`Agregar alimento a las ${hour}`} disabled={selectionMode} onClick={() => openSheet({ kind: 'add', time: hour })}><Plus size={18} /></button>
                 </div>
                 <Accordion.Panel className="blw-group-panel">{groupFoods.map((food) => <FoodRow key={food.id} food={food} selectionMode={selectionMode} selected={selected.has(food.id)} onEdit={() => openSheet({ kind: 'edit', food })} onSelect={() => toggleFood(food.id)} onStartSelection={() => startSelection([food.id])} />)}</Accordion.Panel>

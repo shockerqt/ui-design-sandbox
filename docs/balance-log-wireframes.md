@@ -23,26 +23,38 @@ day; navigating preserves each day's in-memory changes.
 
 ## Date strip and compact totals
 
-The weekday dot means the day has at least one record. The ring around the day
-number represents recorded calories divided by the illustrative 2,200 kcal
-target. An empty day has a dashed outline. The ring stops at 100%; a plus sign
-indicates intake above the target, and the selected day's totals show the
-uncapped percentage and exact amounts. Accessible day labels include record
-count, calorie amounts and percentage. A recording indicator does not declare
-the day completely logged, and a full ring is not an assessment of dietary quality.
+The continuous ring around the day number represents recorded calories divided
+by the illustrative 2,200 kcal target. There is no extra recording dot or plus
+character. An empty day has only the muted track. The outer lap fills up to
+100%; intake beyond that starts a concentric inner lap representing the next
+100%. Visual laps saturate at 200%, while the selected-day summary and accessible
+labels retain the uncapped percentage and exact amounts. Accessible day labels
+also include food-record counts. A full ring does not declare the day completely
+logged or assess dietary quality.
 
 The daily summary uses two compact lines: calorie total/target and percentage,
 then P/C/G/F amounts (fiber is retained). The previous large progress bar and
 four-column macro cards are removed. Daily weight is excluded from the feed and summary.
-Collapsed and expanded group headings show two lines: hour/calorie subtotal,
-then food count/P/C/G amounts. Food-row anatomy remains unchanged.
+Collapsed and expanded group headings show two lines: hour/count/calorie
+subtotal, then a full-width three-column P/C/G grid. The entire heading area is
+the expansion button; its chevron is a decorative cue inside that same button.
+The separate rightmost plus has a divided, at-least-44×44px touch area, fills the
+heading height and does not toggle expansion. Selection adds a separate 44px
+group checkbox. Food-row anatomy keeps its two lines.
 
 ## Food-row anatomy
 
 Each food uses a fixed neutral image symbol and two content lines:
 
 1. Name and calories.
-2. Quantity, exact time and protein/carbohydrate/fat amounts in grams.
+2. Quantity, exact time and a three-column protein/carbohydrate/fat grid in grams.
+
+Macro values use separate columns and tabular numerals instead of a dotted
+text string. Group macros use the full second line; food macros reserve 150px,
+with portion text yielding first when space is tight. The illustrative rice
+portion contains 107g carbs to exercise three-digit values in expanded and
+selection states. Numeric values remain explicit; no category color system is
+introduced in this grayscale iteration.
 
 Names and quantities may ellipsize at phone widths; the full values remain in
 the accessible label and edit dialog. Exact time and macro values remain visible.
@@ -62,7 +74,7 @@ sheet with Alimento and Peso actions for the selected day. Alimento continues
 to the existing example search and recording flow; Peso opens a kg input and
 stores one example value per day in memory, prefilled when reopened. Resetting
 the example clears these weights as well as food edits. Weight is not added to
-the food feed, summary, calorie ring or food-recording dot.
+the food feed, summary or calorie ring.
 
 The previous separate registration row is removed. Selection actions replace
 the bottom navigation while selecting rather than stacking above it. Per-group
