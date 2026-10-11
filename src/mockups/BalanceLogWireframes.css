@@ -36,14 +36,14 @@
 .blw-ring-overflow { stroke: #b66a12; }
 .blw-week button[aria-pressed="true"] { background: var(--blw-soft); border-color: #666; font-weight: 700; }
 .blw-today { display: block; border: 0; background: transparent; margin: 8px auto 0; text-decoration: underline; font-size: 11px !important; }
-.blw-summary { flex-shrink: 0; padding: 9px 14px; border-bottom: 1px solid #aaa; font-variant-numeric: tabular-nums; }
+.blw-summary { flex-shrink: 0; width: 100%; min-height: 44px; padding: 9px 14px; border: 0; border-bottom: 1px solid #aaa; background: white; text-align: left; font-variant-numeric: tabular-nums; }
 .blw-energy { display: flex; align-items: baseline; justify-content: space-between; font-size: 12px; }
 .blw-energy strong { font-size: 16px; font-weight: 600; }
-.blw-energy > small { font-size: 10px; color: var(--blw-muted); }
+.blw-energy > svg { align-self: center; flex-shrink: 0; color: var(--blw-muted); }
 .blw-summary-macros { display: flex; justify-content: space-between; gap: 6px; margin-top: 5px; font-size: 11px; white-space: nowrap; }
 .blw-summary-macros abbr { color: var(--blw-muted); text-decoration: none; }
 .blw-summary-macros strong { font-weight: 500; }
-.blw-summary-macros strong small { font-size: 10px; font-weight: 400; color: var(--blw-muted); }
+.blw-summary-macros small { font-size: 10px; font-weight: 400; color: var(--blw-muted); }
 .blw-feed { min-height: 0; flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: thin; }
 .blw-group { border-top: 1px solid var(--blw-line); }
 .blw-group:last-child { border-bottom: 1px solid var(--blw-line); }
@@ -107,6 +107,12 @@
 .blw-registration-options button > span { flex: 1; }
 .blw-registration-options strong { display: block; font-size: 14px; font-weight: 600; }
 .blw-registration-options small { display: block; margin-top: 4px; font-size: 12px; color: #666; }
+.blw-nutrition-details { margin: 0; font-variant-numeric: tabular-nums; }
+.blw-nutrition-details > div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 12px 0; border-bottom: 1px solid #ddd; }
+.blw-nutrition-details dt { min-width: 0; }
+.blw-nutrition-details dd { margin: 0; flex-shrink: 0; font-size: 12px; color: #666; }
+.blw-nutrition-details dd strong { color: #222; font-weight: 600; }
+.blw-dialog > p.blw-nutrition-note { margin: 16px 0 0; font-size: 11px; }
 .blw-field { display: grid; gap: 6px; font-size: 12px; margin-bottom: 16px; }
 .blw-field input { width: 100%; min-height: 42px; border: 1px solid #bbb; background: white; padding: 8px; font-size: 14px; }
 .blw-snapshot { font-size: 12px; padding: 12px 0; margin-bottom: 12px; border-block: 1px solid #ddd; line-height: 1.7; }

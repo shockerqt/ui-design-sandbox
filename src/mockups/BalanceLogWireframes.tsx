@@ -7,7 +7,7 @@ import './BalanceLogWireframes.css';
 
 type Food = { id: string; name: string; portion: string; time: string; calories: number; protein: number; carbs: number; fat: number; fiber: number };
 type View = 'day' | 'detail' | 'selection';
-type Sheet = { kind: 'edit'; food: Food } | { kind: 'add'; time: string } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | null;
+type Sheet = { kind: 'edit'; food: Food } | { kind: 'add'; time: string } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'nutrition' } | null;
 const sample = (id: string, name: string, portion: string, time: string, calories: number, protein: number, carbs: number, fat: number, fiber = 0): Food =>
   ({ id, name, portion, time, calories, protein, carbs, fat, fiber });
 
@@ -39,6 +39,13 @@ const SAMPLE_FOODS: Food[] = [
 ];
 const sum = (foods: Food[], key: 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber') => foods.reduce((total, food) => total + food[key], 0);
 const CALORIE_TARGET = 2200;
+// Illustrative review targets, independent of the user's actual nutrition goals.
+const DAILY_NUTRIENTS = [
+  ['P', 'Proteínas', 'protein', 150],
+  ['C', 'Carbohidratos', 'carbs', 265],
+  ['G', 'Grasas', 'fat', 60],
+  ['F', 'Fibra', 'fiber', 30],
+] as const;
 // Neighboring historical days demonstrate partial intake; future days start empty.
 const sampleDays = (): Record<number, Food[]> => ({
   [-4]: SAMPLE_FOODS.slice(0, 8),
@@ -195,7 +202,7 @@ export function BalanceLogWireframes() {
         <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>
         <button onClick={() => changeView(view)}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: el aro avanza en gris hasta la meta; después, el ámbar avanza sobre el mismo aro. Al 120%, se ve 20% ámbar y 80% gris. El porcentaje exacto está en el resumen del día.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: el aro avanza en gris hasta la meta; después, el ámbar avanza sobre el mismo aro. Al 120%, se ve 20% ámbar y 80% gris. El resumen muestra consumido / meta; al tocarlo, abre el detalle nutricional. Las metas de kcal y nutrientes son ilustrativas.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
@@ -220,10 +227,10 @@ export function BalanceLogWireframes() {
           })}</div>
           {offset !== 0 && <button className="blw-today" onClick={() => setDate(0)}>Volver a hoy</button>}
         </header>
-        <section className="blw-summary" aria-label="Totales del día">
-          <div className="blw-energy"><span><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</span><small>{dailyProgress}% de la meta</small></div>
-          <div className="blw-summary-macros">{([['P', 'Proteínas', 'protein'], ['C', 'Carbohidratos', 'carbs'], ['G', 'Grasas', 'fat'], ['F', 'Fibra', 'fiber']] as const).map(([short, label, key]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} gramos`}><abbr title={label}>{short}</abbr> <strong>{sum(activeFoods, key)}<small> g</small></strong></span>)}</div>
-        </section>
+        <button type="button" className="blw-summary" aria-label={`Totales del día: ${format(dailyCalories)} de ${format(CALORIE_TARGET)} kilocalorías. ${DAILY_NUTRIENTS.slice(0, 3).map(([, label, key, target]) => `${label}: ${sum(activeFoods, key)} de ${target} gramos`).join('. ')}. Ver detalle nutricional`} aria-haspopup="dialog" aria-expanded={sheet?.kind === 'nutrition'} onClick={() => openSheet({ kind: 'nutrition' })}>
+          <span className="blw-energy"><span><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</span><ChevronRight size={16} aria-hidden="true" /></span>
+          <span className="blw-summary-macros">{DAILY_NUTRIENTS.slice(0, 3).map(([short, label, key, target]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} de ${target} gramos`}><abbr title={label}>{short}</abbr> <strong>{sum(activeFoods, key)}</strong><small> / {target} g</small></span>)}</span>
+        </button>
         <div className="blw-feed" ref={scrollRef}>
           {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openSheet({ kind: 'add', time: '08:00' })}>Registrar alimento</button></div> :
             <Accordion.Root className="blw-groups" multiple value={opened} onValueChange={setOpened}>
@@ -253,11 +260,18 @@ export function BalanceLogWireframes() {
     </section>
 
     <Dialog.Root open={sheet !== null} onOpenChange={(open) => { if (!open) setSheet(null); }}>
-      <Dialog.Portal><Dialog.Backdrop className="blw-dialog-backdrop" /><Dialog.Popup className={`blw-dialog${sheet?.kind === 'register' || sheet?.kind === 'add' || sheet?.kind === 'weight' ? ' blw-registration-sheet' : ''}`}>
-        <Dialog.Title>{sheet?.kind === 'edit' ? sheet.food.name : sheet?.kind === 'register' ? 'Registrar' : sheet?.kind === 'weight' ? 'Registrar peso' : sheet?.kind === 'add' ? 'Registrar alimento' : sheet?.kind === 'move' ? 'Mover de hora' : 'Eliminar registros'}</Dialog.Title>
-        <Dialog.Description>Prototipo con datos de ejemplo. Los cambios se conservan solo mientras revisas esta pantalla.</Dialog.Description>
+      <Dialog.Portal><Dialog.Backdrop className="blw-dialog-backdrop" /><Dialog.Popup className={`blw-dialog${sheet?.kind === 'register' || sheet?.kind === 'add' || sheet?.kind === 'weight' || sheet?.kind === 'nutrition' ? ' blw-registration-sheet' : ''}`}>
+        <Dialog.Title>{sheet?.kind === 'nutrition' ? 'Detalle nutricional del día' : sheet?.kind === 'edit' ? sheet.food.name : sheet?.kind === 'register' ? 'Registrar' : sheet?.kind === 'weight' ? 'Registrar peso' : sheet?.kind === 'add' ? 'Registrar alimento' : sheet?.kind === 'move' ? 'Mover de hora' : 'Eliminar registros'}</Dialog.Title>
+        <Dialog.Description>{sheet?.kind === 'nutrition' ? `${dateLabel(offset)} · Consumido / meta. Metas ilustrativas para esta revisión.` : 'Prototipo con datos de ejemplo. Los cambios se conservan solo mientras revisas esta pantalla.'}</Dialog.Description>
         {(sheet?.kind === 'register' || sheet?.kind === 'weight' || sheet?.kind === 'add') && <p className="blw-registration-date">Para {offset === 0 ? `hoy · ${dateLabel(offset)}` : dateLabel(offset)}</p>}
-        {sheet?.kind === 'register' ? <div className="blw-registration-options">
+        {sheet?.kind === 'nutrition' ? <>
+          <dl className="blw-nutrition-details">
+            <div><dt>Energía</dt><dd><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</dd></div>
+            {DAILY_NUTRIENTS.map(([, label, key, target]) => <div key={key}><dt>{label}</dt><dd><strong>{sum(activeFoods, key)}</strong> / {target} g</dd></div>)}
+            {['Azúcares', 'Grasas saturadas', 'Sodio', 'Colesterol'].map((label) => <div key={label}><dt>{label}</dt><dd>Sin datos</dd></div>)}
+          </dl>
+          <p className="blw-nutrition-note">Energía: {dailyProgress}% de la meta. Los nutrientes sin datos no se contabilizan como cero.</p>
+        </> : sheet?.kind === 'register' ? <div className="blw-registration-options">
           <button onClick={() => openSheet({ kind: 'add', time: '13:00' })}><Utensils size={22} aria-hidden="true" /><span><strong>Alimento</strong><small>Buscar y registrar</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           <button onClick={() => openSheet({ kind: 'weight' })}><Scale size={22} aria-hidden="true" /><span><strong>Peso</strong><small>Anotar el peso del día</small></span><ChevronRight size={18} aria-hidden="true" /></button>
         </div> : sheet?.kind === 'weight' ? <form onSubmit={(event) => { event.preventDefault(); saveWeight(); }}>

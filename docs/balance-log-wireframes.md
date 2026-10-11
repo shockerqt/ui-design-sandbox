@@ -30,13 +30,18 @@ character. An empty day has only the muted track. A single ring fills up to
 the same perimeter. At 120% intake, the ring shows 20% amber and 80% gray.
 At 200% or more it is fully amber. The overlay shares the main ring's radius,
 center and stroke width, so there is one visible ring with no inner ring.
-The selected-day summary and
-accessible labels retain the uncapped percentage and exact amounts, including
-food-record counts. A full ring does not declare the day completely logged or
+The expanded daily nutrition detail and accessible date labels retain the
+uncapped percentage. Date labels retain exact amounts and food-record counts. A full ring does not declare the day completely logged or
 assess dietary quality. Exact amounts remain available independently of color.
 
-The daily summary uses two compact lines: calorie total/target and percentage,
-then P/C/G/F amounts (fiber is retained). The previous large progress bar and
+The daily summary is a single full-width button using two compact lines:
+calorie total/target, then inline P/C/G consumed/target grams. It hides fiber and
+percentage. Illustrative targets are 2,200 kcal, P 150g, C 265g and G 60g.
+Tapping it opens the selected day's advanced nutrition sheet, including fiber
+with an illustrative 30g target and the uncapped calorie percentage. Sugar,
+saturated fat, sodium and cholesterol show “Sin datos” because the sample
+records do not contain them; missing data is never presented as zero.
+These values are layout fixtures, not personalized nutrition guidance. The previous large progress bar and
 four-column macro cards are removed. Daily weight is excluded from the feed and summary.
 Collapsed and expanded group headings show two lines: hour/count/calorie
 subtotal, then a compact right-aligned P/C/G line. The entire heading area is
