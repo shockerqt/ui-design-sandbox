@@ -57,8 +57,8 @@ const dateLabel = (offset: number) => {
 };
 
 function MacroValues({ protein, carbs, fat }: Pick<Food, 'protein' | 'carbs' | 'fat'>) {
-  return <span className="blw-macro-grid" aria-label={`Proteínas ${protein} gramos, carbohidratos ${carbs} gramos, grasas ${fat} gramos`}>
-    {([['P', protein], ['C', carbs], ['G', fat]] as const).map(([label, value]) => <span key={label}><small>{label}</small><span>{value}<small> g</small></span></span>)}
+  return <span className="blw-macro-line" aria-label={`Proteínas ${protein} gramos, carbohidratos ${carbs} gramos, grasas ${fat} gramos`}>
+    {([['P', protein], ['C', carbs], ['G', fat]] as const).map(([label, value]) => <span key={label}><small>{label}</small><span className="blw-macro-value">{value}<small>g</small></span></span>)}
   </span>;
 }
 

@@ -36,7 +36,7 @@ The daily summary uses two compact lines: calorie total/target and percentage,
 then P/C/G/F amounts (fiber is retained). The previous large progress bar and
 four-column macro cards are removed. Daily weight is excluded from the feed and summary.
 Collapsed and expanded group headings show two lines: hour/count/calorie
-subtotal, then a full-width three-column P/C/G grid. The entire heading area is
+subtotal, then a compact right-aligned P/C/G line. The entire heading area is
 the expansion button; its chevron is a decorative cue inside that same button.
 The separate rightmost plus has a divided, at-least-44×44px touch area, fills the
 heading height and does not toggle expansion. Selection adds a separate 44px
@@ -47,11 +47,13 @@ group checkbox. Food-row anatomy keeps its two lines.
 Each food uses a fixed neutral image symbol and two content lines:
 
 1. Name and calories.
-2. Quantity, exact time and a three-column protein/carbohydrate/fat grid in grams.
+2. Quantity, exact time and an inline protein/carbohydrate/fat summary in grams.
 
-Macro values use separate columns and tabular numerals instead of a dotted
-text string. Group macros use the full second line; food macros reserve 150px,
-with portion text yielding first when space is tight. The illustrative rice
+Macro values stay together with subtle dot separators and tabular numerals;
+short fixed-width value fields accommodate three digits without spreading the
+labels across the card. Group macros align below the energy subtotal. Food
+macros take their intrinsic compact width, with portion text yielding first
+when space is tight. The illustrative rice
 portion contains 107g carbs to exercise three-digit values in expanded and
 selection states. Numeric values remain explicit; no category color system is
 introduced in this grayscale iteration.

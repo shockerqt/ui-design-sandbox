@@ -58,9 +58,12 @@
 .blw-group-trigger strong { font-size: 13px; font-weight: 600; }
 .blw-group-trigger small { font-size: 10px; color: var(--blw-muted); font-weight: 400; }
 .blw-group-calories { font-size: 12px; }
-.blw-macro-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; font-size: 10px; font-weight: 400; color: #555; font-variant-numeric: tabular-nums; }
-.blw-macro-grid > span { display: flex; justify-content: space-between; align-items: baseline; gap: 3px; white-space: nowrap; min-width: 0; }
-.blw-macro-grid small { font-size: 10px; font-weight: 400; color: var(--blw-muted); }
+.blw-macro-line { display: inline-flex; align-items: baseline; justify-self: end; gap: 5px; font-size: 10px; font-weight: 400; color: #555; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.blw-macro-line > span { display: inline-flex; align-items: baseline; gap: 3px; }
+.blw-macro-line > span + span::before { content: '·'; color: #999; margin-right: 2px; }
+.blw-macro-value { min-width: 4ch; text-align: right; }
+.blw-macro-line small { font-size: 10px; font-weight: 400; color: var(--blw-muted); }
+.blw-group-trigger > .blw-macro-line { margin-right: 22px; }
 .blw-group-add, .blw-group-select { display: grid; place-items: center; flex-shrink: 0; width: 44px; min-width: 44px; min-height: 44px; padding: 12px; border: 0; background: transparent; }
 .blw-group-add { border-left: 1px solid var(--blw-line); }
 .blw-group-select + .blw-group-heading .blw-group-trigger { padding-left: 6px; }
@@ -77,7 +80,7 @@
 .blw-quantity-time { display: flex; align-items: baseline; gap: 3px; flex: 1; min-width: 0; }
 .blw-portion { min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .blw-time { flex-shrink: 0; white-space: nowrap; }
-.blw-line-two .blw-macro-grid { width: 150px; flex-shrink: 0; gap: 6px; }
+.blw-line-two .blw-macro-line { flex-shrink: 0; }
 .blw-check { width: 16px; height: 16px; display: grid; place-items: center; border: 1px solid #777; flex-shrink: 0; }
 .blw-food[data-selected] .blw-check, .blw-group-select[aria-pressed="true"] .blw-check { background: #333; color: white; border-color: #333; }
 .blw-action { flex-shrink: 0; padding: 8px 14px; border-top: 1px solid #aaa; background: white; }
