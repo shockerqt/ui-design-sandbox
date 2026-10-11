@@ -6,8 +6,9 @@ This iteration explores the anatomy agreed with the user before visual styling.
 It uses 22 synthetic food records grouped into six hours: five groups of four
 foods and one group of peanuts/raisins. It does not read Balance data or reuse
 its theme, targets or food imagery. The sample calorie target is illustrative.
-Three functional app destinations share the same in-memory records:
-Alimentos, Mediciones and Resumen.
+Four functional app destinations share the same in-memory state:
+Alimentos, Mediciones, Resumen and Perfil. Five equal navigation slots put the
+registration plus exactly in the center: Alimentos / Mediciones / + / Resumen / Perfil.
 
 ## Review states
 
@@ -121,6 +122,11 @@ Alimentos or the appropriate Peso/Medidas calendar, where it can be edited.
 Returning to Resumen preserves its area, period, end date and body metric.
 
 ## Central registration action
+
+Perfil proposes account/name, current units and weight/body reminder preferences.
+Name and checkbox changes are held in memory across navigation and reset with
+the example. Reminder controls do not schedule or send notifications; units
+remain the current kg/cm/kcal readout for this anatomy iteration.
 
 The bottom navigation contains a central 44px plus button. It opens a bottom
 sheet with Alimento, Peso and Medidas corporales actions for the selected day. Alimento continues

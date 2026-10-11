@@ -2,9 +2,10 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion } from '@base-ui/react/accordion';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
-import { ChartNoAxesCombined, Check, ChevronDown, ChevronLeft, ChevronRight, Image, Plus, Scale, Utensils } from 'lucide-react';
+import { ChartNoAxesCombined, Check, ChevronDown, ChevronLeft, ChevronRight, Image, Plus, Scale, UserRound, Utensils } from 'lucide-react';
 import { BodyMeasurementForm, MeasurementIcon, MeasurementView, SummaryView, dayISO, dayOffset, sampleBody, sampleWeights } from './BalanceMeasurementViews';
 import type { AppPage, BodyByDay, BodyValues, MeasurementKind, SummaryOptions } from './BalanceMeasurementViews';
+import { ProfileView, defaultProfilePreferences } from './BalanceProfileView';
 import './BalanceLogWireframes.css';
 
 type Food = { id: string; name: string; portion: string; time: string; calories: number; protein: number; carbs: number; fat: number; fiber: number };
@@ -117,6 +118,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   const [page, setPage] = useState<AppPage>(initialPage);
   const [measurementKind, setMeasurementKind] = useState<MeasurementKind>('weight');
   const [summaryOptions, setSummaryOptions] = useState<SummaryOptions>({ area: 'nutrition', period: 30, metric: 'Cintura', endDay: 0 });
+  const [profilePreferences, setProfilePreferences] = useState(defaultProfilePreferences);
   const [weightDate, setWeightDate] = useState(dayISO(0));
   const [weight, setWeight] = useState('');
   const [view, setView] = useState<View>('day');
@@ -151,6 +153,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   const changeView = (next: View) => {
     setView(next); setPage('foods'); setOffset(0); setEmptyDay(false); setFoodsByDay(sampleDays()); setWeightsByDay(sampleWeights()); setBodyByDay(sampleBody()); setAnnouncement('');
     setSummaryOptions({ area: 'nutrition', period: 30, metric: 'Cintura', endDay: 0 });
+    setProfilePreferences(defaultProfilePreferences());
     setOpened(next === 'day' ? [] : ['13:00', '18:00']);
     setSelectionMode(next === 'selection');
     setSelected(next === 'selection' ? new Set(['c1', 'c2', 'd1']) : new Set());
@@ -215,7 +218,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     <section className="blw-review" aria-label="Controles del wireframe">
       <div className="blw-intro"><span className="blw-kicker">Balance / Propuesta multivista</span><h1>Registrar. Después, explorar.</h1><p>Alimentos y mediciones para registrar; Resumen para mirar la evolución. Solo estructura e interacción.</p></div>
       <Tabs.Root value={page} onValueChange={(value) => changePage(value as AppPage)}>
-        <Tabs.List className="blw-views" aria-label="Pantallas de revisión"><Tabs.Tab value="foods">Alimentos</Tabs.Tab><Tabs.Tab value="measurements">Mediciones</Tabs.Tab><Tabs.Tab value="summary">Resumen</Tabs.Tab></Tabs.List>
+        <Tabs.List className="blw-views" aria-label="Pantallas de revisión"><Tabs.Tab value="foods">Alimentos</Tabs.Tab><Tabs.Tab value="measurements">Mediciones</Tabs.Tab><Tabs.Tab value="summary">Resumen</Tabs.Tab><Tabs.Tab value="profile">Perfil</Tabs.Tab></Tabs.List>
       </Tabs.Root>
       {page === 'foods' && <Tabs.Root value={view} onValueChange={(value) => changeView(value as View)}>
         <Tabs.List className="blw-views" aria-label="Estados de revisión">
@@ -226,7 +229,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         {page === 'foods' && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>}
         <button onClick={() => { changeView('day'); setPage(page); }}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p>El + compartido permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p><strong>Perfil.</strong> Primera anatomía de cuenta, unidades actuales y preferencias. Los recordatorios son controles de ejemplo; no envían notificaciones.</p><p>El + compartido queda al centro y permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
@@ -274,6 +277,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         </div></>}
         {page === 'measurements' && <MeasurementView offset={offset} onDate={setDate} kind={measurementKind} onKind={setMeasurementKind} weights={weightsByDay} body={bodyByDay} onRegister={(kind) => openSheet({ kind })} />}
         {page === 'summary' && <SummaryView nutrition={Object.entries(foodsByDay).filter(([day, foods]) => foods.length > 0 && !(emptyDay && Number(day) === offset)).map(([day, foods]) => ({ day: Number(day), calories: sum(foods, 'calories'), protein: sum(foods, 'protein'), carbs: sum(foods, 'carbs'), fat: sum(foods, 'fat') }))} weights={weightsByDay} body={bodyByDay} options={summaryOptions} onOptions={setSummaryOptions} onOpenFoods={(day) => openRecords(day, 'foods')} onOpenMeasurements={(day, kind) => openRecords(day, 'measurements', kind)} />}
+        {page === 'profile' && <ProfileView preferences={profilePreferences} onChange={setProfilePreferences} />}
         {page !== 'foods' && announcement && <p className="blw-announcement" role="status">{announcement}</p>}
         {selectionMode ? <div className="blw-action" aria-label="Acciones de selección">
           <span>{selected.size} seleccionados</span><div><button onClick={exitSelection}>Cancelar</button><button disabled={!selected.size} onClick={() => openSheet({ kind: 'move' })}>Mover</button><button disabled={!selected.size} onClick={() => openSheet({ kind: 'delete' })}>Eliminar</button></div>
@@ -282,9 +286,10 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
           <button className="blw-nav-destination" aria-current={page === 'measurements' ? 'page' : undefined} onClick={() => changePage('measurements')}><MeasurementIcon size={18} aria-hidden="true" /><span>Mediciones</span></button>
           <button className="blw-nav-add" aria-label="Registrar alimento, peso o medidas" aria-haspopup="dialog" aria-expanded={sheet?.kind === 'register' || sheet?.kind === 'add' || sheet?.kind === 'weight' || sheet?.kind === 'body'} onClick={() => openSheet({ kind: 'register' })}><Plus size={22} aria-hidden="true" /></button>
           <button className="blw-nav-destination" aria-current={page === 'summary' ? 'page' : undefined} onClick={() => changePage('summary')}><ChartNoAxesCombined size={18} aria-hidden="true" /><span>Resumen</span></button>
+          <button className="blw-nav-destination" aria-current={page === 'profile' ? 'page' : undefined} onClick={() => changePage('profile')}><UserRound size={18} aria-hidden="true" /><span>Perfil</span></button>
         </nav>}
       </div>
-      <p className="blw-caption">Alimentos · Mediciones · Resumen / datos de ejemplo en memoria</p>
+      <p className="blw-caption">Alimentos · Mediciones · + · Resumen · Perfil / datos de ejemplo</p>
     </section>
 
     <Dialog.Root open={sheet !== null} onOpenChange={(open) => { if (!open) setSheet(null); }}>

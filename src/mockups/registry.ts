@@ -15,9 +15,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-log-wireframes',
     title: 'Balance · Wireframes multivista',
     category: 'Dashboards',
-    description: 'Alimentos, calendario mensual de peso y medidas corporales, y gráficos separados en Resumen. Navegación funcional y registro desde el + compartido.',
+    description: 'Alimentos, calendario de mediciones, gráficos en Resumen y configuración en Perfil. Cuatro destinos y un + centrado para registrar.',
     tags: ['Balance', 'wireframes', 'mobile', 'measurements', 'charts', 'Base UI'],
-    version: 'v1.5.0',
+    version: 'v1.5.1',
     updatedAt: '2026-10-11',
     component: BalanceLogWireframes
   },

@@ -19,7 +19,7 @@ export type BodyKey = typeof BODY_FIELDS[number][0];
 export type BodyValues = Partial<Record<BodyKey, number>>;
 export type BodyByDay = Record<number, BodyValues>;
 export type MeasurementKind = 'weight' | 'body';
-export type AppPage = 'foods' | 'measurements' | 'summary';
+export type AppPage = 'foods' | 'measurements' | 'summary' | 'profile';
 export type NutritionDay = { day: number; calories: number; protein: number; carbs: number; fat: number };
 export type SummaryOptions = { area: 'nutrition' | 'body'; period: number; metric: string; endDay: number };
 
