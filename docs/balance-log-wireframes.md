@@ -26,11 +26,13 @@ day; navigating preserves each day's in-memory changes.
 The continuous ring around the day number represents recorded calories divided
 by the illustrative 2,200 kcal target. There is no extra recording dot or plus
 character. An empty day has only the muted track. The outer lap fills up to
-100%; intake beyond that starts a concentric inner lap representing the next
+100%; intake beyond that starts an amber (#b66a12) concentric inner lap representing the next
 100%. Visual laps saturate at 200%, while the selected-day summary and accessible
 labels retain the uncapped percentage and exact amounts. Accessible day labels
 also include food-record counts. A full ring does not declare the day completely
-logged or assess dietary quality.
+logged or assess dietary quality. The main lap remains gray; amber is limited
+to overflow, with the inner-lap shape and exact percentage preserving the
+distinction independently of color.
 
 The daily summary uses two compact lines: calorie total/target and percentage,
 then P/C/G/F amounts (fiber is retained). The previous large progress bar and

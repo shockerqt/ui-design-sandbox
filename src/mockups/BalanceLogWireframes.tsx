@@ -188,7 +188,7 @@ export function BalanceLogWireframes() {
         <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>
         <button onClick={() => changeView(view)}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: aro vacío = sin alimentos; avance = kcal / meta. El exceso inicia una segunda vuelta interior. Ninguna señal confirma que el día esté completo.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Hoy tiene 22 alimentos en seis grupos. Los días anteriores muestran ejemplos parciales. La porción grande de arroz permite revisar macros de tres dígitos.</p><p>En la semana: aro vacío = sin alimentos; avance = kcal / meta. El exceso inicia una segunda vuelta interior ámbar. Ninguna señal confirma que el día esté completo.</p><p>Toca la cabecera del grupo para abrirlo; su + agrega un alimento. Toca un alimento para consultar o editar; mantén pulsado para seleccionar.</p><p>Los nombres y las porciones largos conservan dos líneas; el detalle completo está al tocar el registro.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
