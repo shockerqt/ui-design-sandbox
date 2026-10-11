@@ -33,7 +33,7 @@ the day completely logged, and a full ring is not an assessment of dietary quali
 
 The daily summary uses two compact lines: calorie total/target and percentage,
 then P/C/G/F amounts (fiber is retained). The previous large progress bar and
-four-column macro cards are removed. Daily weight is removed from this tab.
+four-column macro cards are removed. Daily weight is excluded from the feed and summary.
 Collapsed and expanded group headings show two lines: hour/calorie subtotal,
 then food count/P/C/G amounts. Food-row anatomy remains unchanged.
 
@@ -54,6 +54,19 @@ for 550 ms to select, or use the explicit selection control. Moving/deleting and
 adding a sample food affect only this instance in memory; reset reloads samples.
 The bottom app-navigation labels are contextual references, not additional
 implemented screens. No network calls or real-data persistence are implemented.
+
+## Central registration action
+
+The bottom navigation contains a central 44px plus button. It opens a bottom
+sheet with Alimento and Peso actions for the selected day. Alimento continues
+to the existing example search and recording flow; Peso opens a kg input and
+stores one example value per day in memory, prefilled when reopened. Resetting
+the example clears these weights as well as food edits. Weight is not added to
+the food feed, summary, calorie ring or food-recording dot.
+
+The previous separate registration row is removed. Selection actions replace
+the bottom navigation while selecting rather than stacking above it. Per-group
+plus buttons keep their direct, hour-specific food-registration shortcut.
 
 ## Worktree review
 

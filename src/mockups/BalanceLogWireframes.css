@@ -82,13 +82,13 @@
 .blw-macros { flex-shrink: 0; white-space: nowrap; }
 .blw-check { width: 16px; height: 16px; display: grid; place-items: center; border: 1px solid #777; flex-shrink: 0; }
 .blw-food[data-selected] .blw-check, .blw-group-select[aria-pressed="true"] .blw-check { background: #333; color: white; border-color: #333; }
-.blw-action { flex-shrink: 0; padding: 12px 14px; border-top: 1px solid #aaa; background: white; }
-.blw-register { width: 100%; min-height: 42px; display: flex; gap: 6px; align-items: center; justify-content: center; border: 1px solid #555; background: var(--blw-soft); font-size: 12px !important; }
+.blw-action { flex-shrink: 0; padding: 8px 14px; border-top: 1px solid #aaa; background: white; }
 .blw-action > span { display: block; font-size: 11px; margin-bottom: 8px; }
 .blw-action > div { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .blw-action > div button { min-height: 36px; border: 1px solid #bbb; background: white; font-size: 11px; }
-.blw-bottom-nav { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, 1fr); padding: 14px 0; border-top: 1px solid var(--blw-line); font-size: 11px; text-align: center; color: var(--blw-muted); }
+.blw-bottom-nav { flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr 48px 2fr; align-items: center; min-height: 56px; padding: 6px 10px; border-top: 1px solid var(--blw-line); font-size: 11px; text-align: center; color: var(--blw-muted); }
 .blw-bottom-nav strong { color: #222; font-weight: 600; }
+.blw button.blw-nav-add { display: grid; place-items: center; width: 44px; height: 44px; justify-self: center; border: 1px solid #555; border-radius: 50%; background: #333; color: white; }
 .blw-caption { font-size: 11px; color: #666; margin-top: 16px; text-align: center; }
 .blw-empty { padding: 64px 32px; text-align: center; color: #777; }
 .blw-empty svg { margin: 0 auto 16px; }
@@ -100,6 +100,13 @@
 .blw-dialog { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); width: min(390px, calc(100vw - 24px)); max-height: calc(100dvh - 48px); overflow-y: auto; background: white; color: #222; font-family: Arial, sans-serif; border: 1px solid #999; padding: 24px; z-index: 101; font-size: 13px; }
 .blw-dialog h2 { font-size: 18px; line-height: 1.4; margin-bottom: 8px; }
 .blw-dialog > p { font-size: 12px; color: #666; line-height: 1.6; margin-bottom: 20px; }
+.blw-registration-sheet { top: auto; bottom: max(12px, env(safe-area-inset-bottom)); transform: translateX(-50%); }
+.blw-dialog > p.blw-registration-date { font-size: 11px; margin-bottom: 12px; }
+.blw-registration-options { display: grid; }
+.blw-registration-options button { display: flex; align-items: center; gap: 14px; min-height: 64px; padding: 12px 0; border: 0; border-top: 1px solid #ddd; background: white; text-align: left; }
+.blw-registration-options button > span { flex: 1; }
+.blw-registration-options strong { display: block; font-size: 14px; font-weight: 600; }
+.blw-registration-options small { display: block; margin-top: 4px; font-size: 12px; color: #666; }
 .blw-field { display: grid; gap: 6px; font-size: 12px; margin-bottom: 16px; }
 .blw-field input { width: 100%; min-height: 42px; border: 1px solid #bbb; background: white; padding: 8px; font-size: 14px; }
 .blw-snapshot { font-size: 12px; padding: 12px 0; margin-bottom: 12px; border-block: 1px solid #ddd; line-height: 1.7; }
