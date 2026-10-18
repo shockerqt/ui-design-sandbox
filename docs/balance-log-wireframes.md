@@ -4,6 +4,69 @@ Review route: `/m/balance-log-wireframes`.
 
 Food registration route: `/m/balance-log-wireframes/agregar-alimento`.
 
+## Objetivo y alcance de la revisión
+
+Validar la organización de la información y los flujos móviles para registrar
+alimentos, peso y medidas corporales, y consultar su evolución por separado.
+La entrega es un prototipo navegable para decidir la diagramación antes de
+definir la identidad visual o implementar estos cambios en Balance.
+
+La [tarea canónica UDS-010](https://github.com/shockerqt/workspace-governance/blob/6335d3aeb9962f37d9cbf8e81518148996d9bc57/tasks/UDS-010-balance-log-wireframes.md)
+define los objetivos y criterios de aceptación. Esta guía los presenta dentro
+del repositorio para que el PR pueda revisarse sin leer la conversación.
+
+| Objetivo | Qué debe permitir evaluar el prototipo |
+| --- | --- |
+| O1 · Consultar y corregir la alimentación | Encontrar alimentos en grupos horarios; leer porción, hora, kcal y macros; editar o seleccionar sin saturar la vista diaria. |
+| O2 · Agregar por bibliotecas o etiquetas | Entrar a una ruta normal, elegir o describir un alimento y guardarlo en el día/hora correctos con una vuelta clara al registro. |
+| O3 · Registrar mediciones de distinta frecuencia | Consultar un calendario mensual, anotar peso o solo las zonas medidas y distinguir izquierda/derecha y la fecha de cada última medida. |
+| O4 · Separar registro y análisis | Mantener los gráficos en Resumen, explorar períodos y volver a los registros de una fecha sin perder los filtros de análisis. |
+| O5 · Navegar y registrar desde un lugar estable | Reconocer Alimentos, Mediciones, Resumen y Perfil, con el + exactamente al centro y acceso común a los tres tipos de registro. |
+| O6 · Revisar la diagramación antes del estilo | Evaluar jerarquía, densidad, áreas táctiles y estados a 375–390px mediante datos sintéticos y presentación neutra. |
+
+Terminología: **alimento** es el producto; **registro** es su consumo con porción
+y hora; **grupo horario** reúne registros cercanos. No se pide nombrar comidas.
+
+## Recorrido de revisión
+
+1. Abrir la preview de UDS-010 en `/m/balance-log-wireframes` y elegir 375px en
+   el visor. La fecha de referencia del ejemplo es **9 de octubre de 2026**.
+   Comparar Día plegado, Detalle, Selección y Día vacío; los presets restablecen
+   los ejemplos, por lo que conviene probarlos antes de hacer ediciones.
+2. En Alimentos, abrir el grupo 13:00 para revisar macros de tres dígitos,
+   tocar un registro y usar pulsación larga para seleccionar. Comprobar el +
+   independiente del grupo y el detalle nutricional del resumen diario.
+3. Desde un + de grupo, entrar a Agregar alimento. Probar búsqueda y filtro de
+   biblioteca; después Etiquetas con un ejemplo o valores propios de prueba.
+   Cambiar día/hora, registrar y comprobar dónde quedó el alimento. Volver sin
+   guardar debe abandonar el formulario; la ruta admite también entrada directa.
+4. En Mediciones, alternar Peso/Medidas corporales, cambiar de mes y seleccionar
+   una fecha. El ejemplo tiene sesiones corporales el 1 y 27 de septiembre y el
+   9 de octubre; la última solo incluye cintura/cuello. Revisar campos opcionales,
+   pares izquierdo/derecho y las fechas de «últimas medidas por zona».
+5. En Resumen, alternar Alimentación/Cuerpo y 7/30/90 días; elegir una medida
+   corporal y una fecha de un gráfico. Abrir sus registros, editar y volver para
+   comprobar el vínculo con el mismo estado y la conservación de los filtros.
+6. Verificar las cinco posiciones Alimentos / Mediciones / + / Resumen / Perfil.
+   Probar nombre/preferencias de Perfil, cambiar de vista y comprobar que se
+   conservan durante la instancia. Revisar espacios, truncamientos y controles
+   táctiles en cada pantalla, incluidos los formularios.
+
+La aprobación visual y de interacción sigue pendiente de revisión en un
+dispositivo/navegador utilizable. CI valida empaquetado y TypeScript/build;
+los checks de fechas, búsqueda, formularios y render del run no sustituyen esa
+revisión. El PR debe recoger los hallazgos antes de dar por aceptada la propuesta.
+
+## Límites de esta entrega
+
+Datos, metas, bibliotecas y preferencias son ejemplos en memoria. Recargar
+reinicia el prototipo; editar el texto de porción de un registro conserva su
+snapshot nutricional. No se incluye integración con Balance/backend,
+persistencia, QR/OCR/cámara, notificaciones reales, conversión de unidades,
+ilustraciones definitivas ni identidad visual final. Las unidades de Perfil
+son una lectura de kg/cm/kcal. Publicar este PR para revisión no realiza merge,
+release permanente ni cambios a la infraestructura de previews.
+
 This iteration explores the anatomy agreed with the user before visual styling.
 It uses 22 synthetic food records grouped into six hours: five groups of four
 foods and one group of peanuts/raisins. It does not read Balance data or reuse
