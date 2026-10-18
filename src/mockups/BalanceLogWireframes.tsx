@@ -2,15 +2,17 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Accordion } from '@base-ui/react/accordion';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
+import { useLocation, useSearch } from 'wouter';
 import { ChartNoAxesCombined, Check, ChevronDown, ChevronLeft, ChevronRight, Image, Plus, Scale, UserRound, Utensils } from 'lucide-react';
 import { BodyMeasurementForm, MeasurementIcon, MeasurementView, SummaryView, dayISO, dayOffset, sampleBody, sampleWeights } from './BalanceMeasurementViews';
 import type { AppPage, BodyByDay, BodyValues, MeasurementKind, SummaryOptions } from './BalanceMeasurementViews';
 import { ProfileView, defaultProfilePreferences } from './BalanceProfileView';
+import { ADD_FOOD_PATH, BALANCE_WIREFRAME_PATH, FoodRegistrationView, foodRegistrationURL, parseFoodRegistration } from './BalanceFoodRegistration';
+import type { Food, FoodRegistrationContext } from './BalanceFoodRegistration';
 import './BalanceLogWireframes.css';
 
-type Food = { id: string; name: string; portion: string; time: string; calories: number; protein: number; carbs: number; fat: number; fiber: number };
 type View = 'day' | 'detail' | 'selection';
-type Sheet = { kind: 'edit'; food: Food } | { kind: 'add'; time: string } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'body' } | { kind: 'nutrition' } | null;
+type Sheet = { kind: 'edit'; food: Food } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'body' } | { kind: 'nutrition' } | null;
 const sample = (id: string, name: string, portion: string, time: string, calories: number, protein: number, carbs: number, fat: number, fiber = 0): Food =>
   ({ id, name, portion, time, calories, protein, carbs, fat, fiber });
 
@@ -112,6 +114,10 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
 }
 
 export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: AppPage } = {}) {
+  const [location, navigate] = useLocation();
+  const search = useSearch();
+  const addingFood = location === ADD_FOOD_PATH;
+  const foodContext = parseFoodRegistration(search);
   const [foodsByDay, setFoodsByDay] = useState<Record<number, Food[]>>(sampleDays);
   const [weightsByDay, setWeightsByDay] = useState<Record<number, string>>(sampleWeights);
   const [bodyByDay, setBodyByDay] = useState<BodyByDay>(sampleBody);
@@ -130,7 +136,6 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   const [sheet, setSheet] = useState<Sheet>(null);
   const [time, setTime] = useState('13:00');
   const [portion, setPortion] = useState('');
-  const [query, setQuery] = useState('');
   const [announcement, setAnnouncement] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
@@ -149,8 +154,9 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     return [...byHour.entries()].sort(([a], [b]) => a.localeCompare(b));
   }, [activeFoods]);
   const exitSelection = () => { setSelectionMode(false); setSelected(new Set()); };
-  const changePage = (next: AppPage) => { setPage(next); exitSelection(); setAnnouncement(''); };
+  const changePage = (next: AppPage) => { if (addingFood) navigate(BALANCE_WIREFRAME_PATH, { replace: true }); setPage(next); exitSelection(); setAnnouncement(''); };
   const changeView = (next: View) => {
+    if (addingFood) navigate(BALANCE_WIREFRAME_PATH, { replace: true });
     setView(next); setPage('foods'); setOffset(0); setEmptyDay(false); setFoodsByDay(sampleDays()); setWeightsByDay(sampleWeights()); setBodyByDay(sampleBody()); setAnnouncement('');
     setSummaryOptions({ area: 'nutrition', period: 30, metric: 'Cintura', endDay: 0 });
     setProfilePreferences(defaultProfilePreferences());
@@ -171,13 +177,22 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     });
   };
   const openSheet = (next: NonNullable<Sheet>) => {
-    setSheet(next); setQuery('');
-    setTime(next.kind === 'edit' ? next.food.time : next.kind === 'add' ? next.time : '13:00');
+    setSheet(next);
+    setTime(next.kind === 'edit' ? next.food.time : '13:00');
     setPortion(next.kind === 'edit' ? next.food.portion : '');
     if (next.kind === 'weight') { setWeight(weightsByDay[offset] ?? ''); setWeightDate(dayISO(offset)); }
   };
   const setDate = (next: number) => { setOffset(next); setEmptyDay(false); setAnnouncement(''); exitSelection(); setOpened([]); scrollRef.current?.scrollTo({ top: 0 }); };
   const finishAction = (message: string) => { setSheet(null); setAnnouncement(message); };
+  const openAddFood = (hour: string) => {
+    setSheet(null); exitSelection();
+    navigate(foodRegistrationURL({ day: offset, time: hour, method: 'libraries' }), { state: { balanceFoodRegistration: true } });
+  };
+  const changeFoodContext = (context: FoodRegistrationContext) => navigate(foodRegistrationURL(context), { replace: true, state: window.history.state });
+  const closeAddFood = () => {
+    if (window.history.state?.balanceFoodRegistration) window.history.back();
+    else navigate(BALANCE_WIREFRAME_PATH, { replace: true });
+  };
   const saveWeight = () => {
     if (!weight || !Number.isFinite(Number(weight)) || Number(weight) <= 0) return;
     const day = dayOffset(weightDate);
@@ -209,9 +224,11 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   };
   const addExample = (food: Food) => {
     const id = `example-${Date.now()}-${nextId.current++}`;
-    updateFoods((previous) => [...previous, { ...food, id, time }]);
-    setPage('foods'); setEmptyDay(false); setOpened((previous) => [...new Set([...previous, hourGroup(time)])]);
+    const { day, time: hour } = foodContext;
+    setFoodsByDay((previous) => ({ ...previous, [day]: [...(emptyDay && day === offset ? [] : previous[day] ?? []), { ...food, id, time: hour }] }));
+    setOffset(day); setPage('foods'); setEmptyDay(false); setOpened([hourGroup(hour)]);
     finishAction(`${food.name} agregado al día seleccionado.`);
+    closeAddFood();
   };
 
   return <div className="blw-root"><div className="blw">
@@ -220,20 +237,21 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
       <Tabs.Root value={page} onValueChange={(value) => changePage(value as AppPage)}>
         <Tabs.List className="blw-views" aria-label="Pantallas de revisión"><Tabs.Tab value="foods">Alimentos</Tabs.Tab><Tabs.Tab value="measurements">Mediciones</Tabs.Tab><Tabs.Tab value="summary">Resumen</Tabs.Tab><Tabs.Tab value="profile">Perfil</Tabs.Tab></Tabs.List>
       </Tabs.Root>
-      {page === 'foods' && <Tabs.Root value={view} onValueChange={(value) => changeView(value as View)}>
+      {page === 'foods' && !addingFood && <Tabs.Root value={view} onValueChange={(value) => changeView(value as View)}>
         <Tabs.List className="blw-views" aria-label="Estados de revisión">
           <Tabs.Tab value="day">Día plegado</Tabs.Tab><Tabs.Tab value="detail">Detalle</Tabs.Tab><Tabs.Tab value="selection">Selección</Tabs.Tab>
         </Tabs.List>
       </Tabs.Root>}
       <div className="blw-options">
-        {page === 'foods' && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>}
+        {page === 'foods' && !addingFood && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>}
         <button onClick={() => { changeView('day'); setPage(page); }}>Restablecer ejemplo</button>
       </div>
-      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p><strong>Perfil.</strong> Primera anatomía de cuenta, unidades actuales y preferencias. Los recordatorios son controles de ejemplo; no envían notificaciones.</p><p>El + compartido queda al centro y permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
+      <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p><strong>Agregar alimento.</strong> Ruta propia con Bibliotecas y Código QR. La lectura QR es simulada; usa el ejemplo para revisar el resultado y registrarlo.</p><p><strong>Perfil.</strong> Primera anatomía de cuenta, unidades actuales y preferencias. Los recordatorios son controles de ejemplo; no envían notificaciones.</p><p>El + compartido queda al centro y permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
     </section>
 
     <section className="blw-stage" aria-label="Wireframe de teléfono">
       <div className="blw-device">
+        {addingFood ? <FoodRegistrationView foods={SAMPLE_FOODS} context={foodContext} onContext={changeFoodContext} onBack={closeAddFood} onAdd={addExample} /> : <>
         {page === 'foods' && <><header className="blw-date">
           <div className="blw-date-main"><button aria-label="Día anterior" onClick={() => setDate(offset - 1)}><ChevronLeft size={20} /></button><span><strong>{offset === 0 ? 'Hoy' : dateLabel(offset)}</strong><small>{dateLabel(offset)} de {dayISO(offset).slice(0, 4)}</small></span><button aria-label="Día siguiente" onClick={() => setDate(offset + 1)}><ChevronRight size={20} /></button></div>
           <div className="blw-week" aria-label="Elegir día y consultar kcal registradas">{Array.from({ length: 7 }, (_, i) => weekStart + i).map((dayOffset, i) => {
@@ -259,7 +277,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
           <span className="blw-summary-macros">{DAILY_NUTRIENTS.slice(0, 3).map(([short, label, key, target]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} de ${target} gramos`}><abbr title={label}>{short}</abbr> <strong>{sum(activeFoods, key)}</strong><small> / {target} g</small></span>)}</span>
         </button>
         <div className="blw-feed" ref={scrollRef}>
-          {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openSheet({ kind: 'add', time: '08:00' })}>Registrar alimento</button></div> :
+          {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openAddFood('08:00')}>Registrar alimento</button></div> :
             <Accordion.Root className="blw-groups" multiple value={opened} onValueChange={setOpened}>
               {groups.map(([hour, groupFoods]) => <Accordion.Item key={hour} value={hour} className="blw-group">
                 <div className="blw-group-top">
@@ -268,7 +286,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
                     <span className="blw-group-line"><span className="blw-group-identity"><strong>{hour}</strong><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small></span><span className="blw-group-energy"><span className="blw-group-calories">{sum(groupFoods, 'calories')}<small> kcal</small></span><ChevronDown size={14} aria-hidden="true" /></span></span>
                     <MacroValues protein={sum(groupFoods, 'protein')} carbs={sum(groupFoods, 'carbs')} fat={sum(groupFoods, 'fat')} />
                   </Accordion.Trigger></Accordion.Header>
-                  <button className="blw-group-add" aria-label={`Agregar alimento a las ${hour}`} disabled={selectionMode} onClick={() => openSheet({ kind: 'add', time: hour })}><Plus size={18} /></button>
+                  <button className="blw-group-add" aria-label={`Agregar alimento a las ${hour}`} disabled={selectionMode} onClick={() => openAddFood(hour)}><Plus size={18} /></button>
                 </div>
                 <Accordion.Panel className="blw-group-panel">{groupFoods.map((food) => <FoodRow key={food.id} food={food} selectionMode={selectionMode} selected={selected.has(food.id)} onEdit={() => openSheet({ kind: 'edit', food })} onSelect={() => toggleFood(food.id)} onStartSelection={() => startSelection([food.id])} />)}</Accordion.Panel>
               </Accordion.Item>)}
@@ -284,19 +302,19 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         </div> : <nav className="blw-bottom-nav" aria-label="Navegación y registro">
           <button className="blw-nav-destination" aria-current={page === 'foods' ? 'page' : undefined} onClick={() => changePage('foods')}><Utensils size={18} aria-hidden="true" /><span>Alimentos</span></button>
           <button className="blw-nav-destination" aria-current={page === 'measurements' ? 'page' : undefined} onClick={() => changePage('measurements')}><MeasurementIcon size={18} aria-hidden="true" /><span>Mediciones</span></button>
-          <button className="blw-nav-add" aria-label="Registrar alimento, peso o medidas" aria-haspopup="dialog" aria-expanded={sheet?.kind === 'register' || sheet?.kind === 'add' || sheet?.kind === 'weight' || sheet?.kind === 'body'} onClick={() => openSheet({ kind: 'register' })}><Plus size={22} aria-hidden="true" /></button>
+          <button className="blw-nav-add" aria-label="Registrar alimento, peso o medidas" aria-haspopup="dialog" aria-expanded={sheet?.kind === 'register' || sheet?.kind === 'weight' || sheet?.kind === 'body'} onClick={() => openSheet({ kind: 'register' })}><Plus size={22} aria-hidden="true" /></button>
           <button className="blw-nav-destination" aria-current={page === 'summary' ? 'page' : undefined} onClick={() => changePage('summary')}><ChartNoAxesCombined size={18} aria-hidden="true" /><span>Resumen</span></button>
           <button className="blw-nav-destination" aria-current={page === 'profile' ? 'page' : undefined} onClick={() => changePage('profile')}><UserRound size={18} aria-hidden="true" /><span>Perfil</span></button>
-        </nav>}
+        </nav>}</>}
       </div>
       <p className="blw-caption">Alimentos · Mediciones · + · Resumen · Perfil / datos de ejemplo</p>
     </section>
 
     <Dialog.Root open={sheet !== null} onOpenChange={(open) => { if (!open) setSheet(null); }}>
-      <Dialog.Portal><Dialog.Backdrop className="blw-dialog-backdrop" /><Dialog.Popup className={`blw-dialog${sheet?.kind === 'register' || sheet?.kind === 'add' || sheet?.kind === 'weight' || sheet?.kind === 'body' || sheet?.kind === 'nutrition' ? ' blw-registration-sheet' : ''}`}>
-        <Dialog.Title>{sheet?.kind === 'nutrition' ? 'Detalle nutricional del día' : sheet?.kind === 'edit' ? sheet.food.name : sheet?.kind === 'register' ? 'Registrar' : sheet?.kind === 'body' ? 'Registrar medidas corporales' : sheet?.kind === 'weight' ? 'Registrar peso' : sheet?.kind === 'add' ? 'Registrar alimento' : sheet?.kind === 'move' ? 'Mover de hora' : 'Eliminar registros'}</Dialog.Title>
+      <Dialog.Portal><Dialog.Backdrop className="blw-dialog-backdrop" /><Dialog.Popup className={`blw-dialog${sheet?.kind === 'register' || sheet?.kind === 'weight' || sheet?.kind === 'body' || sheet?.kind === 'nutrition' ? ' blw-registration-sheet' : ''}`}>
+        <Dialog.Title>{sheet?.kind === 'nutrition' ? 'Detalle nutricional del día' : sheet?.kind === 'edit' ? sheet.food.name : sheet?.kind === 'register' ? 'Registrar' : sheet?.kind === 'body' ? 'Registrar medidas corporales' : sheet?.kind === 'weight' ? 'Registrar peso' : sheet?.kind === 'move' ? 'Mover de hora' : 'Eliminar registros'}</Dialog.Title>
         <Dialog.Description>{sheet?.kind === 'nutrition' ? `${dateLabel(offset)} · Consumido / meta. Metas ilustrativas para esta revisión.` : 'Prototipo con datos de ejemplo. Los cambios se conservan solo mientras revisas esta pantalla.'}</Dialog.Description>
-        {(sheet?.kind === 'register' || sheet?.kind === 'add') && <p className="blw-registration-date">Para {offset === 0 ? `hoy · ${dateLabel(offset)}` : dateLabel(offset)}</p>}
+        {sheet?.kind === 'register' && <p className="blw-registration-date">Para {offset === 0 ? `hoy · ${dateLabel(offset)}` : dateLabel(offset)}</p>}
         {sheet?.kind === 'nutrition' ? <>
           <dl className="blw-nutrition-details">
             <div><dt>Energía</dt><dd><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</dd></div>
@@ -305,7 +323,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
           </dl>
           <p className="blw-nutrition-note">Energía: {dailyProgress}% de la meta. Los nutrientes sin datos no se contabilizan como cero.</p>
         </> : sheet?.kind === 'register' ? <div className="blw-registration-options">
-          <button onClick={() => openSheet({ kind: 'add', time: '13:00' })}><Utensils size={22} aria-hidden="true" /><span><strong>Alimento</strong><small>Buscar y registrar</small></span><ChevronRight size={18} aria-hidden="true" /></button>
+          <button onClick={() => openAddFood('13:00')}><Utensils size={22} aria-hidden="true" /><span><strong>Alimento</strong><small>Buscar y registrar</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           <button onClick={() => openSheet({ kind: 'weight' })}><Scale size={22} aria-hidden="true" /><span><strong>Peso</strong><small>Anotar el peso del día</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           <button onClick={() => openSheet({ kind: 'body' })}><MeasurementIcon size={22} aria-hidden="true" /><span><strong>Medidas corporales</strong><small>Registrar las zonas que mediste</small></span><ChevronRight size={18} aria-hidden="true" /></button>
         </div> : sheet?.kind === 'body' ? <BodyMeasurementForm offset={offset} body={bodyByDay} onSave={saveBody} /> : sheet?.kind === 'weight' ? <form onSubmit={(event) => { event.preventDefault(); saveWeight(); }}>
@@ -317,7 +335,6 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
             <label className="blw-field">Hora<input type="time" value={time} required onChange={(event) => setTime(event.target.value)} /></label>
             {sheet?.kind === 'edit' && <><label className="blw-field">Cantidad<input value={portion} required onChange={(event) => setPortion(event.target.value)} /></label><p className="blw-snapshot">{sheet.food.calories} kcal · P {sheet.food.protein}g · C {sheet.food.carbs}g · G {sheet.food.fat}g<br /><small>La nutrición histórica se conserva al editar hora y cantidad.</small></p><button className="blw-sheet-primary" type="submit">Guardar registro</button></>}
             {sheet?.kind === 'move' && <><p>{selected.size} registros seleccionados, dentro del mismo día.</p><button className="blw-sheet-primary" type="submit">Mover a las {time}</button></>}
-            {sheet?.kind === 'add' && <><label className="blw-field">Buscar en el ejemplo<input type="search" value={query} onChange={(event) => setQuery(event.target.value)} placeholder="Nombre del alimento" /></label><div className="blw-example-library">{SAMPLE_FOODS.filter((food) => food.name.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es'))).map((food) => <button type="button" key={food.id} onClick={() => addExample(food)}><span>{food.name}<small>{food.portion}</small></span><Plus size={16} /></button>)}</div></>}
           </form>}
         <Dialog.Close className="blw-sheet-close">Cerrar</Dialog.Close>
       </Dialog.Popup></Dialog.Portal>

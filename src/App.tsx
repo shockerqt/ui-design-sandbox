@@ -41,7 +41,8 @@ const NotFound: React.FC<{ id?: string }> = ({ id }) => (
   </div>
 );
 
-const MockupRoute: React.FC<{ id: string }> = ({ id }) => {
+const MockupRoute: React.FC<{ id: string; screen?: string }> = ({ id, screen }) => {
+  if (screen && !(id === 'balance-log-wireframes' && screen === 'agregar-alimento')) return <NotFound />;
   const mockup = mockupRegistry.find(m => m.id === id);
   return mockup ? <MockupViewer mockup={mockup} /> : <NotFound id={id} />;
 };
@@ -49,7 +50,7 @@ const MockupRoute: React.FC<{ id: string }> = ({ id }) => {
 export const App: React.FC = () => (
   <Switch>
     <Route path="/" component={Index} />
-    <Route path="/m/:id">{params => <MockupRoute id={params.id} />}</Route>
+    <Route path="/m/:id/:screen?">{params => <MockupRoute id={params.id} screen={params.screen} />}</Route>
     <Route>{() => <NotFound />}</Route>
   </Switch>
 );

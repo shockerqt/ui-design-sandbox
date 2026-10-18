@@ -2,6 +2,8 @@
 
 Review route: `/m/balance-log-wireframes`.
 
+Food registration route: `/m/balance-log-wireframes/agregar-alimento`.
+
 This iteration explores the anatomy agreed with the user before visual styling.
 It uses 22 synthetic food records grouped into six hours: five groups of four
 foods and one group of peanuts/raisins. It does not read Balance data or reuse
@@ -129,8 +131,8 @@ the example. Reminder controls do not schedule or send notifications; units
 remain the current kg/cm/kcal readout for this anatomy iteration.
 
 The bottom navigation contains a central 44px plus button. It opens a bottom
-sheet with Alimento, Peso and Medidas corporales actions for the selected day. Alimento continues
-to the existing example search and recording flow; Peso opens a kg input and
+sheet with Alimento, Peso and Medidas corporales actions for the selected day. Alimento opens
+the normal food-registration route; Peso opens a kg input and
 stores one example value per day in memory, prefilled when reopened. Body
 measurements use the optional grouped form. Resetting the example restores the
 synthetic weights/body sessions as well as food records. Weight is not added to
@@ -139,6 +141,31 @@ the food feed, summary or calorie ring.
 The previous separate registration row is removed. Selection actions replace
 the bottom navigation while selecting rather than stacking above it. Per-group
 plus buttons keep their direct, hour-specific food-registration shortcut.
+
+## Food registration route
+
+Adding food is a full screen with a back button, date/hour fields and Bibliotecas /
+Código QR tabs. It has no dialog backdrop or bottom navigation. The main plus's
+Alimento action, group pluses and empty-day action all enter this route, carrying
+the current day/hour in validated query parameters (`fecha`, `hora`, `modo`).
+Direct links use the same screen; missing/invalid parameters fall back to the
+reference date, 13:00 and Bibliotecas. Browser back returns to the previous view;
+the in-screen back button falls back to the mockup root after direct entry.
+Changing tabs/date/hour replaces the current history entry, avoiding extra back
+steps. The shared mockup stays mounted, so existing in-memory edits survive.
+
+Bibliotecas searches 22 synthetic foods across Mi biblioteca and Compartida,
+supports accent-insensitive names, filtering, no-results feedback and selection.
+The chosen food shows its fixed sample portion/nutrients and a confirmation
+action. Saving appends exactly one example to the chosen day/hour and returns
+to its food group. No external libraries or catalogues are accessed.
+
+Código QR uses an explicit “Usar QR de ejemplo” action that selects a sample
+yogurt through the same confirmation flow. It does not request camera access,
+decode real QR codes or fetch remote products; this iteration reviews anatomy.
+Only the exact Balance add-food subroute is enabled; other mockup subroutes
+retain the not-found behavior. The route survives direct static SPA refreshes;
+a full refresh still resets the prototype's memory-only example records.
 
 ## Worktree review
 

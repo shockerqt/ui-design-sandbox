@@ -15,10 +15,10 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-log-wireframes',
     title: 'Balance · Wireframes multivista',
     category: 'Dashboards',
-    description: 'Alimentos, calendario de mediciones, gráficos en Resumen y configuración en Perfil. Cuatro destinos y un + centrado para registrar.',
+    description: 'Cuatro destinos y un + centrado. Agregar alimento usa una ruta propia con pestañas de bibliotecas y código QR.',
     tags: ['Balance', 'wireframes', 'mobile', 'measurements', 'charts', 'Base UI'],
-    version: 'v1.5.1',
-    updatedAt: '2026-10-11',
+    version: 'v1.6.0',
+    updatedAt: '2026-10-18',
     component: BalanceLogWireframes
   },
   {
