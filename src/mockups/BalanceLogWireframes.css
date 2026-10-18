@@ -116,7 +116,11 @@
 .blw-nutrition-details dd strong { color: #222; font-weight: 600; }
 .blw-dialog > p.blw-nutrition-note { margin: 16px 0 0; font-size: 11px; }
 .blw-field { display: grid; gap: 6px; font-size: 12px; margin-bottom: 16px; }
-.blw-field input { width: 100%; min-height: 42px; border: 1px solid #bbb; background: white; padding: 8px; font-size: 14px; }
+.blw-field input, .blw-field select { width: 100%; min-width: 0; min-height: 44px; border: 1px solid #bbb; background: white; padding: 8px; font: inherit; color: inherit; font-size: 14px; }
+.blw-quantity-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.blw-quantity-fields .blw-field { margin-bottom: 8px; min-width: 0; }
+.blw-quantity-equivalence { margin: 0 0 12px; font-size: 10px; color: #777; }
+.blw-add-confirm .blw-quantity-fields { margin-top: 10px; }
 .blw-snapshot { font-size: 12px; padding: 12px 0; margin-bottom: 12px; border-block: 1px solid #ddd; line-height: 1.7; }
 .blw-snapshot small { color: #666; }
 .blw-sheet-primary, .blw-sheet-close { width: 100%; min-height: 42px; margin-top: 12px; border: 1px solid #777; background: #eee; }

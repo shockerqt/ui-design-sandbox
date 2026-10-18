@@ -32,6 +32,8 @@ jobs:
           PYTHONDONTWRITEBYTECODE=1 python3 scripts/test-verify-delivery-candidate.py
       - name: Install dependencies
         run: npm ci
+      - name: Test Balance wireframe contract alignment
+        run: node scripts/test-balance-wireframes.mjs
       - name: Check TypeScript and build once
         run: npm run build -- --base "/releases/$SOURCE_SHA/"
       - name: Package exact build with release identity

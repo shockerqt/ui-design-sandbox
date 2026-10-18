@@ -8,13 +8,29 @@ import { BodyMeasurementForm, MeasurementIcon, MeasurementView, SummaryView, day
 import type { AppPage, BodyByDay, BodyValues, MeasurementKind, SummaryOptions } from './BalanceMeasurementViews';
 import { ProfileView, defaultProfilePreferences } from './BalanceProfileView';
 import { ADD_FOOD_PATH, BALANCE_WIREFRAME_PATH, FoodRegistrationView, foodRegistrationURL, parseFoodRegistration } from './BalanceFoodRegistration';
-import type { Food, FoodRegistrationContext } from './BalanceFoodRegistration';
+import type { FoodRegistrationContext } from './BalanceFoodRegistration';
+import { fiberTotal, foodWithQuantity, formatFoodNumber, groupFoodsByHour, hourGroup, makeFixtureFood, quantityDraftFor, santiagoDate, scaleFixtureNutrition, validWeight } from './BalanceFoodModel';
+import type { Food, PortionSnapshot, QuantityDraft } from './BalanceFoodModel';
+import { FoodQuantityFields } from './BalanceFoodQuantity';
 import './BalanceLogWireframes.css';
 
 type View = 'day' | 'detail' | 'selection';
 type Sheet = { kind: 'edit'; food: Food } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'body' } | { kind: 'nutrition' } | null;
-const sample = (id: string, name: string, portion: string, time: string, calories: number, protein: number, carbs: number, fat: number, fiber = 0): Food =>
-  ({ id, name, portion, time, calories, protein, carbs, fat, fiber });
+// Explicit fixture quantities and conversions, independent of display text.
+const portionOf = (name: string, canonicalQuantity: number): PortionSnapshot => ({ name, portionQuantity: 1, canonicalQuantity });
+const EXAMPLE_ENTRIES: Record<string, [number, 'g' | 'ml', PortionSnapshot?]> = {
+  a1: [2, 'g', portionOf('rebanada', 30)], a2: [2, 'g', portionOf('unidad', 50)], a3: [40, 'g'], a4: [200, 'ml'],
+  b1: [1, 'g', portionOf('envase', 150)], b2: [25, 'g'], b3: [60, 'g'], b4: [1, 'g', portionOf('cucharadita', 7)],
+  c1: [150, 'g'], c2: [450, 'g'], c3: [1, 'g', portionOf('plato', 180)], c4: [1, 'g', portionOf('cucharadita', 5)],
+  d1: [30, 'g'], d2: [20, 'g'], e1: [120, 'g'], e2: [180, 'g'], e3: [100, 'g'], e4: [80, 'g'],
+  f1: [200, 'ml'], f2: [1, 'g', portionOf('unidad', 100)], f3: [15, 'g'], f4: [2, 'g', portionOf('unidad', 7)],
+};
+const sample = (id: string, name: string, portion: string, time: string, calories: number, protein: number, carbs: number, fat: number, fiber?: number): Food => {
+  const [quantity, unit, ratio] = EXAMPLE_ENTRIES[id];
+  const canonical = ratio ? quantity / ratio.portionQuantity * ratio.canonicalQuantity : quantity;
+  const base = scaleFixtureNutrition({ calories, protein, carbs, fat, ...(fiber === undefined ? {} : { fiber }) }, 100 / canonical);
+  return { ...makeFixtureFood(id, name, time, unit, base, { quantity: String(quantity), unit: ratio ? 'portion' : 'canonical' }, ratio), portion };
+};
 
 // Illustrative intake only. Five four-food groups and one peanut/raisin group.
 const SAMPLE_FOODS: Food[] = [
@@ -42,7 +58,7 @@ const SAMPLE_FOODS: Food[] = [
   sample('f3', 'Chocolate amargo', '15 g', '22:08', 90, 1, 7, 7, 2),
   sample('f4', 'Galletas de arroz', '2 unidades', '22:08', 56, 1, 12, 0, 1),
 ];
-const sum = (foods: Food[], key: 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber') => foods.reduce((total, food) => total + food[key], 0);
+const sum = (foods: Food[], key: 'calories' | 'protein' | 'carbs' | 'fat' | 'fiber') => foods.reduce((total, food) => total + (food[key] ?? 0), 0);
 const CALORIE_TARGET = 2200;
 // Illustrative review targets, independent of the user's actual nutrition goals.
 const DAILY_NUTRIENTS = [
@@ -58,11 +74,7 @@ const sampleDays = (): Record<number, Food[]> => ({
   [-1]: SAMPLE_FOODS.slice(0, 18),
   [0]: [...SAMPLE_FOODS],
 });
-const hourGroup = (time: string) => {
-  const [hour, minute] = time.split(':').map(Number);
-  return `${String((hour + (minute > 30 ? 1 : 0)) % 24).padStart(2, '0')}:00`;
-};
-const format = (value: number) => new Intl.NumberFormat('es-CL').format(value);
+const format = formatFoodNumber;
 const dateLabel = (offset: number) => {
   const date = new Date(Date.UTC(2026, 9, 9 + offset));
   return new Intl.DateTimeFormat('es-CL', { day: 'numeric', month: 'short', timeZone: 'UTC' }).format(date);
@@ -70,7 +82,7 @@ const dateLabel = (offset: number) => {
 
 function MacroValues({ protein, carbs, fat }: Pick<Food, 'protein' | 'carbs' | 'fat'>) {
   return <span className="blw-macro-line" aria-label={`Proteínas ${protein} gramos, carbohidratos ${carbs} gramos, grasas ${fat} gramos`}>
-    {([['P', protein], ['C', carbs], ['G', fat]] as const).map(([label, value]) => <span key={label}><small>{label}</small><span className="blw-macro-value">{value}<small>g</small></span></span>)}
+    {([['P', protein], ['C', carbs], ['G', fat]] as const).map(([label, value]) => <span key={label}><small>{label}</small><span className="blw-macro-value">{format(value)}<small>g</small></span></span>)}
   </span>;
 }
 
@@ -107,7 +119,7 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
     {selectionMode && <span className="blw-check" aria-hidden="true">{selected && <Check size={12} />}</span>}
     <span className="blw-image" aria-hidden="true"><Image size={18} strokeWidth={1.2} /></span>
     <span className="blw-food-content">
-      <span className="blw-line-one"><span className="blw-food-name" title={food.name}>{food.name}</span><span className="blw-calories">{food.calories}<small> kcal</small></span></span>
+      <span className="blw-line-one"><span className="blw-food-name" title={food.name}>{food.name}</span><span className="blw-calories">{format(food.calories)}<small> kcal</small></span></span>
       <span className="blw-line-two"><span className="blw-quantity-time"><span className="blw-portion" title={food.portion}>{food.portion}</span><span className="blw-time">· {food.time}</span></span><MacroValues protein={food.protein} carbs={food.carbs} fat={food.fat} /></span>
     </span>
   </button>;
@@ -135,24 +147,20 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   const [offset, setOffset] = useState(0);
   const [sheet, setSheet] = useState<Sheet>(null);
   const [time, setTime] = useState('13:00');
-  const [portion, setPortion] = useState('');
+  const [quantityDraft, setQuantityDraft] = useState<QuantityDraft>({ quantity: '', unit: 'canonical' });
+  const [weightError, setWeightError] = useState('');
   const [announcement, setAnnouncement] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
   const activeFoods = emptyDay ? [] : foodsByDay[offset] ?? [];
   const dailyCalories = sum(activeFoods, 'calories');
+  const dailyFiber = fiberTotal(activeFoods);
+  const editedFood = sheet?.kind === 'edit' ? foodWithQuantity(sheet.food, quantityDraft) : null;
   const dailyProgress = Math.round(dailyCalories / CALORIE_TARGET * 100);
   const weekStart = offset - ((new Date(`${dayISO(offset)}T00:00:00Z`).getUTCDay() + 6) % 7);
   const updateFoods = (update: (foods: Food[]) => Food[]) =>
     setFoodsByDay((previous) => ({ ...previous, [offset]: update(emptyDay ? [] : previous[offset] ?? []) }));
-  const groups = useMemo(() => {
-    const byHour = new Map<string, Food[]>();
-    for (const food of activeFoods) {
-      const hour = hourGroup(food.time);
-      byHour.set(hour, [...(byHour.get(hour) ?? []), food]);
-    }
-    return [...byHour.entries()].sort(([a], [b]) => a.localeCompare(b));
-  }, [activeFoods]);
+  const groups = useMemo(() => groupFoodsByHour(activeFoods), [activeFoods]);
   const exitSelection = () => { setSelectionMode(false); setSelected(new Set()); };
   const changePage = (next: AppPage) => { if (addingFood) navigate(BALANCE_WIREFRAME_PATH, { replace: true }); setPage(next); exitSelection(); setAnnouncement(''); };
   const changeView = (next: View) => {
@@ -179,7 +187,8 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   const openSheet = (next: NonNullable<Sheet>) => {
     setSheet(next);
     setTime(next.kind === 'edit' ? next.food.time : '13:00');
-    setPortion(next.kind === 'edit' ? next.food.portion : '');
+    if (next.kind === 'edit') setQuantityDraft(quantityDraftFor(next.food));
+    setWeightError('');
     if (next.kind === 'weight') { setWeight(weightsByDay[offset] ?? ''); setWeightDate(dayISO(offset)); }
   };
   const setDate = (next: number) => { setOffset(next); setEmptyDay(false); setAnnouncement(''); exitSelection(); setOpened([]); scrollRef.current?.scrollTo({ top: 0 }); };
@@ -194,7 +203,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     else navigate(BALANCE_WIREFRAME_PATH, { replace: true });
   };
   const saveWeight = () => {
-    if (!weight || !Number.isFinite(Number(weight)) || Number(weight) <= 0) return;
+    if (!validWeight(weight, weightDate)) { setWeightError('Usa entre 1 y 500 kg, en pasos de 0,1, y una fecha hasta hoy según Santiago.'); return; }
     const day = dayOffset(weightDate);
     setWeightsByDay((previous) => ({ ...previous, [day]: weight }));
     setDate(day);
@@ -210,10 +219,10 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     if (kind) setMeasurementKind(kind);
   };
   const saveEdit = () => {
-    if (sheet?.kind !== 'edit') return;
-    updateFoods((previous) => previous.map((food) => food.id === sheet.food.id ? { ...food, time, portion: portion.trim() } : food));
+    if (sheet?.kind !== 'edit' || !editedFood) return;
+    updateFoods((previous) => previous.map((food) => food.id === sheet.food.id ? { ...editedFood, time } : food));
     setOpened((previous) => [...new Set([...previous, hourGroup(time)])]);
-    finishAction('Registro de ejemplo actualizado. La nutrición histórica se conserva.');
+    finishAction('Registro actualizado. Consumo recalculado desde la base nutricional histórica.');
   };
   const moveSelected = () => {
     updateFoods((previous) => previous.map((food) => selected.has(food.id) ? { ...food, time } : food));
@@ -274,7 +283,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         </header>
         <button type="button" className="blw-summary" aria-label={`Totales del día: ${format(dailyCalories)} de ${format(CALORIE_TARGET)} kilocalorías. ${DAILY_NUTRIENTS.slice(0, 3).map(([, label, key, target]) => `${label}: ${sum(activeFoods, key)} de ${target} gramos`).join('. ')}. Ver detalle nutricional`} aria-haspopup="dialog" aria-expanded={sheet?.kind === 'nutrition'} onClick={() => openSheet({ kind: 'nutrition' })}>
           <span className="blw-energy"><span><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</span><ChevronRight size={16} aria-hidden="true" /></span>
-          <span className="blw-summary-macros">{DAILY_NUTRIENTS.slice(0, 3).map(([short, label, key, target]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} de ${target} gramos`}><abbr title={label}>{short}</abbr> <strong>{sum(activeFoods, key)}</strong><small> / {target} g</small></span>)}</span>
+          <span className="blw-summary-macros">{DAILY_NUTRIENTS.slice(0, 3).map(([short, label, key, target]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} de ${target} gramos`}><abbr title={label}>{short}</abbr> <strong>{format(sum(activeFoods, key))}</strong><small> / {target} g</small></span>)}</span>
         </button>
         <div className="blw-feed" ref={scrollRef}>
           {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openAddFood('08:00')}>Registrar alimento</button></div> :
@@ -283,7 +292,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
                 <div className="blw-group-top">
                   {selectionMode && <button className="blw-group-select" aria-label={`Seleccionar grupo de ${hour}`} aria-pressed={groupFoods.every((food) => selected.has(food.id))} onClick={() => toggleGroup(groupFoods)}><span className="blw-check">{groupFoods.every((food) => selected.has(food.id)) && <Check size={12} />}</span></button>}
                   <Accordion.Header className="blw-group-heading"><Accordion.Trigger className="blw-group-trigger">
-                    <span className="blw-group-line"><span className="blw-group-identity"><strong>{hour}</strong><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small></span><span className="blw-group-energy"><span className="blw-group-calories">{sum(groupFoods, 'calories')}<small> kcal</small></span><ChevronDown size={14} aria-hidden="true" /></span></span>
+                    <span className="blw-group-line"><span className="blw-group-identity"><strong>{hour}</strong><small>{groupFoods.length} {groupFoods.length === 1 ? 'alimento' : 'alimentos'}</small></span><span className="blw-group-energy"><span className="blw-group-calories">{format(sum(groupFoods, 'calories'))}<small> kcal</small></span><ChevronDown size={14} aria-hidden="true" /></span></span>
                     <MacroValues protein={sum(groupFoods, 'protein')} carbs={sum(groupFoods, 'carbs')} fat={sum(groupFoods, 'fat')} />
                   </Accordion.Trigger></Accordion.Header>
                   <button className="blw-group-add" aria-label={`Agregar alimento a las ${hour}`} disabled={selectionMode} onClick={() => openAddFood(hour)}><Plus size={18} /></button>
@@ -318,7 +327,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         {sheet?.kind === 'nutrition' ? <>
           <dl className="blw-nutrition-details">
             <div><dt>Energía</dt><dd><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</dd></div>
-            {DAILY_NUTRIENTS.map(([, label, key, target]) => <div key={key}><dt>{label}</dt><dd><strong>{sum(activeFoods, key)}</strong> / {target} g</dd></div>)}
+            {DAILY_NUTRIENTS.map(([, label, key, target]) => <div key={key}><dt>{label}</dt><dd>{key === 'fiber' && dailyFiber.value === undefined ? 'Sin datos' : key === 'fiber' && dailyFiber.partial ? `${format(dailyFiber.value!)} g conocidos (parcial)` : <><strong>{format(sum(activeFoods, key))}</strong> / {target} g</>}</dd></div>)}
             {['Azúcares', 'Grasas saturadas', 'Sodio', 'Colesterol'].map((label) => <div key={label}><dt>{label}</dt><dd>Sin datos</dd></div>)}
           </dl>
           <p className="blw-nutrition-note">Energía: {dailyProgress}% de la meta. Los nutrientes sin datos no se contabilizan como cero.</p>
@@ -327,13 +336,13 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
           <button onClick={() => openSheet({ kind: 'weight' })}><Scale size={22} aria-hidden="true" /><span><strong>Peso</strong><small>Anotar el peso del día</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           <button onClick={() => openSheet({ kind: 'body' })}><MeasurementIcon size={22} aria-hidden="true" /><span><strong>Medidas corporales</strong><small>Registrar las zonas que mediste</small></span><ChevronRight size={18} aria-hidden="true" /></button>
         </div> : sheet?.kind === 'body' ? <BodyMeasurementForm offset={offset} body={bodyByDay} onSave={saveBody} /> : sheet?.kind === 'weight' ? <form onSubmit={(event) => { event.preventDefault(); saveWeight(); }}>
-          <label className="blw-field">Fecha<input type="date" required min="2000-01-01" max="2100-12-31" value={weightDate} onChange={(event) => { setWeightDate(event.target.value); if (event.target.value) setWeight(weightsByDay[dayOffset(event.target.value)] ?? ''); }} /></label>
-          <label className="blw-field">Peso en kg<input type="number" inputMode="decimal" min="0.1" step="0.1" required value={weight} placeholder="72,4" onChange={(event) => setWeight(event.target.value)} /></label>
-          <button className="blw-sheet-primary" type="submit">Guardar peso</button>
+          <label className="blw-field">Fecha<input type="date" required min="2000-01-01" max={santiagoDate()} value={weightDate} onChange={(event) => { setWeightDate(event.target.value); if (event.target.value) setWeight(weightsByDay[dayOffset(event.target.value)] ?? ''); }} /></label>
+          <label className="blw-field">Peso en kg<input type="number" inputMode="decimal" min="1" max="500" step="0.1" required value={weight} placeholder="72,4" onChange={(event) => setWeight(event.target.value)} /></label>
+          <small>Entre 1 y 500 kg · paso 0,1 · fecha de Santiago.</small>{weightError && <p role="alert">{weightError}</p>}<button className="blw-sheet-primary" type="submit">Guardar peso</button>
         </form> : sheet?.kind === 'delete' ? <><p>¿Eliminar {selected.size} registros del ejemplo?</p><button className="blw-sheet-primary" onClick={deleteSelected}>Eliminar seleccionados</button></> :
           <form onSubmit={(event) => { event.preventDefault(); if (sheet?.kind === 'edit') saveEdit(); if (sheet?.kind === 'move') moveSelected(); }}>
             <label className="blw-field">Hora<input type="time" value={time} required onChange={(event) => setTime(event.target.value)} /></label>
-            {sheet?.kind === 'edit' && <><label className="blw-field">Cantidad<input value={portion} required onChange={(event) => setPortion(event.target.value)} /></label><p className="blw-snapshot">{sheet.food.calories} kcal · P {sheet.food.protein}g · C {sheet.food.carbs}g · G {sheet.food.fat}g<br /><small>La nutrición histórica se conserva al editar hora y cantidad.</small></p><button className="blw-sheet-primary" type="submit">Guardar registro</button></>}
+            {sheet?.kind === 'edit' && <><FoodQuantityFields food={sheet.food} draft={quantityDraft} onChange={setQuantityDraft} />{editedFood && <p className="blw-snapshot">{format(editedFood.calories)} kcal · P {format(editedFood.protein)} g · C {format(editedFood.carbs)} g · G {format(editedFood.fat)} g<br /><small>Consumo recalculado; se conserva la base nutricional histórica por 100 {sheet.food.nutritionSnapshot.canonicalUnit}.</small></p>}<button className="blw-sheet-primary" type="submit" disabled={!editedFood}>Guardar registro</button></>}
             {sheet?.kind === 'move' && <><p>{selected.size} registros seleccionados, dentro del mismo día.</p><button className="blw-sheet-primary" type="submit">Mover a las {time}</button></>}
           </form>}
         <Dialog.Close className="blw-sheet-close">Cerrar</Dialog.Close>

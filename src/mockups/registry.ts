@@ -17,7 +17,7 @@ export const mockupRegistry: MockupItem[] = [
     category: 'Dashboards',
     description: 'Cuatro destinos y un + centrado. Agregar alimento usa una ruta propia con pestañas de bibliotecas y etiquetas nutricionales.',
     tags: ['Balance', 'wireframes', 'mobile', 'measurements', 'charts', 'Base UI'],
-    version: 'v1.6.1',
+    version: 'v1.7.0',
     updatedAt: '2026-10-18',
     component: BalanceLogWireframes
   },

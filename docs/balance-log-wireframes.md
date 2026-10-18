@@ -11,7 +11,7 @@ alimentos, peso y medidas corporales, y consultar su evolución por separado.
 La entrega es un prototipo navegable para decidir la diagramación antes de
 definir la identidad visual o implementar estos cambios en Balance.
 
-La [tarea canónica UDS-010](https://github.com/shockerqt/workspace-governance/blob/6335d3aeb9962f37d9cbf8e81518148996d9bc57/tasks/UDS-010-balance-log-wireframes.md)
+La [tarea canónica UDS-010](https://github.com/shockerqt/workspace-governance/blob/47d3a701e9f3aa7757b6b7c12e0b22d0ab6860f1/tasks/UDS-010-balance-log-wireframes.md)
 define los objetivos y criterios de aceptación. Esta guía los presenta dentro
 del repositorio para que el PR pueda revisarse sin leer la conversación.
 
@@ -60,9 +60,9 @@ revisión. El PR debe recoger los hallazgos antes de dar por aceptada la propues
 ## Límites de esta entrega
 
 Datos, metas, bibliotecas y preferencias son ejemplos en memoria. Recargar
-reinicia el prototipo; editar el texto de porción de un registro conserva su
-snapshot nutricional. No se incluye integración con Balance/backend,
-persistencia, QR/OCR/cámara, notificaciones reales, conversión de unidades,
+reinicia el prototipo. Editar una cantidad conserva la base nutricional histórica
+y recalcula el consumo con la cantidad canónica convertida a g/ml. No se incluye integración con Balance/backend,
+persistencia, QR/OCR/cámara, notificaciones reales, cambios de unidades de peso/medidas,
 ilustraciones definitivas ni identidad visual final. Las unidades de Perfil
 son una lectura de kg/cm/kcal. Publicar este PR para revisión no realiza merge,
 release permanente ni cambios a la infraestructura de previews.
@@ -74,6 +74,33 @@ its theme, targets or food imagery. The sample calorie target is illustrative.
 Four functional app destinations share the same in-memory state:
 Alimentos, Mediciones, Resumen and Perfil. Five equal navigation slots put the
 registration plus exactly in the center: Alimentos / Mediciones / + / Resumen / Perfil.
+
+## Compatibilidad contrastada con Balance
+
+Referencia auditada: `origin/main` de Balance en
+[`0c01f5a`](https://github.com/shockerqt/balance/tree/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a).
+El prototipo refleja esas restricciones con fixtures locales, sin integrar ni
+modificar su backend.
+
+| Hallazgo | Tratamiento en esta propuesta |
+| --- | --- |
+| Contrato V2 de cantidades | Base nutricional por 100 g/ml, cantidad numérica y razón explícita de porción. Editar cantidad conserva la base histórica y recalcula nutrientes consumidos. |
+| Fibra opcional | Campo opcional en Etiquetas; ausencia, cero explícito y subtotal parcial se distinguen. |
+| Catálogo personal/oficial | «Mi biblioteca» y «Oficial»; no se propone compartir datos entre usuarios. |
+| Peso diario | 1–500 kg, paso 0,1; fecha no futura respecto de Santiago. |
+| Circunferencias | Propuesta de interfaz que exige futura ampliación del modelo, tablas y sync en Balance bajo una tarea propia. |
+| Orden temporal | Redondear 23:45 no lo coloca al comienzo del mismo día; grupos y registros mantienen orden cronológico. |
+
+Fuentes: [tipos V2](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/packages/balance-domain/src/types.ts),
+[conversión de porciones](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/packages/balance-domain/src/portion.ts),
+[connector y validación de peso](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/apps/server/src/connectors/sync.rs)
+y [fecha futura en sync](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/apps/server/src/modules/sync/ws.rs).
+
+`node scripts/test-balance-wireframes.mjs` verifica conversiones y recálculo,
+base histórica, fibra ausente/cero, catálogo oficial, precisión/fechas de peso,
+orden cerca de medianoche y render de la ruta. CI ejecuta estos checks después
+de instalar las dependencias. La densidad y el contexto del + siguen siendo
+hipótesis de UX para revisión visual, no fallos demostrados por estos tests.
 
 ## Review states
 
@@ -141,7 +168,9 @@ the accessible label and edit dialog. Exact time and macro values remain visible
 This is a deliberate prototype tradeoff to review, not a production typography
 decision. No manual meal naming or food categorization is introduced.
 
-Tap a food to edit its time/quantity; nutrition snapshots are preserved. Hold
+Tap a food to edit its time and numeric quantity/unit. Portion ratios convert
+units to g/ml; consumption is recalculated from the unchanged historical
+nutritionPer100 snapshot. A free-text amount is not a consumption model. Hold
 for 550 ms to select (Shift+Enter or Shift+Space with keyboard focus). The list
 has no permanent food/group count or selection toolbar; count and actions appear
 only during selection. Moving/deleting and
@@ -158,13 +187,18 @@ is shown. Selecting a date shows that day's values and editing action. Calendar
 navigation and filter switching retain the selected date; month navigation
 selects the first day of the destination month.
 
-Weight is one kg value per day, prefilled for editing. Body sessions contain
+Weight is one kg value per day, prefilled for editing. Values are 1–500 kg in
+0.1 kg steps, with no future date according to America/Santiago (the actual
+current local date, independent of the fixed sample reference day). Body sessions contain
 optional cm values for waist, hips, chest, neck, paired arms, thighs and calves.
 Left and right inputs appear together. Changing the form date loads the values
 for that date; saving upserts the day's session. Blank fields are absent, rather
 than zero; clearing an existing field removes that value from that date. An
 expandable latest-by-zone list includes each zone's own last measurement date.
-This view has no trend charts or prescribed recording schedule.
+This view has no trend charts or prescribed recording schedule. Body
+circumferences are a proposed extension: the audited Balance backend has no
+corresponding model/table/sync contract, so its later implementation needs a
+separate Balance-owned task.
 
 Fixtures include frequent weights over 43 days, with explicit gaps, and body
 sessions on September 1, September 27 and October 9. The most recent body
@@ -217,17 +251,19 @@ the in-screen back button falls back to the mockup root after direct entry.
 Changing tabs/date/hour replaces the current history entry, avoiding extra back
 steps. The shared mockup stays mounted, so existing in-memory edits survive.
 
-Bibliotecas searches 22 synthetic foods across Mi biblioteca and Compartida,
+Bibliotecas searches 22 synthetic foods across Mi biblioteca and Oficial,
 supports accent-insensitive names, filtering, no-results feedback and selection.
-The chosen food shows its fixed sample portion/nutrients and a confirmation
-action. Saving appends exactly one example to the chosen day/hour and returns
+The chosen food exposes a positive numeric quantity and canonical g/ml or a
+known portion ratio; the nutrient preview recalculates before confirmation. Saving appends exactly one example to the chosen day/hour and returns
 to its food group. No external libraries or catalogues are accessed.
 
-Etiquetas captures a food name, recorded portion and nutritional values per
-portion (kcal, P/C/G and fiber). The editable example illustrates the form;
-saving creates a food snapshot and returns to the selected day/hour. Required
-numeric fields accept explicit zero, reject negative/missing/nonfinite values
-and do not silently fill omissions with zero. No QR, camera or OCR is used.
+Etiquetas captures a food name, canonical g/ml unit, numeric consumption and
+nutrition values per 100 or per a portion with an explicit size. Portion-based
+label values normalize to nutritionPer100; the consumed amount is calculated
+from enteredQuantity and the portion ratio. Fiber is optional: absent stays
+absent, while an explicit zero remains zero. The day detail shows unknown fiber
+as “Sin datos” or identifies the known subtotal as partial. No QR, camera or OCR
+is used.
 Only the exact Balance add-food subroute is enabled; other mockup subroutes
 retain the not-found behavior. The route survives direct static SPA refreshes;
 a full refresh still resets the prototype's memory-only example records.
