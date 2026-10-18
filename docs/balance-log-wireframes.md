@@ -145,7 +145,7 @@ plus buttons keep their direct, hour-specific food-registration shortcut.
 ## Food registration route
 
 Adding food is a full screen with a back button, date/hour fields and Bibliotecas /
-Código QR tabs. It has no dialog backdrop or bottom navigation. The main plus's
+Etiquetas tabs. It has no dialog backdrop or bottom navigation. The main plus's
 Alimento action, group pluses and empty-day action all enter this route, carrying
 the current day/hour in validated query parameters (`fecha`, `hora`, `modo`).
 Direct links use the same screen; missing/invalid parameters fall back to the
@@ -160,9 +160,11 @@ The chosen food shows its fixed sample portion/nutrients and a confirmation
 action. Saving appends exactly one example to the chosen day/hour and returns
 to its food group. No external libraries or catalogues are accessed.
 
-Código QR uses an explicit “Usar QR de ejemplo” action that selects a sample
-yogurt through the same confirmation flow. It does not request camera access,
-decode real QR codes or fetch remote products; this iteration reviews anatomy.
+Etiquetas captures a food name, recorded portion and nutritional values per
+portion (kcal, P/C/G and fiber). The editable example illustrates the form;
+saving creates a food snapshot and returns to the selected day/hour. Required
+numeric fields accept explicit zero, reject negative/missing/nonfinite values
+and do not silently fill omissions with zero. No QR, camera or OCR is used.
 Only the exact Balance add-food subroute is enabled; other mockup subroutes
 retain the not-found behavior. The route survives direct static SPA refreshes;
 a full refresh still resets the prototype's memory-only example records.
