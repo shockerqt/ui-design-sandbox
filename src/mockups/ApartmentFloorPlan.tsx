@@ -28,7 +28,7 @@ import './ApartmentFloorPlan.css';
  * Published 137 × 57; flat position not dimensioned. Pad/feet are illustrative.
  * Head end is 25 behind bar; bar length is 220. No ergonomic fit is inferred.
  * Rack placements preserved: A (125,105), 0°; B (75,130), 270°.
- * Rubber subsequently moved to(25,55) to include bike (see LAYOUTS).
+ * Rubber subsequently split into main/bike pieces (see LAYOUTS).
  * B bar tips: y=20..240 (20 cm to window).
  * B assumed rear discs leave 75 - 51.45 - 22.5 ≈1.05 cm to left wall.
  * SID rear-post bench study (user request): J-hook seat assumed 14 cm
@@ -38,7 +38,7 @@ import './ApartmentFloorPlan.css';
  * Existing front spotters remain drawn in their original locations: they do
  * NOT cover the proposed rear bar position. Interior protection is unresolved.
  * Bench longitudinal envelope: local -62.45..74.55; A room y42.55..179.55,
- * B room x12.55..149.55. Rear bench ends now lie outside shifted rubber.
+ * B room x12.55..149.55. Main rubber piece covers bench supports.
  * This is a plan-space study, not a verified pressing setup or clearances.
  * Edit these constants/figures directly for the next iteration.
  */
@@ -83,26 +83,31 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
  */
 const FOLDING = { width: 120, depth: 140, postX: 57, rearY: -40, frontY: 40, barY: -28 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
-// Rubber moved to x25..225,y55..255 in all four figures: covers bike
-// x90..221,y200..253.5. Rear rack feet/parts now extend outside this200×200
-// square; moving it cannot cover the full rack+bike longitudinal envelope.
+// Cut plan from200×200: main200×145, bike135×55, offcut65×55.
+// A main(25,35)200×145; B/D(5,55)200×145; C(52.5,0)145×200.
+// Main pieces cover drawn rack/bench ground supports. SID storage discs/horns
+// and220 bar may project outside; their whole silhouette is not a floor contact.
+// Bike piece(88,200)135×55 covers bike(90,201)131×53.5 with2cm end margins,
+// 1cm/0.5cm side margins. C main and bike piece touch at y200; no overlap.
+// Rack component positions remain photo estimates: cut dimensions are a study,
+// not a measured cutting template. No extra rubber area or glued joins added.
 const LAYOUTS = [
-  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 25, floorY: 55, x: 125, y: 105, angle: 0, model: 'sid' },
-  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 25, floorY: 55, x: 75, y: 130, angle: 270, model: 'sid' },
-  { id: 'c', title: 'C · MyRack Folding · Espalda al ventanal', floorX: 25, floorY: 55, x: 125, y: 75, angle: 0, model: 'folding' },
-  { id: 'd', title: 'D · MyRack Folding · Espalda a la pared de la puerta', floorX: 25, floorY: 55, x: 75, y: 130, angle: 270, model: 'folding' }
+  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 25, floorY: 35, floorW: 200, floorH: 145, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 75, y: 130, angle: 270, model: 'sid' },
+  { id: 'c', title: 'C · MyRack Folding · Espalda al ventanal', floorX: 52.5, floorY: 0, floorW: 145, floorH: 200, x: 125, y: 75, angle: 0, model: 'folding' },
+  { id: 'd', title: 'D · MyRack Folding · Espalda a la pared de la puerta', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 75, y: 130, angle: 270, model: 'folding' }
 ];
 
 // Ultimate Fitness P900 Premium, product3386:
 // https://ultimatefitness.cl/producto/bicicleta-spinning-magnetica-p900-premium?id=3386
 // Published product dimensions131×53.5×1295 cm: final height appears mistyped;
 // use only131 length×53.5 width for plan; no height inferred/corrected here.
-// Shared trial: x90..221,y200..253.5, handlebar toward +x/right-wall TV.
-// Front-to-table gap59; counter gap81.5; partition-top gap68.5. These are
+// Shared trial: x90..221,y201..254.5, handlebar toward +x/right-wall TV.
+// Front-to-table gap59; counter gap80.5; partition-top gap67.5. These are
 // unoccupied footprint gaps, not measured mounting/pedalling clearances.
-// Bike centre y226.75 is33.25 below TV centre193.5; not exactly head-on.
+// Bike centre y227.75 is34.25 below TV centre193.5; not exactly head-on.
 // Rear flywheel, frame, pedals, saddle/handlebar shapes schematic from listing.
-const BIKE = { x: 90, y: 200, length: 131, width: 53.5 };
+const BIKE = { x: 90, y: 201, length: 131, width: 53.5 };
 
 function Bike() {
   const b = BIKE, middle = b.width/2;
@@ -251,7 +256,8 @@ export function ApartmentFloorPlan() {
     <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
       <defs><pattern id={`rubber-${layout.id}`} width="25" height="25" patternUnits="userSpaceOnUse"><rect width="25" height="25" fill="#cad4cf" /><path d="M25 0H0V25" fill="none" stroke="#b4c3ba" strokeWidth=".5" /></pattern></defs>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
-      <rect data-part="floor" x={layout.floorX} y={layout.floorY} width="200" height="200" fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
+      <rect data-part="floor" x={layout.floorX} y={layout.floorY} width={layout.floorW} height={layout.floorH} fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
+      <rect data-part="bike-floor" x="88" y="200" width="135" height="55" fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
       <Kitchen />
       <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
@@ -268,7 +274,8 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={280} length={200} label="Caucho 200 × 200 cm" />
+      <Ruler x={layout.floorX} y={280} length={layout.floorW} label={`Jaula ${layout.floorW} × ${layout.floorH} cm`} />
+      <Ruler x={88} y={294} length={135} label="Caucho bici 135 × 55 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'folding' ? FOLDING.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'folding' ? <FoldingRack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
     </svg>
