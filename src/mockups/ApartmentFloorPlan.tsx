@@ -88,11 +88,37 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
 const FTR = { width: 124.46, depth: 109.22, postX: 58.42, rearY: -50.8, frontY: 40.64, barY: 52.64, spotterDepth: 59.69 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
-  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
-  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
+  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro* · Sofá en prueba', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro* · Sofá en prueba', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
   { id: 'c', title: 'C · Force USA FTR · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 59.61, angle: 0, model: 'ftr' },
   { id: 'd', title: 'D · Force USA FTR · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 59.61, y: 130, angle: 270, model: 'ftr' }
 ];
+
+// IKEA Chile GLOSTAD50489012: width121, depth78, back height68,
+// seat width114/depth54/height41; top-view silhouette uses published outer size.
+// https://www.ikea.com/cl/es/p/glostad-sofa-2-cuerpos-knisa-gris-oscuro-50489012/
+// SID-only trial: sofa x115..193, y200..321 faces +x (right-wall TV).
+// Front-to-table gap87 where y overlaps table140..247; kitchen-counter gap14
+// and partition-top gap1 make circulation from the left door compromised.
+// Sofa centre y260.5 is67 below TV centre193.5: faces wall, not TV head-on.
+// No rack move, door swing, occupied legroom or exercise clearance inferred.
+const SOFA = { x: 115, y: 200, width: 121, depth: 78 };
+
+function Sofa() {
+  const s = SOFA;
+  return <g data-part="sofa" transform={`translate(${s.x} ${s.y})`}>
+    <rect data-part="sofa-envelope" width={s.depth} height={s.width} rx="3" fill="#d8cbd7" fillOpacity=".6" stroke="#8d718a" strokeDasharray="3 2" />
+    <rect x="0" y="3.5" width="16" height="114" rx="3" fill="#a58da2" />
+    {[3.5,61].map(y=><rect key={y} x="17" y={y} width="57" height="56.5" rx="4" fill="#c2adbe" stroke="#8d718a" strokeWidth=".7" />)}
+    {[0,117.5].map(y=><rect key={y} width="78" height="3.5" y={y} rx="1.5" fill="#a58da2" />)}
+    <text x="43" y="64" style={{fontSize:7}}>GLOSTAD*</text>
+    <path d="M55 83h12m-4 -4l4 4-4 4" fill="none" stroke="#8d718a" />
+    <Ruler x={-7} y={s.width} length={s.width} label="121 cm" vertical />
+    <Ruler x={0} y={s.width+9} length={s.depth} label="78 cm" />
+    <Ruler x={s.depth} y={24} length={87} label="87 cm a mesa" />
+    <Ruler x={s.depth+9} y={135} length={14} label="14 cm" vertical />
+  </g>;
+}
 
 // Static dimension lines only; no editor state or measurement engine.
 function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }: { x: number; y: number; length: number; label: string; vertical?: boolean; at?: number; flip?: boolean }) {
@@ -236,6 +262,7 @@ export function ApartmentFloorPlan() {
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
+      {layout.model === 'sid' && <Sofa />}
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
