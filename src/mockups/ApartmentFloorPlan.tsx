@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { Switch } from '@base-ui/react/switch';
 import './ApartmentFloorPlan.css';
 import { useApartmentGym, GYM_EXPORT_STYLE } from './ApartmentGym';
@@ -16,6 +16,12 @@ function normalize(p: Plan): Plan {
 
 export function ApartmentFloorPlan() {
   const [plan, setPlan] = useState<Plan>(INITIAL);
+  return <div className="apartment-compare"><header className="af-compare-header"><p className="af-eyebrow">DEPARTAMENTO / COMPARAR DISTRIBUCIONES</p><h1>Dos orientaciones para el press banca.</h1><p>Misma escala y medidas del departamento. Rack, banca y caucho se ajustan por separado en cada versión.</p></header><div className="af-compare-grid"><ApartmentPlanView variant="window" plan={plan} setPlan={setPlan} /><ApartmentPlanView variant="door" plan={plan} setPlan={setPlan} /></div></div>;
+}
+
+function ApartmentPlanView({ variant, plan, setPlan }: { variant: 'window' | 'door'; plan: Plan; setPlan: React.Dispatch<React.SetStateAction<Plan>> }) {
+  const title = variant === 'window' ? 'A · Espalda hacia el ventanal' : 'B · Espalda hacia la pared de la puerta';
+  const gridId = `apartment-grid-${useId().replace(/:/g, '')}`;
   const [grid, setGrid] = useState(true);
   const [dimensions, setDimensions] = useState(true);
   const [selected, setSelected] = useState<'room' | 'island' | 'fridge' | 'gym'>('gym');
@@ -27,7 +33,7 @@ export function ApartmentFloorPlan() {
   const w = plan.width, h = plan.depth;
   const islandWidth = w - plan.islandX;
   const fridgeX = w - 70 - plan.fridgeGap;
-  const gym = useApartmentGym(w, h, { x: plan.islandX, y: plan.islandY, width: islandWidth, height: plan.islandDepth }, { x: fridgeX, y: plan.fridgeY, width: 70, height: 70 }, () => setSelected('gym'));
+  const gym = useApartmentGym(w, h, { x: plan.islandX, y: plan.islandY, width: islandWidth, height: plan.islandDepth }, { x: fridgeX, y: plan.fridgeY, width: 70, height: 70 }, () => setSelected('gym'), variant);
   const field = (label: string, key: keyof Plan, min: number, max: number, hint?: string) => (
     <label className="af-field" key={key}><span>{label}{hint && <small>{hint}</small>}</span><span className="af-number"><input aria-label={label} type="number" min={min} max={max} step="1" value={plan[key]} onChange={e => { if (e.target.value !== '') update(key, e.target.valueAsNumber); }} /><span>cm</span></span></label>
   );
@@ -47,23 +53,23 @@ export function ApartmentFloorPlan() {
     style.textContent += GYM_EXPORT_STYLE;
     copy.prepend(style);
     const url = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(copy)], { type: 'image/svg+xml' }));
-    const a = document.createElement('a'); a.href = url; a.download = 'plano-departamento.svg'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
+    const a = document.createElement('a'); a.href = url; a.download = `plano-departamento-${variant}.svg`; a.click(); setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
-  return <div className="apartment-plan">
-    <header className="af-header"><div><p className="af-eyebrow">DEPARTAMENTO / PLANO DE TRABAJO</p><h1>Un espacio, muchas posibilidades.</h1><p>Vista superior · medidas interiores en centímetros</p></div><button onClick={download}>Descargar plano ↗</button></header>
+  return <section className="apartment-plan" aria-label={title}>
+    <header className="af-header"><div><h2>{title}</h2><p>{variant === 'window' ? 'Orientación original · frente hacia abajo' : 'Giro de 270° · frente hacia la derecha'}</p></div><button onClick={download}>Descargar SVG ↗</button></header>
     <div className="af-layout">
       <main className="af-drawing">
-        <div className="af-drawing-top"><span>Distribución con rack <b>02</b></span><span>{fmt(w)} × {fmt(h)} · {(w*h/10000).toLocaleString('es-CL', { maximumFractionDigits: 2 })} m²</span></div>
+        <div className="af-drawing-top"><span>Planta + banca <b>{variant === 'window' ? 'A' : 'B'}</b></span><span>{fmt(w)} × {fmt(h)} · {(w*h/10000).toLocaleString('es-CL', { maximumFractionDigits: 2 })} m²</span></div>
         <svg ref={svgRef} className="af-svg" viewBox={`-65 -65 ${w+130} ${h+130}`} aria-label="Plano a escala del departamento, con ventanal arriba, puerta izquierda, isla y refrigerador a la derecha, piso de caucho y rack con barra de 220 cm" role="img" onPointerMove={e => {
           if (!drag.current || !svgRef.current) return;
           const matrix = svgRef.current.getScreenCTM(); if (!matrix) return;
           const point = new DOMPoint(e.clientX, e.clientY).matrixTransform(matrix.inverse());
           update('fridgeY', Math.round(drag.current.initial + point.y - drag.current.y));
         }} onPointerUp={() => { drag.current = null; }} onPointerCancel={() => { drag.current = null; }}>
-          <defs><pattern id="apartment-grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="#bdced2" strokeWidth="0.35" /></pattern></defs>
+          <defs><pattern id={gridId} width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="#bdced2" strokeWidth="0.35" /></pattern></defs>
           <rect x="-65" y="-65" width={w+130} height={h+130} fill="#f1f6f7" />
           <rect width={w} height={h} fill="#fbfdfd" />
-          {grid && <rect width={w} height={h} fill="url(#apartment-grid)" />}
+          {grid && <rect width={w} height={h} fill={`url(#${gridId})`} />}
           {gym.floorDrawing}
           <path className="af-wall" d={`M0,${plan.doorY} V0 H${w} V${h} H0 V${plan.doorY+plan.doorWidth}`} />
           <path d={`M3 0 H${w-3}`} stroke="#66a3b5" strokeWidth="7" /><path d={`M3 0 H${w-3}`} stroke="#ebf7fb" strokeWidth="2" />
@@ -101,6 +107,7 @@ export function ApartmentFloorPlan() {
           </>}
           <text x={w/2} y={h+54} className="af-note">Fondo aproximado · puerta y posición del refri pendientes de confirmar</text>
         </svg>
+        {gym.benchReadout}
         <footer className="af-legend"><span><i className="af-dot window" />Ventanal</span><span><i className="af-dot island" />Isla fija a pared</span><span><i className="af-dot fridge" />Refri movible</span><span><i className="af-dot rubber" />Caucho 2 × 2 m</span><span>Rack: despiece estimado</span><span>Retícula: 10 cm</span></footer>
       </main>
       <aside className="af-sidebar">
@@ -111,8 +118,8 @@ export function ApartmentFloorPlan() {
         {selected === 'gym' && gym.panel}
         <section className="af-view"><h2>Lectura del plano</h2>{([['Retícula de 10 cm',grid,setGrid],['Mostrar cotas',dimensions,setDimensions]] as const).map(([label,value,set]) => <label className="af-toggle" key={label}><span>{label}</span><Switch.Root checked={value} onCheckedChange={set} className="af-switch" aria-label={label}><Switch.Thumb className="af-thumb" /></Switch.Root></label>)}</section>
         <div className="af-assumptions"><strong>Por confirmar</strong><p>Fondo de unos 3 m. Ancho y apertura de la puerta. Distancia del refri al ventanal; por ahora se deja a 5 cm.</p><p>Los cambios se conservan mientras este lienzo esté abierto. Descarga el plano para guardar una versión.</p></div>
-        <button className="af-reset" onClick={() => { setPlan(INITIAL); gym.reset(); setSelected('room'); setGrid(true); setDimensions(true); }}>Restablecer medidas iniciales</button>
+        <button className="af-reset" onClick={() => { gym.reset(); setSelected('gym'); setGrid(true); setDimensions(true); }}>Restablecer rack y banca</button>
       </aside>
     </div>
-  </div>;
+  </section>;
 }
