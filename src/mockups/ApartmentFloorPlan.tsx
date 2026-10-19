@@ -27,9 +27,9 @@ import './ApartmentFloorPlan.css';
  * Bench: https://sdmed.cl/productos/banco-doble-regulacion-y-soporte-serie-tts-tt1001/
  * Published 137 × 57; flat position not dimensioned. Pad/feet are illustrative.
  * Head end is 25 behind bar; bar length is 220. No ergonomic fit is inferred.
- * Preserved layouts: A floor (10,5), rack (125,105), 0°; B floor (0,20),
- * rack (75,130), 270° (rear toward left/door wall), floor (0,20).
- * B bar tips: y=20..240 (20 cm to window); rubber touches left wall.
+ * Rack placements preserved: A (125,105), 0°; B (75,130), 270°.
+ * Rubber subsequently moved to(25,55) to include bike (see LAYOUTS).
+ * B bar tips: y=20..240 (20 cm to window).
  * B assumed rear discs leave 75 - 51.45 - 22.5 ≈1.05 cm to left wall.
  * SID rear-post bench study (user request): J-hook seat assumed 14 cm
  * inward from rear post, barY=-51.45+14=-37.45; same head offset25.
@@ -38,7 +38,7 @@ import './ApartmentFloorPlan.css';
  * Existing front spotters remain drawn in their original locations: they do
  * NOT cover the proposed rear bar position. Interior protection is unresolved.
  * Bench longitudinal envelope: local -62.45..74.55; A room y42.55..179.55,
- * B room x12.55..149.55. Both projected envelopes fit the200×200 rubber.
+ * B room x12.55..149.55. Rear bench ends now lie outside shifted rubber.
  * This is a plan-space study, not a verified pressing setup or clearances.
  * Edit these constants/figures directly for the next iteration.
  */
@@ -83,11 +83,14 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
  */
 const FOLDING = { width: 120, depth: 140, postX: 57, rearY: -40, frontY: 40, barY: -28 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
+// Rubber moved to x25..225,y55..255 in all four figures: covers bike
+// x90..221,y200..253.5. Rear rack feet/parts now extend outside this200×200
+// square; moving it cannot cover the full rack+bike longitudinal envelope.
 const LAYOUTS = [
-  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
-  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
-  { id: 'c', title: 'C · MyRack Folding · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 75, angle: 0, model: 'folding' },
-  { id: 'd', title: 'D · MyRack Folding · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'folding' }
+  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 25, floorY: 55, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 25, floorY: 55, x: 75, y: 130, angle: 270, model: 'sid' },
+  { id: 'c', title: 'C · MyRack Folding · Espalda al ventanal', floorX: 25, floorY: 55, x: 125, y: 75, angle: 0, model: 'folding' },
+  { id: 'd', title: 'D · MyRack Folding · Espalda a la pared de la puerta', floorX: 25, floorY: 55, x: 75, y: 130, angle: 270, model: 'folding' }
 ];
 
 // Ultimate Fitness P900 Premium, product3386:
@@ -265,7 +268,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={layout.floorY+285} length={200} label="Caucho 200 × 200 cm" />
+      <Ruler x={layout.floorX} y={280} length={200} label="Caucho 200 × 200 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'folding' ? FOLDING.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'folding' ? <FoldingRack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
     </svg>
