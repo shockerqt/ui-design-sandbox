@@ -5,7 +5,7 @@ import './ApartmentFloorPlan.css';
  * All SVG coordinates are centimetres; origin is the window's left corner.
  * User measurements: original main-area sketch 350 × ~300; left door y=210 (width 80
  * provisional). Island x=210, y=190, 140 × 57. Fridge 70 × 70, right gap 5;
- * its y=5 placement remains provisional. Rubber floor: 200 × 200.
+ * window-to-fridge gap ≈70 (user estimate); island removed for remodel. Rubber floor: 200 × 200.
  *
  * Rack: https://sdmed.cl/productos/jaula-rack-ws-barbell-stack-rowing-sid-srhsrhd/
  * Photos: https://sdmed.cl/wp-content/uploads/2023/02/1-8.jpg
@@ -48,6 +48,13 @@ import './ApartmentFloorPlan.css';
  */
 const ROOM = { width: 350, depth: 388, doorY: 210, doorWidth: 80 };
 const KITCHEN = { passage: 115, sinkX: 297, sinkY: 247, sinkWidth: 53, sinkLength: 88, y: 335, depth: 53, partitionY: 322 };
+// Remodel: user estimates 70 cm window-to-fridge; table spans y140..247 =107.
+// Litter-box outline (60×45) and overhead platforms (30×25) are schematic,
+// not supplied measurements. Dashed platforms stagger toward fridge; heights TBD.
+// TV is a schematic 32-inch 16:9 panel (~71×40), seen edge-on on right wall.
+// Its mounting height and cat-platform heights are not measured in this plan.
+const FRIDGE = { x: 275, y: 70, width: 70, depth: 70 };
+const TABLE = { width: 70 };
 const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
 /* Force USA FTR official sources:
  * https://www.forceusa.com/products/functional-trainer-rack
@@ -178,6 +185,38 @@ function Kitchen() {
   </g>;
 }
 
+function Remodel() {
+  const start = FRIDGE.y + FRIDGE.depth;
+  const length = KITCHEN.sinkY - start;
+  const screenY = start + (length-71)/2;
+  return <g data-part="remodel">
+    <g data-part="cat-zone">
+      <rect data-part="litter-box" x="280" y="12" width="60" height="45" rx="7" fill="#ece2da" stroke="#a18b7e" />
+      <text x="310" y="38" style={{fontSize:7}}>Arenero*</text>
+      <g data-part="cat-platforms" fill="#c4b0da" fillOpacity=".35" stroke="#9474b2" strokeDasharray="3 2">
+        <rect x="275" y="4" width="30" height="25" rx="2" />
+        <rect x="310" y="40" width="30" height="25" rx="2" />
+        <path d="M290 16L325 52L325 85" fill="none" />
+      </g>
+      <text x="251" y="33" style={{fontSize:6.5}} transform="rotate(-90 251 33)">2 peldaños arriba*</text>
+      <Ruler x={363} y={FRIDGE.y} length={FRIDGE.y} label="≈70 cm" vertical />
+    </g>
+    <rect data-part="table" x={ROOM.width-TABLE.width} y={start} width={TABLE.width} height={length} fill="#e4d1aa" stroke="#8b7044" strokeWidth="1.5" />
+    <text x={ROOM.width-TABLE.width/2} y={start+length/2+18}>Mesa</text>
+    <g data-part="tv" stroke="#647381" strokeWidth="1">
+      <path d={`M350 ${screenY+35.5}h-8`} />
+      <rect x="340" y={screenY} width="3" height="71" rx="1" fill="#5b6c7a" />
+      <text x="329" y={screenY+35.5} stroke="none" transform={`rotate(-90 329 ${screenY+35.5})`}>TV 32″ · sobre mesa</text>
+    </g>
+    <rect data-part="fridge" x={FRIDGE.x} y={FRIDGE.y} width={FRIDGE.width} height={FRIDGE.depth} rx="2" fill="#d5e7ed" stroke="#456d7a" strokeWidth="1.5" />
+    <text x={FRIDGE.x+FRIDGE.width/2} y={FRIDGE.y+40}>Refri</text>
+    <Ruler x={ROOM.width-TABLE.width} y={start+length-12} length={TABLE.width} label="70 cm" />
+    <Ruler x={363} y={KITCHEN.sinkY} length={length} label={`Mesa ≈${length} cm`} vertical />
+    <Ruler x={FRIDGE.x} y={FRIDGE.y+FRIDGE.depth+10} length={FRIDGE.width} label="70 cm" />
+    <Ruler x={363} y={FRIDGE.y+FRIDGE.depth} length={FRIDGE.depth} label="70 cm" vertical />
+  </g>;
+}
+
 export function ApartmentFloorPlan() {
   return <div className="af-simple">{LAYOUTS.map(layout => <section key={layout.id} aria-label={layout.title}>
     <h2>{layout.title}</h2>
@@ -189,22 +228,17 @@ export function ApartmentFloorPlan() {
       <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
-      <rect x="275" y="5" width="70" height="70" rx="2" fill="#d5e7ed" stroke="#456d7a" strokeWidth="1.5" /><text x="310" y="42">Refri</text>
-      <rect x="210" y="190" width="140" height="57" fill="#e4d1aa" stroke="#8b7044" strokeWidth="1.5" /><text x="280" y="222">Isla</text>
+      <Remodel />
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
       <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
-      <Ruler x={275} y={85} length={70} label="70 cm" />
-      <Ruler x={363} y={75} length={70} label="70 cm" vertical />
       <Ruler x={0} y={358} length={KITCHEN.passage} label="Paso 115 cm" />
       <Ruler x={KITCHEN.passage+13} y={KITCHEN.y} length={13} label="13 cm" vertical />
       <Ruler x={KITCHEN.sinkX} y={KITCHEN.y-13} length={KITCHEN.sinkWidth} label="53 cm" />
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={210} y={261} length={140} label="140 cm" />
-      <Ruler x={363} y={247} length={57} label="57 cm" vertical />
       <Ruler x={layout.floorX} y={layout.floorY+260} length={200} label="Caucho 200 × 200 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'ftr' ? FTR.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'ftr' ? <ForceRack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
