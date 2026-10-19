@@ -15,9 +15,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Dos planos simples a escala con rack, banca, barra y caucho. Iteraciones directas sobre las figuras.',
+    description: 'Cuatro planos a escala para comparar SID-SRHSRHD y Force USA FTR, con banca, barra, caucho y cotas.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.3.0',
+    version: 'v1.4.0',
     updatedAt: '2026-10-19',
     component: ApartmentFloorPlan
   },

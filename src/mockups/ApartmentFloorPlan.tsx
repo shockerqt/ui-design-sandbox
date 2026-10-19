@@ -39,10 +39,37 @@ import './ApartmentFloorPlan.css';
  */
 const ROOM = { width: 350, depth: 300, doorY: 210, doorWidth: 80 };
 const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
+/* Force USA FTR official sources:
+ * https://www.forceusa.com/products/functional-trainer-rack
+ * https://force-manuals.nmg.io/F-FTR-July28-orig.pdf (assembly pp.12,16,39)
+ * https://www.forceusa.com/products/quick-lock-spotter-arms
+ * Published exterior 49×43×87 in = 124.46×109.22×220.98 cm;
+ * interior 43×33×81 in = 109.22×83.82×205.74 cm; uprights 3 in = 7.62 cm.
+ * Manual shows angled side bases, narrower rear pair, middle pulley columns,
+ * front rack columns, two enclosed stacks and rear pegboard/shelf. No SID
+ * plate-storage horns or Olympic discs are assumed on this rack.
+ * Approximate partition: rear column centres (±35,-50.8); front centres
+ * (±58.42,40.64), consistent with the published front clear width and nominal
+ * depth. Rear width, tower/pulley locations and foot-tip split are estimates;
+ * published interior depth is not an unobstructed rectangular training area.
+ * Quick Lock Spotter part: 6×23.5×9.5 in = 15.24×59.69×24.13 cm overall.
+ * Mounted part envelope starts at estimated rear face of front column:
+ * y=36.83..96.52, ~41.91 beyond the 109.22 cm frame-depth envelope.
+ * This mounting/projection is inferred, not a published installed-depth cota.
+ * Bar seat ~12 cm ahead of front-post centre is photo-estimated. The similarly
+ * named 2×2 Hybrid J-Hook product is incompatible and is NOT used as a source.
+ * Freestyle arms are pictured parked in one compact pose; deployed cable reach
+ * and user operating clearance are not represented by the frame envelope.
+ * C rear frame 5 cm from window; D rear frame 5 cm from left wall, bar tip
+ * y=20, same TT1001 bench/220 cm bar/caucho as SID. Heights are source notes only.
+ */
+const FTR = { width: 124.46, depth: 109.22, postX: 58.42, rearY: -50.8, frontY: 40.64, barY: 52.64, spotterDepth: 59.69 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
-  { id: 'a', title: 'A · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0 },
-  { id: 'b', title: 'B · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270 }
+  { id: 'a', title: 'A · SID-SRHSRHD · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'b', title: 'B · SID-SRHSRHD · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
+  { id: 'c', title: 'C · Force USA FTR · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 59.61, angle: 0, model: 'ftr' },
+  { id: 'd', title: 'D · Force USA FTR · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 59.61, y: 130, angle: 270, model: 'ftr' }
 ];
 
 // Static dimension lines only; no editor state or measurement engine.
@@ -54,7 +81,7 @@ function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }
 }
 
 function Rack({ turn }: { turn: number }) {
-  const r = RACK, head = r.barY - BENCH.headOffset;
+  const r = RACK;
   return <>
     <path d={`M${-r.postX} ${r.rearY}H${r.postX}`} stroke="#40545b" strokeWidth="5" />
     {[-1, 1].map(side => <g key={side}>
@@ -66,6 +93,16 @@ function Rack({ turn }: { turn: number }) {
       {[r.rearY, r.frontY].map(y => <rect key={y} className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
       <path d={`M${side*r.postX-4} ${r.frontY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
     </g>)}
+    <BenchAndBar barY={r.barY} turn={turn} />
+    <Ruler x={-r.postX+13} y={r.rearY} length={18} label="≈18 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.width/2} y={turn === 270 ? -r.depth/2+12 : -r.depth/2-18} length={r.width} label="Rack ≈165,8 cm" />
+    <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
+  </>;
+}
+
+function BenchAndBar({ barY, turn }: { barY: number; turn: number }) {
+  const head = barY - BENCH.headOffset;
+  return <>
     <g data-part="bench">
       {[head+15, head+122].map(y => <rect key={y} x={-BENCH.width/2} y={y} width={BENCH.width} height="7" rx="1" fill="#786260" />)}
       <rect x="-3" y={head+15} width="6" height="114" fill="#786260" />
@@ -73,16 +110,47 @@ function Rack({ turn }: { turn: number }) {
       <rect x="-14" y={head+89} width="28" height="29" rx="4" fill="#bc8f83" stroke="#714f49" />
     </g>
     <g data-part="bar" fill="#bdcbd0" stroke="#38505a" strokeWidth=".7">
-      <rect x="-110" y={r.barY-1.4} width="220" height="2.8" />
-      <rect x="-110" y={r.barY-2.5} width="41" height="5" /><rect x="69" y={r.barY-2.5} width="41" height="5" />
+      <rect x="-110" y={barY-1.4} width="220" height="2.8" />
+      <rect x="-110" y={barY-2.5} width="41" height="5" /><rect x="69" y={barY-2.5} width="41" height="5" />
     </g>
-    <Ruler x={-r.postX+13} y={r.rearY} length={18} label="≈18 cm" vertical flip={turn === 270} />
-    <Ruler x={-r.width/2} y={-r.depth/2-18} length={r.width} label="Rack ≈165,8 cm" />
-    <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
-    <Ruler x={-110} y={r.barY-8} length={220} label="Barra 220 cm" at={0.16} />
+    <Ruler x={-110} y={barY-8} length={220} label="Barra 220 cm" at={0.16} />
     <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
     <Ruler x={-BENCH.width/2} y={head+BENCH.length+10} length={BENCH.width} label="57 cm" />
   </>;
+}
+
+function ForceRack({ turn }: { turn: number }) {
+  const r = FTR, rearX = 35, post = 7.62;
+  return <g data-model="ftr">
+    <path d={`M${-r.postX} ${r.depth/2}V26L${-rearX} ${r.rearY}H${rearX}L${r.postX} 26V${r.depth/2}`} fill="none" stroke="#40545b" strokeWidth={post} strokeLinejoin="bevel" />
+    <rect x="-31" y={r.rearY-1} width="62" height="4" fill="#798a91" />
+    <rect x="-27" y={r.rearY+5} width="54" height="18" fill="#8e9ba0" fillOpacity=".35" stroke="#687d85" strokeWidth=".7" strokeDasharray="2 2" />
+    {[-1,1].map(side => <g key={side}>
+      <path d={`M${side*rearX} ${r.rearY+4}L${side*(rearX-12)} ${r.rearY+7}L${side*45} 20L${side*56} 15Z`} fill="#a7b6bb" stroke="#5e767f" strokeWidth=".8" />
+      <g transform={`translate(${side*40} -20) rotate(${-side*17})`} data-part="weight-stack">
+        <rect x="-10" y="-12" width="20" height="24" rx="1" fill="#566a73" stroke="#314b55" />
+        {[-6,6].map(x=><circle key={x} cx={x} cy="0" r="1.7" fill="#d3dfe4" />)}
+      </g>
+      <rect className="af-rack" x={side*rearX-post/2} y={r.rearY-post/2} width={post} height={post} />
+      <rect className="af-rack" x={side*49-post/2} y={8-post/2} width={post} height={post} />
+      <rect className="af-rack" x={side*r.postX-post/2} y={r.frontY-post/2} width={post} height={post} />
+      <g data-part="pulley" transform={`translate(${side*r.postX} ${r.frontY-13})`}>
+        <rect x="-6" y="-6" width="12" height="12" rx="1" fill="#c0cfd4" stroke="#5c7884" strokeWidth="1" />
+        <path d={`M0 0L${-side*12} 16`} stroke="#829aa5" strokeWidth="4" />
+        <circle cx={-side*12} cy="16" r="4.5" fill="#b1c3cb" stroke="#4d6c7b" strokeWidth="1" />
+      </g>
+      <g data-part="spotter">
+        <rect x={side*r.postX-7.62} y={r.frontY-post/2} width="15.24" height={r.spotterDepth} fill="#77909d" fillOpacity=".25" stroke="#486775" strokeWidth=".8" strokeDasharray="2 2" />
+        <rect x={side*r.postX-3} y={r.frontY} width="6" height={r.spotterDepth-post/2} fill="#879da8" stroke="#496471" strokeWidth="1" />
+        <rect x={side*r.postX-5} y={r.frontY-post/2+r.spotterDepth-4} width="10" height="4" fill="#405965" />
+      </g>
+      <path d={`M${side*r.postX-4} ${r.frontY}v14h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
+    </g>)}
+    <BenchAndBar barY={r.barY} turn={turn} />
+    <Ruler x={-r.width/2} y={r.rearY+23} length={r.width} label="FTR 124,5 cm" />
+    <Ruler x={r.width/2+15} y={r.depth/2} length={r.depth} label="Base 109,2 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.width/2-10} y={r.frontY-post/2+r.spotterDepth} length={r.spotterDepth} label="Seguros 59,7 cm" vertical flip={turn === 270} />
+  </g>;
 }
 
 export function ApartmentFloorPlan() {
@@ -106,8 +174,8 @@ export function ApartmentFloorPlan() {
       <Ruler x={210} y={261} length={140} label="140 cm" />
       <Ruler x={363} y={247} length={57} label="57 cm" vertical />
       <Ruler x={layout.floorX} y={layout.floorY+260} length={200} label="Caucho 200 × 200 cm" />
-      {layout.id === 'b' && <Ruler x={layout.x+RACK.barY+10} y={20} length={20} label="20 cm" vertical />}
-      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><Rack turn={layout.angle} /></g>
+      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'ftr' ? FTR.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
+      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'ftr' ? <ForceRack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
     </svg>
   </section>)}</div>;
 }
