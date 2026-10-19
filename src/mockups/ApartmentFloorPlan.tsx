@@ -84,35 +84,39 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
 const FOLDING = { width: 120, depth: 140, postX: 57, rearY: -40, frontY: 40, barY: -28 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
-  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro* · Sofá en prueba', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
-  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro* · Sofá en prueba', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
+  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
   { id: 'c', title: 'C · MyRack Folding · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 75, angle: 0, model: 'folding' },
   { id: 'd', title: 'D · MyRack Folding · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'folding' }
 ];
 
-// IKEA Chile GLOSTAD50489012: width121, depth78, back height68,
-// seat width114/depth54/height41; top-view silhouette uses published outer size.
-// https://www.ikea.com/cl/es/p/glostad-sofa-2-cuerpos-knisa-gris-oscuro-50489012/
-// SID-only trial: sofa x115..193, y200..321 faces +x (right-wall TV).
-// Front-to-table gap87 where y overlaps table140..247; kitchen-counter gap14
-// and partition-top gap1 make circulation from the left door compromised.
-// Sofa centre y260.5 is67 below TV centre193.5: faces wall, not TV head-on.
-// No rack move, door swing, occupied legroom or exercise clearance inferred.
-const SOFA = { x: 115, y: 200, width: 121, depth: 78 };
+// Ultimate Fitness P900 Premium, product3386:
+// https://ultimatefitness.cl/producto/bicicleta-spinning-magnetica-p900-premium?id=3386
+// Published product dimensions131×53.5×1295 cm: final height appears mistyped;
+// use only131 length×53.5 width for plan; no height inferred/corrected here.
+// Shared trial: x90..221,y200..253.5, handlebar toward +x/right-wall TV.
+// Front-to-table gap59; counter gap81.5; partition-top gap68.5. These are
+// unoccupied footprint gaps, not measured mounting/pedalling clearances.
+// Bike centre y226.75 is33.25 below TV centre193.5; not exactly head-on.
+// Rear flywheel, frame, pedals, saddle/handlebar shapes schematic from listing.
+const BIKE = { x: 90, y: 200, length: 131, width: 53.5 };
 
-function Sofa() {
-  const s = SOFA;
-  return <g data-part="sofa" transform={`translate(${s.x} ${s.y})`}>
-    <rect data-part="sofa-envelope" width={s.depth} height={s.width} rx="3" fill="#d8cbd7" fillOpacity=".6" stroke="#8d718a" strokeDasharray="3 2" />
-    <rect x="0" y="3.5" width="16" height="114" rx="3" fill="#a58da2" />
-    {[3.5,61].map(y=><rect key={y} x="17" y={y} width="57" height="56.5" rx="4" fill="#c2adbe" stroke="#8d718a" strokeWidth=".7" />)}
-    {[0,117.5].map(y=><rect key={y} width="78" height="3.5" y={y} rx="1.5" fill="#a58da2" />)}
-    <text x="43" y="64" style={{fontSize:7}}>GLOSTAD*</text>
-    <path d="M55 83h12m-4 -4l4 4-4 4" fill="none" stroke="#8d718a" />
-    <Ruler x={-7} y={s.width} length={s.width} label="121 cm" vertical />
-    <Ruler x={0} y={s.width+9} length={s.depth} label="78 cm" />
-    <Ruler x={s.depth} y={24} length={87} label="87 cm a mesa" />
-    <Ruler x={s.depth+9} y={135} length={14} label="14 cm" vertical />
+function Bike() {
+  const b = BIKE, middle = b.width/2;
+  return <g data-part="bike" transform={`translate(${b.x} ${b.y})`}>
+    <rect data-part="bike-envelope" width={b.length} height={b.width} rx="3" fill="#d6e4e8" fillOpacity=".45" stroke="#6c8997" strokeDasharray="3 2" />
+    {[8,121].map(x=><rect key={x} x={x} y="0" width="5" height={b.width} rx="2" fill="#536c79" />)}
+    <rect x="22" y={middle-3} width="22" height="6" rx="2" fill="#839ca8" stroke="#4a6471" />
+    <path d={`M10 ${middle}H124 M33 ${middle}L48 ${middle}L72 ${middle}H110`} fill="none" stroke="#647f8e" strokeWidth="6" strokeLinejoin="round" />
+    <path d={`M72 ${middle-18}V${middle+18}`} stroke="#a8b6be" strokeWidth="2" />
+    {[middle-20,middle+16].map(y=><rect key={y} x="65" y={y} width="14" height="4" rx="1" fill="#4a606c" />)}
+    <path d={`M39 ${middle-6}Q45 ${middle-12} 58 ${middle-6}L56 ${middle+6}Q45 ${middle+12} 39 ${middle+6}Z`} fill="#536573" />
+    <path d={`M102 7H114V${b.width-7}H102 M109 ${middle}H122`} fill="none" stroke="#405b6c" strokeWidth="3" strokeLinecap="round" />
+    <rect x="114" y={middle-6} width="9" height="12" rx="1" fill="#91a7b5" stroke="#405b6c" />
+    <text x="77" y={middle+5} style={{fontSize:6.5}}>P900</text>
+    <Ruler x={0} y={b.width+12} length={b.length} label="Bici 131 cm" />
+    <Ruler x={-9} y={b.width} length={b.width} label="53,5 cm" vertical />
+    <Ruler x={b.length} y={10} length={59} label="59 cm a mesa" />
   </g>;
 }
 
@@ -250,7 +254,7 @@ export function ApartmentFloorPlan() {
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
-      {layout.model === 'sid' && <Sofa />}
+      <Bike />
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
@@ -261,7 +265,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={layout.floorY+260} length={200} label="Caucho 200 × 200 cm" />
+      <Ruler x={layout.floorX} y={layout.floorY+285} length={200} label="Caucho 200 × 200 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'folding' ? FOLDING.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'folding' ? <FoldingRack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
     </svg>
