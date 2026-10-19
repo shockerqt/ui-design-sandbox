@@ -15,9 +15,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Dos distribuciones paralelas con rack SID-SRHSRHD, banca TT1001, barra de 220 cm y caucho 2 × 2 m; cobertura del piso y cotas editables.',
+    description: 'Dos planos simples a escala con rack, banca, barra y caucho. Iteraciones directas sobre las figuras.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.2.0',
+    version: 'v1.3.0',
     updatedAt: '2026-10-19',
     component: ApartmentFloorPlan
   },
