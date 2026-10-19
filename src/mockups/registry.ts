@@ -15,9 +15,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Plano a escala del departamento con cotas editables, isla adosada, refrigerador movible y descarga en SVG.',
+    description: 'Plano a escala con rack SID-SRHSRHD, caucho 2 × 2 m, barra de 220 cm y despiece estimado; cotas y distribución editables.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.0.0',
+    version: 'v1.1.0',
     updatedAt: '2026-10-19',
     component: ApartmentFloorPlan
   },
