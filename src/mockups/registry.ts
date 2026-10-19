@@ -1,4 +1,5 @@
 import { MockupItem } from '../types';
+import { ApartmentFloorPlan } from './ApartmentFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
@@ -10,6 +11,16 @@ import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'apartment-floor-plan',
+    title: 'Departamento · Plano de distribución',
+    category: 'Espacios',
+    description: 'Plano a escala del departamento con cotas editables, isla adosada, refrigerador movible y descarga en SVG.',
+    tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-19',
+    component: ApartmentFloorPlan
+  },
   {
     id: 'base-ui-color-system',
     title: 'Base UI · Sistema de color',
