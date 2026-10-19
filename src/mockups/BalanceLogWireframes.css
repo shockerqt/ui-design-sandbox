@@ -58,10 +58,11 @@
 .blw-group-trigger small { font-size: 12px; color: var(--blw-muted); font-weight: 400; }
 .blw-group-calories { font-size: 13px; }
 .blw-macro-line { display: inline-flex; align-items: baseline; justify-self: end; gap: 5px; font-size: 12px; font-weight: 400; color: #444; font-variant-numeric: tabular-nums; white-space: nowrap; }
-.blw-macro-line > span { display: inline-flex; align-items: baseline; gap: 2px; }
+.blw-macro-line > span { display: inline-flex; align-items: baseline; gap: 3px; }
 .blw-macro-line > span + span::before { content: '·'; color: #999; }
 .blw-macro-value { text-align: right; }
 .blw-macro-line small { font-size: 12px; font-weight: 400; color: var(--blw-muted); }
+.blw-macro-value small { margin-left: 2px; }
 .blw-group-trigger > .blw-macro-line { margin-right: 22px; }
 .blw-group-add, .blw-group-select { display: grid; place-items: center; flex-shrink: 0; width: 44px; min-width: 44px; min-height: 44px; padding: 12px; border: 0; background: transparent; }
 .blw-group-add { border-left: 1px solid var(--blw-line); }
@@ -205,7 +206,7 @@
 .blw-body-fields { min-width: 0; border: 0; border-top: 1px solid #ddd; margin: 0; padding: 16px 0 0; }
 .blw-body-fields legend { font-size: 12px; font-weight: 600; padding: 0 8px 0 0; }
 .blw-body-fields > div { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
-.blw-body-fields .blw-field { font-size: 11px; }
+.blw-body-fields .blw-field { font-size: 12px; }
 .blw-period-controls { flex-shrink: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(126px, 1.8fr); align-items: end; gap: 4px; padding: 0 14px 10px; border-bottom: 1px solid #ddd; font-size: 12px; }
 .blw-period-controls button { min-width: 0; min-height: 44px; padding: 6px 2px; border: 1px solid transparent; background: transparent; }
 .blw-period-controls button[aria-pressed="true"] { border-color: #bbb; background: #f4f4f4; font-weight: 600; }
