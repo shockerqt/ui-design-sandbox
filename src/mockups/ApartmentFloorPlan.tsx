@@ -32,7 +32,15 @@ const LAYOUTS = [
   { id: 'b', title: 'B · Espalda a la pared de la puerta', floorX: 10, floorY: 10, x: 90, y: 120, angle: 270 }
 ];
 
-function Rack() {
+// Static dimension lines only; no editor state or measurement engine.
+function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }: { x: number; y: number; length: number; label: string; vertical?: boolean; at?: number; flip?: boolean }) {
+  return <g className="af-ruler" transform={`translate(${x} ${y})${vertical ? ' rotate(-90)' : ''}`}>
+    <path d={`M0 0h${length} M0 -3v6 M${length} -3v6`} />
+    <text x={length*at} y="-4" transform={flip ? `rotate(180 ${length*at} -4)` : undefined}>{label}</text>
+  </g>;
+}
+
+function Rack({ turn }: { turn: number }) {
   const r = RACK, head = r.barY - BENCH.headOffset;
   return <>
     <path d={`M${-r.postX} ${r.rearY}H${r.postX}`} stroke="#40545b" strokeWidth="5" />
@@ -54,13 +62,18 @@ function Rack() {
       <rect x="-110" y={r.barY-1.4} width="220" height="2.8" />
       <rect x="-110" y={r.barY-2.5} width="41" height="5" /><rect x="69" y={r.barY-2.5} width="41" height="5" />
     </g>
+    <Ruler x={-r.width/2} y={-r.depth/2-18} length={r.width} label="Rack ≈165,8 cm" />
+    <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
+    <Ruler x={-110} y={r.barY-8} length={220} label="Barra 220 cm" at={0.16} />
+    <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
+    <Ruler x={-BENCH.width/2} y={head+BENCH.length+10} length={BENCH.width} label="57 cm" />
   </>;
 }
 
 export function ApartmentFloorPlan() {
   return <div className="af-simple">{LAYOUTS.map(layout => <section key={layout.id} aria-label={layout.title}>
     <h2>{layout.title}</h2>
-    <svg viewBox={`-20 -25 ${ROOM.width+40} ${ROOM.depth+45}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra y caucho`}>
+    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra y caucho`}>
       <defs><pattern id={`rubber-${layout.id}`} width="25" height="25" patternUnits="userSpaceOnUse"><rect width="25" height="25" fill="#cad4cf" /><path d="M25 0H0V25" fill="none" stroke="#b4c3ba" strokeWidth=".5" /></pattern></defs>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <rect data-part="floor" x={layout.floorX} y={layout.floorY} width="200" height="200" fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
@@ -69,7 +82,16 @@ export function ApartmentFloorPlan() {
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <rect x="275" y="5" width="70" height="70" rx="2" fill="#d5e7ed" stroke="#456d7a" strokeWidth="1.5" /><text x="310" y="42">Refri</text>
       <rect x="210" y="190" width="140" height="57" fill="#e4d1aa" stroke="#8b7044" strokeWidth="1.5" /><text x="280" y="222">Isla</text>
-      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><Rack /></g>
+      <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
+      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈300 cm" vertical />
+      <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
+      <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
+      <Ruler x={275} y={85} length={70} label="70 cm" />
+      <Ruler x={363} y={75} length={70} label="70 cm" vertical />
+      <Ruler x={210} y={261} length={140} label="140 cm" />
+      <Ruler x={363} y={247} length={57} label="57 cm" vertical />
+      <Ruler x={layout.floorX} y={layout.floorY+260} length={200} label="Caucho 200 × 200 cm" />
+      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><Rack turn={layout.angle} /></g>
     </svg>
   </section>)}</div>;
 }

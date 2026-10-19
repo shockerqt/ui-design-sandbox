@@ -1,3 +1,5 @@
 .af-simple{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;min-height:calc(100dvh - 48px);padding:24px;background:#e7eff2;color:#263f48;align-content:start;font-family:var(--font-ui,sans-serif)}
 .af-simple section{min-width:0}.af-simple h2{font-size:15px;font-weight:500;margin:0 0 12px;min-height:36px}.af-simple svg{display:block;width:100%;height:auto}.af-simple text{font:9px var(--font-ui,sans-serif);fill:#42606b;text-anchor:middle}.af-simple .af-rack{fill:#485a60;stroke:#263c43;stroke-width:1}
 @media(max-width:700px){.af-simple{grid-template-columns:1fr;padding:16px;gap:24px}.af-simple h2{min-height:0}}
+
+.af-simple .af-ruler path{fill:none;stroke:#69818a;stroke-width:.65}.af-simple .af-ruler text{font:6.5px var(--font-mono,monospace);fill:#46616c;paint-order:stroke;stroke:#f4f8f8;stroke-width:2.2px;stroke-linejoin:round}
