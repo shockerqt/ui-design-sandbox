@@ -17,7 +17,7 @@ export const mockupRegistry: MockupItem[] = [
     category: 'Espacios',
     description: 'Cuatro planos a escala para comparar SID-SRHSRHD y Force USA FTR, con banca, barra, caucho y cotas.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.6.0',
+    version: 'v1.7.0',
     updatedAt: '2026-10-19',
     component: ApartmentFloorPlan
   },

@@ -31,10 +31,15 @@ import './ApartmentFloorPlan.css';
  * rack (75,130), 270° (rear toward left/door wall), floor (0,20).
  * B bar tips: y=20..240 (20 cm to window); rubber touches left wall.
  * B assumed rear discs leave 75 - 51.45 - 22.5 ≈1.05 cm to left wall.
- * Current bench overhang:
- * A 40.45 below floor; B 15.45 right after the revised J-hook position.
- * Earlier floor-fit conclusions used the superseded bar position; neither
- * floor coverage nor pressing posture is certified by this drawing.
+ * SID rear-post bench study (user request): J-hook seat assumed 14 cm
+ * inward from rear post, barY=-51.45+14=-37.45; same head offset25.
+ * Rear-post perforations/J-hook compatibility and crossmember/bench vertical
+ * clearance are unverified. Dashed rear hooks are proposed, not supplied parts.
+ * Existing front spotters remain drawn in their original locations: they do
+ * NOT cover the proposed rear bar position. Interior protection is unresolved.
+ * Bench longitudinal envelope: local -62.45..74.55; A room y42.55..179.55,
+ * B room x12.55..149.55. Both projected envelopes fit the200×200 rubber.
+ * This is a plan-space study, not a verified pressing setup or clearances.
  * Edit these constants/figures directly for the next iteration.
  */
 /* New private depa2.png annotation (Drive reference only; image not published):
@@ -83,8 +88,8 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
 const FTR = { width: 124.46, depth: 109.22, postX: 58.42, rearY: -50.8, frontY: 40.64, barY: 52.64, spotterDepth: 59.69 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
-  { id: 'a', title: 'A · SID-SRHSRHD · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
-  { id: 'b', title: 'B · SID-SRHSRHD · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
+  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270, model: 'sid' },
   { id: 'c', title: 'C · Force USA FTR · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 59.61, angle: 0, model: 'ftr' },
   { id: 'd', title: 'D · Force USA FTR · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 59.61, y: 130, angle: 270, model: 'ftr' }
 ];
@@ -99,6 +104,7 @@ function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }
 
 function Rack({ turn }: { turn: number }) {
   const r = RACK;
+  const insideBarY = r.rearY + 14;
   return <>
     <path d={`M${-r.postX} ${r.rearY}H${r.postX}`} stroke="#40545b" strokeWidth="5" />
     {[-1, 1].map(side => <g key={side}>
@@ -108,9 +114,10 @@ function Rack({ turn }: { turn: number }) {
       {[0, 1, 2].map(i => <rect key={i} x={side < 0 ? -r.width/2+3+i*6.5 : r.postX+4+i*6.5} y={r.rearY-22.5} width="6" height="45" rx="1" fill="#68716d" stroke="#dce4df" strokeWidth=".8" />)}
       <rect x={side*r.postX-3.5} y={r.frontY} width="7" height="48" fill="#819397" stroke="#344e57" strokeWidth="1" />
       {[r.rearY, r.frontY].map(y => <rect key={y} className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
-      <path d={`M${side*r.postX-4} ${r.frontY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
+      <path data-part="proposed-rear-hook" d={`M${side*r.postX-4} ${r.rearY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" strokeDasharray="3 1" />
     </g>)}
-    <BenchAndBar barY={r.barY} turn={turn} />
+    <BenchAndBar barY={insideBarY} turn={turn} />
+    <text x="0" y={r.depth/2+34} style={{fontSize:6.5}} transform={turn === 270 ? `rotate(90 0 ${r.depth/2+34})` : undefined}>*Montaje interior por confirmar</text>
     <Ruler x={-r.postX+13} y={r.rearY} length={18} label="≈18 cm" vertical flip={turn === 270} />
     <Ruler x={-r.width/2} y={turn === 270 ? -r.depth/2+12 : -r.depth/2-18} length={r.width} label="Rack ≈165,8 cm" />
     <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
