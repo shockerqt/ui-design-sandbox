@@ -3,7 +3,7 @@ import './ApartmentFloorPlan.css';
 
 /*
  * All SVG coordinates are centimetres; origin is the window's left corner.
- * User measurements: room 350 × ~300; left door starts at y=210 (width 80
+ * User measurements: original main-area sketch 350 × ~300; left door y=210 (width 80
  * provisional). Island x=210, y=190, 140 × 57. Fridge 70 × 70, right gap 5;
  * its y=5 placement remains provisional. Rubber floor: 200 × 200.
  *
@@ -37,7 +37,17 @@ import './ApartmentFloorPlan.css';
  * floor coverage nor pressing posture is certified by this drawing.
  * Edit these constants/figures directly for the next iteration.
  */
-const ROOM = { width: 350, depth: 300, doorY: 210, doorWidth: 80 };
+/* New private depa2.png annotation (Drive reference only; image not published):
+ * Green sink run: 53 wide × 88 long, immediately after island at y=190+57=247.
+ * Cyan kitchen: 53 deep, starting at y=247+88=335, ending y=388.
+ * Left passage clear-width note: 115; partition starts 13 before kitchen,
+ * at y=322, and continues to bottom. Kitchen width 350-115=235 is derived.
+ * The previous ~300 depth described the cropped main area, not this extension.
+ * Bottom-left passage stays open; wall thickness/opening beyond view unknown.
+ * Red cooktop position follows annotation; assumed 28×43 silhouette only.
+ */
+const ROOM = { width: 350, depth: 388, doorY: 210, doorWidth: 80 };
+const KITCHEN = { passage: 115, sinkX: 297, sinkY: 247, sinkWidth: 53, sinkLength: 88, y: 335, depth: 53, partitionY: 322 };
 const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
 /* Force USA FTR official sources:
  * https://www.forceusa.com/products/functional-trainer-rack
@@ -153,24 +163,46 @@ function ForceRack({ turn }: { turn: number }) {
   </g>;
 }
 
+function Kitchen() {
+  const k = KITCHEN;
+  return <g data-part="kitchen">
+    <rect data-part="sink-run" x={k.sinkX} y={k.sinkY} width={k.sinkWidth} height={k.sinkLength} fill="#d1e7d5" stroke="#509265" strokeWidth="1.3" />
+    <rect x={k.sinkX+7} y={k.sinkY+24} width="39" height="46" rx="5" fill="#e9f4eb" stroke="#72a782" />
+    <circle cx={k.sinkX+26.5} cy={k.sinkY+47} r="2" fill="#72a782" />
+    {[8,12,16].map(y=><path key={y} d={`M${k.sinkX+8} ${k.sinkY+y}h37`} stroke="#8cb698" strokeWidth=".8" />)}
+    <text x={k.sinkX+k.sinkWidth/2} y={k.y-7} style={{fontSize:7}}>Lavaplatos</text>
+    <rect data-part="kitchen-counter" x={k.passage} y={k.y} width={ROOM.width-k.passage} height={k.depth} fill="#d1eaf1" stroke="#67a5b8" strokeWidth="1.3" />
+    <text x="195" y={k.y+30}>Cocina</text>
+    <rect data-part="cooktop" x="262" y={k.y+3} width="28" height="43" rx="2" fill="#f1cecb" stroke="#c46f68" strokeWidth="1" />
+    {[270,282].flatMap(x=>[k.y+14,k.y+34].map(y=><circle key={`${x}-${y}`} cx={x} cy={y} r="3.5" fill="none" stroke="#b3625c" strokeWidth=".8" />))}
+  </g>;
+}
+
 export function ApartmentFloorPlan() {
   return <div className="af-simple">{LAYOUTS.map(layout => <section key={layout.id} aria-label={layout.title}>
     <h2>{layout.title}</h2>
-    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra y caucho`}>
+    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
       <defs><pattern id={`rubber-${layout.id}`} width="25" height="25" patternUnits="userSpaceOnUse"><rect width="25" height="25" fill="#cad4cf" /><path d="M25 0H0V25" fill="none" stroke="#b4c3ba" strokeWidth=".5" /></pattern></defs>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <rect data-part="floor" x={layout.floorX} y={layout.floorY} width="200" height="200" fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
-      <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H0V${ROOM.doorY+ROOM.doorWidth}`} fill="none" stroke="#263f48" strokeWidth="5" />
+      <Kitchen />
+      <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <rect x="275" y="5" width="70" height="70" rx="2" fill="#d5e7ed" stroke="#456d7a" strokeWidth="1.5" /><text x="310" y="42">Refri</text>
       <rect x="210" y="190" width="140" height="57" fill="#e4d1aa" stroke="#8b7044" strokeWidth="1.5" /><text x="280" y="222">Isla</text>
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
-      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈300 cm" vertical />
+      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
       <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
       <Ruler x={275} y={85} length={70} label="70 cm" />
       <Ruler x={363} y={75} length={70} label="70 cm" vertical />
+      <Ruler x={0} y={358} length={KITCHEN.passage} label="Paso 115 cm" />
+      <Ruler x={KITCHEN.passage+13} y={KITCHEN.y} length={13} label="13 cm" vertical />
+      <Ruler x={KITCHEN.sinkX} y={KITCHEN.y-13} length={KITCHEN.sinkWidth} label="53 cm" />
+      <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
+      <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
+      <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
       <Ruler x={210} y={261} length={140} label="140 cm" />
       <Ruler x={363} y={247} length={57} label="57 cm" vertical />
       <Ruler x={layout.floorX} y={layout.floorY+260} length={200} label="Caucho 200 × 200 cm" />
