@@ -8,24 +8,34 @@ import './ApartmentFloorPlan.css';
  * its y=5 placement remains provisional. Rubber floor: 200 × 200.
  *
  * Rack: https://sdmed.cl/productos/jaula-rack-ws-barbell-stack-rowing-sid-srhsrhd/
- * Photo: https://sdmed.cl/wp-content/uploads/2023/02/1-8.jpg
+ * Photos: https://sdmed.cl/wp-content/uploads/2023/02/1-8.jpg
+ * Side angle: https://sdmed.cl/wp-content/uploads/2023/02/4-8.jpg
  * Published 221.8 × 138.9 × 165.8, without axis labels. Provisional model:
  * width 165.8, depth 138.9, height 221.8. Rear horns ~25 per side, main post
- * centres ±54.4; rear posts 10 from back, main posts 60 from front foot tips.
- * J-hooks/bar 8 ahead of main posts; safeties 50 long. Stored discs assume
+ * centres ±54.4. Side-angle refinement: rear posts ~18 from back, main
+ * posts ~55 from front foot tips; J-hook bar seat ~14 ahead of main posts,
+ * safeties ~48 long. These are rounded visual estimates, not measured cotas.
+ * The near base spans ~319 image pixels; rear-post-to-base-end gap ~40 px
+ * suggests ~17–19 cm setback when scaled to provisional 138.9 cm depth.
+ * Far-side base shows a similar relative setback. Perspective and peg
+ * projection prevent exact reconstruction. Stored discs assume
  * Ø45 and ~20 stack thickness. Four storage levels overlap in top view.
+ * Rear disc overhang is now max(0, 22.5 - 18) ≈4.5 cm, previously 12.5.
+ * Lateral horn/stack lengths cannot be refined from this nearly end-on view.
+ * The published empty-rack envelope remains unchanged; no double counting.
  *
  * Bench: https://sdmed.cl/productos/banco-doble-regulacion-y-soporte-serie-tts-tt1001/
  * Published 137 × 57; flat position not dimensioned. Pad/feet are illustrative.
  * Head end is 25 behind bar; bar length is 220. No ergonomic fit is inferred.
  * Preserved layouts: A floor (10,5), rack (125,105), 0°; B floor (10,10),
  * rack (90,120), 270° (rear toward left/door wall). Initial bench overhang:
- * A 29.45 below floor; B 9.45 right. A floorY=35 covers bare rack + bench.
- * B head offset=35 also covers the bench, but posture needs confirmation.
+ * A 40.45 below floor; B 20.45 right after the revised J-hook position.
+ * Earlier floor-fit conclusions used the superseded bar position; neither
+ * floor coverage nor pressing posture is certified by this drawing.
  * Edit these constants/figures directly for the next iteration.
  */
 const ROOM = { width: 350, depth: 300, doorY: 210, doorWidth: 80 };
-const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -59.45, frontY: 9.45, barY: 17.45 };
+const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
   { id: 'a', title: 'A · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0 },
@@ -49,8 +59,9 @@ function Rack({ turn }: { turn: number }) {
       <rect className="af-rack" x={side*r.postX-5} y={r.depth/2-7} width="10" height="7" />
       <rect x={side < 0 ? -r.width/2 : r.postX} y={r.rearY-2.5} width="28.5" height="5" fill="#718489" />
       {[0, 1, 2].map(i => <rect key={i} x={side < 0 ? -r.width/2+3+i*6.5 : r.postX+4+i*6.5} y={r.rearY-22.5} width="6" height="45" rx="1" fill="#68716d" stroke="#dce4df" strokeWidth=".8" />)}
-      <rect x={side*r.postX-3.5} y={r.frontY} width="7" height="50" fill="#819397" stroke="#344e57" strokeWidth="1" />
-      <path d={`M${side*r.postX-4} ${r.frontY}v10h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
+      <rect x={side*r.postX-3.5} y={r.frontY} width="7" height="48" fill="#819397" stroke="#344e57" strokeWidth="1" />
+      {[r.rearY, r.frontY].map(y => <rect key={y} className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
+      <path d={`M${side*r.postX-4} ${r.frontY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
     </g>)}
     <g data-part="bench">
       {[head+15, head+122].map(y => <rect key={y} x={-BENCH.width/2} y={y} width={BENCH.width} height="7" rx="1" fill="#786260" />)}
@@ -62,6 +73,7 @@ function Rack({ turn }: { turn: number }) {
       <rect x="-110" y={r.barY-1.4} width="220" height="2.8" />
       <rect x="-110" y={r.barY-2.5} width="41" height="5" /><rect x="69" y={r.barY-2.5} width="41" height="5" />
     </g>
+    <Ruler x={-r.postX+13} y={r.rearY} length={18} label="≈18 cm" vertical flip={turn === 270} />
     <Ruler x={-r.width/2} y={-r.depth/2-18} length={r.width} label="Rack ≈165,8 cm" />
     <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
     <Ruler x={-110} y={r.barY-8} length={220} label="Barra 220 cm" at={0.16} />
