@@ -34,7 +34,7 @@ y hora; **grupo horario** reúne registros cercanos. No se pide nombrar comidas.
    Comparar Día plegado, Detalle, Selección y Día vacío; los presets restablecen
    los ejemplos, por lo que conviene probarlos antes de hacer ediciones.
 2. En Alimentos, abrir el grupo 13:00 para revisar macros de tres dígitos,
-   tocar un registro y usar pulsación larga para seleccionar. Comprobar el +
+   tocar un registro y usar «Seleccionar varios» o pulsación larga para seleccionar. Comprobar el +
    independiente del grupo y el detalle nutricional del resumen diario.
 3. Desde un + de grupo, entrar a Agregar alimento. Probar búsqueda y filtro de
    biblioteca; después Etiquetas con un ejemplo o valores propios de prueba.
@@ -52,10 +52,31 @@ y hora; **grupo horario** reúne registros cercanos. No se pide nombrar comidas.
    conservan durante la instancia. Revisar espacios, truncamientos y controles
    táctiles en cada pantalla, incluidos los formularios.
 
-La aprobación visual y de interacción sigue pendiente de revisión en un
-dispositivo/navegador utilizable. CI valida empaquetado y TypeScript/build;
+La inspección visual en navegador a 375/390px informa esta iteración; la
+aprobación del usuario y la comodidad táctil en un dispositivo siguen pendientes. CI valida empaquetado y TypeScript/build;
 los checks de fechas, búsqueda, formularios y render del run no sustituyen esa
 revisión. El PR debe recoger los hallazgos antes de dar por aceptada la propuesta.
+
+## Ajustes de la revisión de diseño · 19 oct 2026
+
+- Lectura: nombre de alimento de 14px, porción/hora/macros de 12px; se mantienen
+  dos líneas, metas compactas y truncamiento accesible de textos largos.
+- Etiquetas: primero los datos del envase, después el consumo; borrador conservado
+  al alternar pestañas y acción de registro fuera del área de desplazamiento.
+- Bibliotecas: chevron para elegir y check al seleccionar; la cantidad se confirma
+  antes de registrar, con la misma jerarquía de acción que los otros formularios.
+- Resumen: controles de período estables a ambos anchos, selector de fecha junto
+  al valor del gráfico y enlace al registro junto a su leyenda.
+- Selección: acceso «Seleccionar varios» en el detalle, además del gesto;
+  acciones de al menos 44px, sin barra persistente en el registro normal.
+- Mediciones: campos desplazables y Guardar/Cancelar visibles al pie; se retira
+  del flujo el texto sobre implementación y funcionamiento del prototipo.
+
+La revisión también detectó transiciones relacionadas: pulsar largo conserva la
+selección acumulada; Día vacío usa otra fecha y no borra registros; cada curva
+corporal conecta sus propios puntos aunque el otro lado se mida en otra fecha;
+las flechas del mes respetan los límites del selector. Los faltantes de
+alimentación siguen interrumpiendo sus curvas.
 
 ## Límites de esta entrega
 
@@ -110,8 +131,9 @@ hipótesis de UX para revisión visual, no fallos demostrados por estos tests.
   cancel/move/delete actions. Group check controls select or deselect all foods.
 
 Changing the review preset restores its original example data. A separate reset
-control does the same while retaining the current app destination. The empty-day toggle exposes the selected day's empty
-layout. Date controls show partial example intake on October 5, 7 and 8,
+control does the same while retaining the current app destination. The empty-day
+toggle navigates to a genuinely empty example date after the reference day; it
+does not mask or replace existing records. Date controls show partial example intake on October 5, 7 and 8,
 initially empty days on October 6, 10 and 11, and the populated reference day,
 2026-10-09. Adding, moving, editing and deleting operate within the selected
 day; navigating preserves each day's in-memory changes. The reference day is
@@ -155,8 +177,8 @@ Each food uses a fixed neutral image symbol and two content lines:
 2. Quantity, exact time and an inline protein/carbohydrate/fat summary in grams.
 
 Macro values stay together with subtle dot separators and tabular numerals;
-short fixed-width value fields accommodate three digits without spreading the
-labels across the card. Group macros align below the energy subtotal. Food
+intrinsic-width values accommodate three digits without spreading the labels
+across the card. Group macros align below the energy subtotal. Food
 macros take their intrinsic compact width, with portion text yielding first
 when space is tight. The illustrative rice
 portion contains 107g carbs to exercise three-digit values in expanded and
@@ -171,7 +193,9 @@ decision. No manual meal naming or food categorization is introduced.
 Tap a food to edit its time and numeric quantity/unit. Portion ratios convert
 units to g/ml; consumption is recalculated from the unchanged historical
 nutritionPer100 snapshot. A free-text amount is not a consumption model. Hold
-for 550 ms to select (Shift+Enter or Shift+Space with keyboard focus). The list
+for 550 ms to select (Shift+Enter or Shift+Space with keyboard focus), or choose
+«Seleccionar varios» from the edit detail. Holds toggle one item when selection
+is already active. The list
 has no permanent food/group count or selection toolbar; count and actions appear
 only during selection. Moving/deleting and
 adding a sample food affect only this instance in memory; reset reloads samples.
@@ -191,7 +215,8 @@ Weight is one kg value per day, prefilled for editing. Values are 1–500 kg in
 0.1 kg steps, with no future date according to America/Santiago (the actual
 current local date, independent of the fixed sample reference day). Body sessions contain
 optional cm values for waist, hips, chest, neck, paired arms, thighs and calves.
-Left and right inputs appear together. Changing the form date loads the values
+Left and right inputs appear together. Save/Cancel remain visible below the
+scrollable fields, so a partial session can be saved without traversing other zones. Changing the form date loads the values
 for that date; saving upserts the day's session. Blank fields are absent, rather
 than zero; clearing an existing field removes that value from that date. An
 expandable latest-by-zone list includes each zone's own last measurement date.
@@ -216,7 +241,8 @@ The chart labels and axes preserve units and dates. Grayscale line patterns
 distinguish series for this diagramming iteration.
 
 Tap a chart to inspect the nearest recorded date; arrow keys and a date selector
-provide equivalent navigation. A link beneath each plot opens that date in
+provide equivalent navigation. The date selector appears alongside its values, without a second repeated date
+control. A compact link alongside the legend opens the selected date in
 Alimentos or the appropriate Peso/Medidas calendar, where it can be edited.
 Returning to Resumen preserves its area, period, end date and body metric.
 
@@ -260,7 +286,10 @@ to its food group. No external libraries or catalogues are accessed.
 Etiquetas captures a food name, canonical g/ml unit, numeric consumption and
 nutrition values per 100 or per a portion with an explicit size. Portion-based
 label values normalize to nutritionPer100; the consumed amount is calculated
-from enteredQuantity and the portion ratio. Fiber is optional: absent stays
+from enteredQuantity and the portion ratio. The form separates «Datos de la
+etiqueta» (base, portion size, nutrients) from «Tu consumo» (quantity, equivalence,
+preview). The registration action stays visible; the draft survives tab changes.
+Fiber is optional: absent stays
 absent, while an explicit zero remains zero. The day detail shows unknown fiber
 as “Sin datos” or identifies the known subtotal as partial. No QR, camera or OCR
 is used.

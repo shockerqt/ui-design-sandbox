@@ -6,6 +6,7 @@ import { App } from '../src/App';
 import { foodFromLabel, searchExampleFoods } from '../src/mockups/BalanceFoodRegistration';
 import type { LabelDraft } from '../src/mockups/BalanceFoodRegistration';
 import { fiberTotal, foodWithQuantity, groupFoodsByHour, hourGroup, makeFixtureFood, santiagoDate, validWeight } from '../src/mockups/BalanceFoodModel';
+import { SummaryView } from '../src/mockups/BalanceMeasurementViews';
 
 const label: LabelDraft = { name: 'Yogur', unit: 'g', basis: 'portion', portionName: 'envase', portionSize: '150', quantity: '2', calories: '95', protein: '15', carbs: '6', fat: '1', fiber: '' };
 const yogurt = foodFromLabel(label)!;
@@ -69,7 +70,20 @@ const labelHTML = route('/m/balance-log-wireframes/agregar-alimento?modo=labels'
 const fiberInput = labelHTML.match(/Fibra \(g\).*?<input[^>]*>/s)![0];
 assert.doesNotMatch(fiberInput, /required/);
 assert.match(labelHTML, /Por 100 g/);
+assert.ok(labelHTML.indexOf('Datos de la etiqueta') < labelHTML.indexOf('Tu consumo'));
+assert.ok(labelHTML.indexOf('Grasas (g)') < labelHTML.indexOf('Cantidad consumida'));
 assert.doesNotMatch(labelHTML, /blw-dialog-backdrop|blw-bottom-nav/);
+
+// A measurement of the opposite side must not interrupt a body's own series.
+const summary = (body: Parameters<typeof SummaryView>[0]['body'], nutrition: Parameters<typeof SummaryView>[0]['nutrition'] = []) => render(h(SummaryView, {
+  body, nutrition, weights: {}, options: { area: nutrition.length ? 'nutrition' : 'body', period: 90, metric: 'Brazos', endDay: 0 },
+  onOptions() {}, onOpenFoods() {}, onOpenMeasurements() {},
+}));
+const arms = summary({ [-12]: { armLeft: 31 }, [-8]: { armRight: 32 }, [0]: { armLeft: 32 } });
+assert.equal((arms.match(/class="blw-chart-line"/g) ?? []).length, 1);
+// Sparse nutrition dates still show a gap instead of suggesting continuous intake.
+const sparseIntake = summary({}, [-2, 0].map((day) => ({ day, calories: 2000, protein: 100, carbs: 200, fat: 60 })));
+assert.equal((sparseIntake.match(/class="blw-chart-line"/g) ?? []).length, 0);
 assert.doesNotMatch(route('/m/balance-log-wireframes'), /NaN|Infinity/);
 assert.match(route('/m/base-ui-color-system/agregar-alimento'), /Esta ruta no corresponde/);
 console.log('Balance wireframe contracts: quantity conversion/recalculation, optional fiber, official catalogue, Santiago weight dates, midnight ordering and routed form checks pass.');

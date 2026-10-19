@@ -1,6 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Tabs } from '@base-ui/react/tabs';
-import { ArrowLeft, Check, FileText, Image, Plus, Search } from 'lucide-react';
+import { ArrowLeft, Check, ChevronRight, Image, Search } from 'lucide-react';
 import { dayISO, dayOffset } from './BalanceMeasurementViews';
 import { foodWithQuantity, formatFoodNumber, makeFixtureFood, quantityDraftFor, scaleFixtureNutrition } from './BalanceFoodModel';
 import type { CanonicalUnit, Food, QuantityDraft } from './BalanceFoodModel';
@@ -49,11 +49,11 @@ export function foodFromLabel(draft: LabelDraft): Food | null {
   return Object.values(base).every((value) => Number.isFinite(value * (food.canonicalQuantity / 100))) ? food : null;
 }
 
-function NutritionLabelForm({ onAdd }: { onAdd: (food: Food) => void }) {
-  const [draft, setDraft] = useState<LabelDraft>({ name: '', unit: 'g', basis: 'per100', portionName: '', portionSize: '', quantity: '', calories: '', protein: '', carbs: '', fat: '', fiber: '' });
+function NutritionLabelForm({ id, draft, setDraft, onAdd }: { id: string; draft: LabelDraft; setDraft: (draft: LabelDraft) => void; onAdd: (food: Food) => void }) {
   const preview = foodFromLabel(draft);
-  return <form className="blw-label-form" onSubmit={(event) => { event.preventDefault(); if (preview) onAdd(preview); }}>
-    <div className="blw-label-intro"><FileText size={24} strokeWidth={1.3} aria-hidden="true" /><div><h3>Desde una etiqueta nutricional</h3><p>Transcribe por 100 g/ml o por porción y elige cuánto consumiste.</p></div></div>
+  return <form id={id} className="blw-label-form" onSubmit={(event) => { event.preventDefault(); if (preview) onAdd(preview); }}>
+    <section className="blw-label-section" aria-label="Datos de la etiqueta">
+    <h3>Datos de la etiqueta</h3><p>Copia los valores tal como aparecen en el envase.</p>
     <button type="button" className="blw-label-example" onClick={() => setDraft({ name: 'Yogur natural', unit: 'g', basis: 'portion', portionName: 'envase', portionSize: '150', quantity: '1', calories: '95', protein: '15', carbs: '6', fat: '1', fiber: '' })}>Usar etiqueta de ejemplo</button>
     <label className="blw-field">Nombre del alimento<input required maxLength={120} value={draft.name} placeholder="Nombre del producto" onChange={(event) => setDraft({ ...draft, name: event.target.value })} /></label>
     <div className="blw-quantity-fields">
@@ -61,10 +61,13 @@ function NutritionLabelForm({ onAdd }: { onAdd: (food: Food) => void }) {
       <label className="blw-field">Valores indicados<select value={draft.basis} onChange={(event) => setDraft({ ...draft, basis: event.target.value as LabelDraft['basis'] })}><option value="per100">Por 100 {draft.unit}</option><option value="portion">Por porción</option></select></label>
     </div>
     {draft.basis === 'portion' && <div className="blw-quantity-fields"><label className="blw-field">Nombre de porción<input value={draft.portionName} placeholder="Ej. envase" onChange={(event) => setDraft({ ...draft, portionName: event.target.value })} /></label><label className="blw-field">Tamaño ({draft.unit})<input type="number" required min="0" step="any" value={draft.portionSize} onChange={(event) => setDraft({ ...draft, portionSize: event.target.value })} /></label></div>}
-    <label className="blw-field">Cantidad consumida ({draft.basis === 'portion' ? 'porciones' : draft.unit})<input type="number" required min="0" step="any" value={draft.quantity} onChange={(event) => setDraft({ ...draft, quantity: event.target.value })} /></label>
     <fieldset className="blw-label-nutrients"><legend>{draft.basis === 'portion' ? 'Información por porción' : `Información por 100 ${draft.unit}`}</legend>{LABEL_NUTRIENTS.map(([key, label, unit]) => <label className="blw-field" key={key}>{label} ({unit}){key === 'fiber' ? ' · opcional' : ''}<input type="number" inputMode="decimal" required={key !== 'fiber'} min="0" step="any" value={draft[key]} onChange={(event) => setDraft({ ...draft, [key]: event.target.value })} /></label>)}</fieldset>
+    </section>
+    <section className="blw-label-section blw-label-consumption" aria-label="Tu consumo"><h3>Tu consumo</h3><p>Indica cuánto consumiste de este alimento.</p>
+    <label className="blw-field">Cantidad consumida ({draft.basis === 'portion' ? 'porciones' : draft.unit})<input type="number" inputMode="decimal" required min="0" step="any" value={draft.quantity} onChange={(event) => setDraft({ ...draft, quantity: event.target.value })} /></label>
+    {draft.basis === 'portion' && Number(draft.portionSize) > 0 && <p className="blw-quantity-equivalence">1 {draft.portionName.trim() || 'porción'} = {formatFoodNumber(Number(draft.portionSize))} {draft.unit}</p>}
     {preview && <p className="blw-snapshot">Consumo: {formatFoodNumber(preview.calories)} kcal · P {formatFoodNumber(preview.protein)} g · C {formatFoodNumber(preview.carbs)} g · G {formatFoodNumber(preview.fat)} g<br /><small>{formatFoodNumber(preview.canonicalQuantity)} {draft.unit} · Fibra: {preview.fiber === undefined ? 'Sin datos' : `${formatFoodNumber(preview.fiber)} g`}</small></p>}
-    <button className="blw-label-register" type="submit" disabled={!preview}>Registrar alimento</button>
+    </section>
   </form>;
 }
 
@@ -76,6 +79,9 @@ export function FoodRegistrationView({ foods, context, onContext, onBack, onAdd 
   const [library, setLibrary] = useState('all');
   const [chosen, setChosen] = useState<Food | null>(null);
   const [quantity, setQuantity] = useState<QuantityDraft>({ quantity: '', unit: 'canonical' });
+  const [labelDraft, setLabelDraft] = useState<LabelDraft>({ name: '', unit: 'g', basis: 'per100', portionName: '', portionSize: '', quantity: '', calories: '', protein: '', carbs: '', fat: '', fiber: '' });
+  const labelFormId = useId();
+  const labelPreview = foodFromLabel(labelDraft);
   const selectedFood = chosen ? foodWithQuantity(chosen, quantity) : null;
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
@@ -93,13 +99,14 @@ export function FoodRegistrationView({ foods, context, onContext, onBack, onAdd 
           <label className="blw-library-filter">Biblioteca<select value={library} onChange={(event) => setLibrary(event.target.value)}><option value="all">Todas</option><option value="personal">Mi biblioteca</option><option value="official">Oficial</option></select></label>
         </div>
         <div className="blw-library-results" aria-label="Alimentos de las bibliotecas">{filtered.map((food) => <button className="blw-library-food" key={food.id} aria-pressed={chosen?.id === food.id} onClick={() => { setChosen(chosen?.id === food.id ? null : food); setQuantity(quantityDraftFor(food)); }}>
-          <span className="blw-image" aria-hidden="true"><Image size={18} strokeWidth={1.2} /></span><span className="blw-library-food-name"><strong title={food.name}>{food.name}</strong><small title={`${food.portion} · ${libraryLabel(food)}`}>{food.portion} · {libraryLabel(food)}</small></span><span className="blw-library-food-kcal">{formatFoodNumber(food.calories)}<small> kcal</small></span>{chosen?.id === food.id ? <Check size={16} aria-hidden="true" /> : <Plus size={16} aria-hidden="true" />}
+          <span className="blw-image" aria-hidden="true"><Image size={18} strokeWidth={1.2} /></span><span className="blw-library-food-name"><strong title={food.name}>{food.name}</strong><small title={`${food.portion} · ${libraryLabel(food)}`}>{food.portion} · {libraryLabel(food)}</small></span><span className="blw-library-food-kcal">{formatFoodNumber(food.calories)}<small> kcal</small></span>{chosen?.id === food.id ? <Check size={18} aria-label="Seleccionado" /> : <ChevronRight size={18} aria-hidden="true" />}
         </button>)}</div>
         {!filtered.length && <div className="blw-measurement-empty blw-library-empty"><p>No encontramos alimentos.</p><span>Prueba otro nombre o biblioteca.</span></div>}
       </Tabs.Panel>
-      <Tabs.Panel value="labels" className="blw-add-panel"><NutritionLabelForm onAdd={onAdd} /></Tabs.Panel>
+      <Tabs.Panel value="labels" className="blw-add-panel"><NutritionLabelForm id={labelFormId} draft={labelDraft} setDraft={setLabelDraft} onAdd={onAdd} /></Tabs.Panel>
     </Tabs.Root>
     {chosen && context.method === 'libraries' && <footer className="blw-add-confirm"><div><strong>{chosen.name}</strong><FoodQuantityFields food={chosen} draft={quantity} onChange={setQuantity} />{selectedFood && <small>{formatFoodNumber(selectedFood.calories)} kcal · P {formatFoodNumber(selectedFood.protein)} g · C {formatFoodNumber(selectedFood.carbs)} g · G {formatFoodNumber(selectedFood.fat)} g</small>}</div><button disabled={!selectedFood} onClick={() => { if (selectedFood) onAdd(selectedFood); }}>Registrar alimento</button></footer>}
+    {context.method === 'labels' && <footer className="blw-add-confirm blw-label-confirm"><span>{labelPreview ? `${formatFoodNumber(labelPreview.canonicalQuantity)} ${labelDraft.unit} · ${formatFoodNumber(labelPreview.calories)} kcal` : 'Completa la etiqueta y tu consumo'}</span><button type="submit" form={labelFormId} disabled={!labelPreview}>Registrar alimento</button></footer>}
 
   </>;
 }

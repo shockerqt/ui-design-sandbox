@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useId, useMemo, useRef, useState } from 'react';
 import { Accordion } from '@base-ui/react/accordion';
 import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
@@ -111,7 +111,7 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
       if (!event.isPrimary || event.button !== 0) return;
       origin.current = { x: event.clientX, y: event.clientY };
       cancelHold();
-      timer.current = setTimeout(() => { held.current = true; onStartSelection(); }, 550);
+      timer.current = setTimeout(() => { held.current = true; selectionMode ? onSelect() : onStartSelection(); }, 550);
     }}
     onPointerMove={(event) => { if (Math.hypot(event.clientX - origin.current.x, event.clientY - origin.current.y) > 8) cancelHold(); }}
     onPointerUp={cancelHold} onPointerCancel={cancelHold}
@@ -152,14 +152,15 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
   const [announcement, setAnnouncement] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
   const nextId = useRef(0);
-  const activeFoods = emptyDay ? [] : foodsByDay[offset] ?? [];
+  const editFormId = useId();
+  const activeFoods = foodsByDay[offset] ?? [];
   const dailyCalories = sum(activeFoods, 'calories');
   const dailyFiber = fiberTotal(activeFoods);
   const editedFood = sheet?.kind === 'edit' ? foodWithQuantity(sheet.food, quantityDraft) : null;
   const dailyProgress = Math.round(dailyCalories / CALORIE_TARGET * 100);
   const weekStart = offset - ((new Date(`${dayISO(offset)}T00:00:00Z`).getUTCDay() + 6) % 7);
   const updateFoods = (update: (foods: Food[]) => Food[]) =>
-    setFoodsByDay((previous) => ({ ...previous, [offset]: update(emptyDay ? [] : previous[offset] ?? []) }));
+    setFoodsByDay((previous) => ({ ...previous, [offset]: update(previous[offset] ?? []) }));
   const groups = useMemo(() => groupFoodsByHour(activeFoods), [activeFoods]);
   const exitSelection = () => { setSelectionMode(false); setSelected(new Set()); };
   const changePage = (next: AppPage) => { if (addingFood) navigate(BALANCE_WIREFRAME_PATH, { replace: true }); setPage(next); exitSelection(); setAnnouncement(''); };
@@ -207,12 +208,12 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     const day = dayOffset(weightDate);
     setWeightsByDay((previous) => ({ ...previous, [day]: weight }));
     setDate(day);
-    finishAction('Peso de ejemplo guardado para el día seleccionado.');
+    finishAction('Peso guardado para el día seleccionado.');
   };
   const saveBody = (day: number, values: BodyValues) => {
     setBodyByDay((previous) => ({ ...previous, [day]: values }));
     setDate(day);
-    finishAction('Medidas de ejemplo guardadas para el día seleccionado.');
+    finishAction('Medidas guardadas para el día seleccionado.');
   };
   const openRecords = (day: number, destination: AppPage, kind?: MeasurementKind) => {
     setDate(day); setPage(destination);
@@ -222,19 +223,19 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
     if (sheet?.kind !== 'edit' || !editedFood) return;
     updateFoods((previous) => previous.map((food) => food.id === sheet.food.id ? { ...editedFood, time } : food));
     setOpened((previous) => [...new Set([...previous, hourGroup(time)])]);
-    finishAction('Registro actualizado. Consumo recalculado desde la base nutricional histórica.');
+    finishAction('Registro actualizado.');
   };
   const moveSelected = () => {
     updateFoods((previous) => previous.map((food) => selected.has(food.id) ? { ...food, time } : food));
-    setOpened([hourGroup(time)]); exitSelection(); finishAction('Registros de ejemplo movidos.');
+    setOpened([hourGroup(time)]); exitSelection(); finishAction('Registros movidos.');
   };
   const deleteSelected = () => {
-    updateFoods((previous) => previous.filter((food) => !selected.has(food.id))); exitSelection(); finishAction('Registros de ejemplo eliminados.');
+    updateFoods((previous) => previous.filter((food) => !selected.has(food.id))); exitSelection(); finishAction('Registros eliminados.');
   };
   const addExample = (food: Food) => {
     const id = `example-${Date.now()}-${nextId.current++}`;
     const { day, time: hour } = foodContext;
-    setFoodsByDay((previous) => ({ ...previous, [day]: [...(emptyDay && day === offset ? [] : previous[day] ?? []), { ...food, id, time: hour }] }));
+    setFoodsByDay((previous) => ({ ...previous, [day]: [...(previous[day] ?? []), { ...food, id, time: hour }] }));
     setOffset(day); setPage('foods'); setEmptyDay(false); setOpened([hourGroup(hour)]);
     finishAction(`${food.name} agregado al día seleccionado.`);
     closeAddFood();
@@ -252,7 +253,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         </Tabs.List>
       </Tabs.Root>}
       <div className="blw-options">
-        {page === 'foods' && !addingFood && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { setEmptyDay(event.target.checked); exitSelection(); }} /> Día vacío</label>}
+        {page === 'foods' && !addingFood && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { let day = 0; if (event.target.checked) { day = 1; while (foodsByDay[day]?.length) day++; } setDate(day); setEmptyDay(event.target.checked); }} /> Día vacío</label>}
         <button onClick={() => { changeView('day'); setPage(page); }}>Restablecer ejemplo</button>
       </div>
       <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p><strong>Agregar alimento.</strong> Ruta propia con Bibliotecas y Etiquetas. En Etiquetas, completa la información nutricional por porción o usa el ejemplo para registrar un alimento.</p><p><strong>Perfil.</strong> Primera anatomía de cuenta, unidades actuales y preferencias. Los recordatorios son controles de ejemplo; no envían notificaciones.</p><p>El + compartido queda al centro y permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
@@ -264,7 +265,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
         {page === 'foods' && <><header className="blw-date">
           <div className="blw-date-main"><button aria-label="Día anterior" onClick={() => setDate(offset - 1)}><ChevronLeft size={20} /></button><span><strong>{offset === 0 ? 'Hoy' : dateLabel(offset)}</strong><small>{dateLabel(offset)} de {dayISO(offset).slice(0, 4)}</small></span><button aria-label="Día siguiente" onClick={() => setDate(offset + 1)}><ChevronRight size={20} /></button></div>
           <div className="blw-week" aria-label="Elegir día y consultar kcal registradas">{Array.from({ length: 7 }, (_, i) => weekStart + i).map((dayOffset, i) => {
-            const dayFoods = emptyDay && offset === dayOffset ? [] : foodsByDay[dayOffset] ?? [];
+            const dayFoods = foodsByDay[dayOffset] ?? [];
             const calories = sum(dayFoods, 'calories');
             const progress = Math.round(calories / CALORIE_TARGET * 100);
             const ratio = calories / CALORIE_TARGET;
@@ -303,7 +304,7 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
           {announcement && <p className="blw-announcement" role="status">{announcement}</p>}
         </div></>}
         {page === 'measurements' && <MeasurementView offset={offset} onDate={setDate} kind={measurementKind} onKind={setMeasurementKind} weights={weightsByDay} body={bodyByDay} onRegister={(kind) => openSheet({ kind })} />}
-        {page === 'summary' && <SummaryView nutrition={Object.entries(foodsByDay).filter(([day, foods]) => foods.length > 0 && !(emptyDay && Number(day) === offset)).map(([day, foods]) => ({ day: Number(day), calories: sum(foods, 'calories'), protein: sum(foods, 'protein'), carbs: sum(foods, 'carbs'), fat: sum(foods, 'fat') }))} weights={weightsByDay} body={bodyByDay} options={summaryOptions} onOptions={setSummaryOptions} onOpenFoods={(day) => openRecords(day, 'foods')} onOpenMeasurements={(day, kind) => openRecords(day, 'measurements', kind)} />}
+        {page === 'summary' && <SummaryView nutrition={Object.entries(foodsByDay).filter(([, foods]) => foods.length > 0).map(([day, foods]) => ({ day: Number(day), calories: sum(foods, 'calories'), protein: sum(foods, 'protein'), carbs: sum(foods, 'carbs'), fat: sum(foods, 'fat') }))} weights={weightsByDay} body={bodyByDay} options={summaryOptions} onOptions={setSummaryOptions} onOpenFoods={(day) => openRecords(day, 'foods')} onOpenMeasurements={(day, kind) => openRecords(day, 'measurements', kind)} />}
         {page === 'profile' && <ProfileView preferences={profilePreferences} onChange={setProfilePreferences} />}
         {page !== 'foods' && announcement && <p className="blw-announcement" role="status">{announcement}</p>}
         {selectionMode ? <div className="blw-action" aria-label="Acciones de selección">
@@ -321,9 +322,12 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
 
     <Dialog.Root open={sheet !== null} onOpenChange={(open) => { if (!open) setSheet(null); }}>
       <Dialog.Portal><Dialog.Backdrop className="blw-dialog-backdrop" /><Dialog.Popup className={`blw-dialog${sheet?.kind === 'register' || sheet?.kind === 'weight' || sheet?.kind === 'body' || sheet?.kind === 'nutrition' ? ' blw-registration-sheet' : ''}`}>
-        <Dialog.Title>{sheet?.kind === 'nutrition' ? 'Detalle nutricional del día' : sheet?.kind === 'edit' ? sheet.food.name : sheet?.kind === 'register' ? 'Registrar' : sheet?.kind === 'body' ? 'Registrar medidas corporales' : sheet?.kind === 'weight' ? 'Registrar peso' : sheet?.kind === 'move' ? 'Mover de hora' : 'Eliminar registros'}</Dialog.Title>
-        <Dialog.Description>{sheet?.kind === 'nutrition' ? `${dateLabel(offset)} · Consumido / meta. Metas ilustrativas para esta revisión.` : 'Prototipo con datos de ejemplo. Los cambios se conservan solo mientras revisas esta pantalla.'}</Dialog.Description>
-        {sheet?.kind === 'register' && <p className="blw-registration-date">Para {offset === 0 ? `hoy · ${dateLabel(offset)}` : dateLabel(offset)}</p>}
+        <div className="blw-dialog-heading">
+          <Dialog.Title>{sheet?.kind === 'nutrition' ? 'Detalle nutricional del día' : sheet?.kind === 'edit' ? sheet.food.name : sheet?.kind === 'register' ? 'Registrar' : sheet?.kind === 'body' ? 'Registrar medidas corporales' : sheet?.kind === 'weight' ? 'Registrar peso' : sheet?.kind === 'move' ? 'Mover de hora' : 'Eliminar registros'}</Dialog.Title>
+          <Dialog.Description>{sheet?.kind === 'nutrition' ? `${dateLabel(offset)} · Consumido / meta` : sheet?.kind === 'edit' ? 'Ajusta la cantidad y la hora de este registro.' : sheet?.kind === 'body' ? 'Completa solo las zonas que mediste, en centímetros.' : sheet?.kind === 'weight' ? 'Registra un peso para la fecha elegida.' : sheet?.kind === 'move' ? 'Elige una nueva hora para los registros seleccionados.' : sheet?.kind === 'delete' ? 'Los registros se quitarán del día seleccionado.' : `Para ${dateLabel(offset)} de ${dayISO(offset).slice(0, 4)}`}</Dialog.Description>
+        </div>
+        {sheet?.kind === 'body' ? <BodyMeasurementForm offset={offset} body={bodyByDay} onSave={saveBody} onCancel={() => setSheet(null)} /> : <>
+        <div className="blw-dialog-content">
         {sheet?.kind === 'nutrition' ? <>
           <dl className="blw-nutrition-details">
             <div><dt>Energía</dt><dd><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</dd></div>
@@ -335,17 +339,26 @@ export function BalanceLogWireframes({ initialPage = 'foods' }: { initialPage?: 
           <button onClick={() => openAddFood('13:00')}><Utensils size={22} aria-hidden="true" /><span><strong>Alimento</strong><small>Buscar y registrar</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           <button onClick={() => openSheet({ kind: 'weight' })}><Scale size={22} aria-hidden="true" /><span><strong>Peso</strong><small>Anotar el peso del día</small></span><ChevronRight size={18} aria-hidden="true" /></button>
           <button onClick={() => openSheet({ kind: 'body' })}><MeasurementIcon size={22} aria-hidden="true" /><span><strong>Medidas corporales</strong><small>Registrar las zonas que mediste</small></span><ChevronRight size={18} aria-hidden="true" /></button>
-        </div> : sheet?.kind === 'body' ? <BodyMeasurementForm offset={offset} body={bodyByDay} onSave={saveBody} /> : sheet?.kind === 'weight' ? <form onSubmit={(event) => { event.preventDefault(); saveWeight(); }}>
+        </div> : sheet?.kind === 'weight' ? <form id={editFormId} onSubmit={(event) => { event.preventDefault(); saveWeight(); }}>
           <label className="blw-field">Fecha<input type="date" required min="2000-01-01" max={santiagoDate()} value={weightDate} onChange={(event) => { setWeightDate(event.target.value); if (event.target.value) setWeight(weightsByDay[dayOffset(event.target.value)] ?? ''); }} /></label>
           <label className="blw-field">Peso en kg<input type="number" inputMode="decimal" min="1" max="500" step="0.1" required value={weight} placeholder="72,4" onChange={(event) => setWeight(event.target.value)} /></label>
-          <small>Entre 1 y 500 kg · paso 0,1 · fecha de Santiago.</small>{weightError && <p role="alert">{weightError}</p>}<button className="blw-sheet-primary" type="submit">Guardar peso</button>
-        </form> : sheet?.kind === 'delete' ? <><p>¿Eliminar {selected.size} registros del ejemplo?</p><button className="blw-sheet-primary" onClick={deleteSelected}>Eliminar seleccionados</button></> :
-          <form onSubmit={(event) => { event.preventDefault(); if (sheet?.kind === 'edit') saveEdit(); if (sheet?.kind === 'move') moveSelected(); }}>
+          <small>Entre 1 y 500 kg, en pasos de 0,1.</small>{weightError && <p role="alert">{weightError}</p>}
+        </form> : sheet?.kind === 'delete' ? <p>¿Eliminar {selected.size} registros?</p> :
+          <form id={editFormId} onSubmit={(event) => { event.preventDefault(); if (sheet?.kind === 'edit') saveEdit(); if (sheet?.kind === 'move') moveSelected(); }}>
             <label className="blw-field">Hora<input type="time" value={time} required onChange={(event) => setTime(event.target.value)} /></label>
-            {sheet?.kind === 'edit' && <><FoodQuantityFields food={sheet.food} draft={quantityDraft} onChange={setQuantityDraft} />{editedFood && <p className="blw-snapshot">{format(editedFood.calories)} kcal · P {format(editedFood.protein)} g · C {format(editedFood.carbs)} g · G {format(editedFood.fat)} g<br /><small>Consumo recalculado; se conserva la base nutricional histórica por 100 {sheet.food.nutritionSnapshot.canonicalUnit}.</small></p>}<button className="blw-sheet-primary" type="submit" disabled={!editedFood}>Guardar registro</button></>}
-            {sheet?.kind === 'move' && <><p>{selected.size} registros seleccionados, dentro del mismo día.</p><button className="blw-sheet-primary" type="submit">Mover a las {time}</button></>}
+            {sheet?.kind === 'edit' && <><FoodQuantityFields food={sheet.food} draft={quantityDraft} onChange={setQuantityDraft} />{editedFood && <p className="blw-snapshot">{format(editedFood.calories)} kcal · P {format(editedFood.protein)} g · C {format(editedFood.carbs)} g · G {format(editedFood.fat)} g<br /><small>{format(editedFood.canonicalQuantity)} {sheet.food.nutritionSnapshot.canonicalUnit} consumidos</small></p>}</>}
+            {sheet?.kind === 'move' && <p>{selected.size} registros seleccionados, dentro del mismo día.</p>}
           </form>}
-        <Dialog.Close className="blw-sheet-close">Cerrar</Dialog.Close>
+        </div>
+        {sheet?.kind === 'edit' && <button type="button" className="blw-select-multiple" onClick={() => { startSelection([sheet.food.id]); setSheet(null); }}>Seleccionar varios</button>}
+        <footer className="blw-form-actions">
+          <Dialog.Close className="blw-sheet-close">{sheet?.kind === 'nutrition' || sheet?.kind === 'register' ? 'Cerrar' : 'Cancelar'}</Dialog.Close>
+          {sheet?.kind === 'weight' && <button className="blw-sheet-primary" type="submit" form={editFormId}>Guardar peso</button>}
+          {sheet?.kind === 'edit' && <button className="blw-sheet-primary" type="submit" form={editFormId} disabled={!editedFood}>Guardar registro</button>}
+          {sheet?.kind === 'move' && <button className="blw-sheet-primary" type="submit" form={editFormId}>Mover a las {time}</button>}
+          {sheet?.kind === 'delete' && <button className="blw-sheet-primary" onClick={deleteSelected}>Eliminar seleccionados</button>}
+        </footer>
+        </>}
       </Dialog.Popup></Dialog.Portal>
     </Dialog.Root>
   </div></div>;

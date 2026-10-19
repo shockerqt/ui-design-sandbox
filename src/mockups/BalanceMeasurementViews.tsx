@@ -66,6 +66,7 @@ export function MeasurementView({ offset, onDate, kind, onKind, weights, body, o
   const moveMonth = (direction: number) => {
     const date = new Date(`${month}-01T00:00:00Z`);
     date.setUTCMonth(date.getUTCMonth() + direction);
+    if (date.toISOString().slice(0, 7) < '2000-01' || date.toISOString().slice(0, 7) > '2100-12') return;
     setMonth(date.toISOString().slice(0, 7));
     onDate(dayOffset(date.toISOString().slice(0, 10)));
   };
@@ -76,9 +77,9 @@ export function MeasurementView({ offset, onDate, kind, onKind, weights, body, o
     <div className="blw-feed blw-measurement-feed">
       <section className="blw-calendar" aria-label="Calendario mensual de mediciones">
         <div className="blw-month-navigation">
-          <button aria-label="Mes anterior" onClick={() => moveMonth(-1)}><ChevronLeft size={19} /></button>
+          <button aria-label="Mes anterior" disabled={month === '2000-01'} onClick={() => moveMonth(-1)}><ChevronLeft size={19} /></button>
           <label className="blw-month-picker"><span>{monthTitle}<ChevronDownMark /></span><input type="month" aria-label="Elegir mes y año" value={month} min="2000-01" max="2100-12" onClick={(event) => { try { event.currentTarget.showPicker?.(); } catch { /* Native field remains usable if a picker is unavailable. */ } }} onChange={(event) => { if (event.target.value) { setMonth(event.target.value); onDate(dayOffset(`${event.target.value}-01`)); } }} /></label>
-          <button aria-label="Mes siguiente" onClick={() => moveMonth(1)}><ChevronRight size={19} /></button>
+          <button aria-label="Mes siguiente" disabled={month === '2100-12'} onClick={() => moveMonth(1)}><ChevronRight size={19} /></button>
         </div>
         <div className="blw-month-grid">
           {['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((label, i) => <span className="blw-month-weekday" key={`weekday-${i}`} aria-hidden="true">{label}</span>)}
@@ -105,24 +106,26 @@ export function MeasurementView({ offset, onDate, kind, onKind, weights, body, o
 
 function ChevronDownMark() { return <span aria-hidden="true">⌄</span>; }
 
-export function BodyMeasurementForm({ offset, body, onSave }: { offset: number; body: BodyByDay; onSave: (day: number, values: BodyValues) => void }) {
+export function BodyMeasurementForm({ offset, body, onSave, onCancel }: { offset: number; body: BodyByDay; onSave: (day: number, values: BodyValues) => void; onCancel: () => void }) {
   const [date, setDate] = useState(dayISO(offset));
   const valuesFor = (day: number) => Object.fromEntries(BODY_FIELDS.map(([key]) => [key, body[day]?.[key]?.toString() ?? ''])) as Record<BodyKey, string>;
   const [values, setValues] = useState(() => valuesFor(offset));
   const groups: [string, readonly BodyKey[]][] = [['Tronco', ['waist', 'hips', 'chest', 'neck']], ['Brazos', ['armLeft', 'armRight']], ['Muslos', ['thighLeft', 'thighRight']], ['Pantorrillas', ['calfLeft', 'calfRight']]];
   const anyValue = Object.values(values).some((value) => value !== '');
   const canSave = anyValue || Object.keys(body[dayOffset(date)] ?? {}).length > 0;
-  return <form onSubmit={(event) => {
+  return <form className="blw-body-form" onSubmit={(event) => {
     event.preventDefault();
     if (!canSave) return;
     const next: BodyValues = {};
     for (const [key] of BODY_FIELDS) if (values[key] !== '') next[key] = Number(values[key]);
     onSave(dayOffset(date), next);
   }}>
+    <div className="blw-dialog-content">
     <label className="blw-field">Fecha<input type="date" required min="2000-01-01" max="2100-12-31" value={date} onChange={(event) => { setDate(event.target.value); if (event.target.value) setValues(valuesFor(dayOffset(event.target.value))); }} /></label>
-    <p className="blw-form-hint">Completa solo las zonas que mediste. Todos los valores están en cm. Al editar, vaciar un campo quita esa medida de la fecha.</p>
+    <p className="blw-form-hint">Deja en blanco las zonas que no mediste. Al editar, vaciar un campo elimina esa medida.</p>
     {groups.map(([label, keys]) => <fieldset className="blw-body-fields" key={label}><legend>{label}</legend><div>{keys.map((key) => <label className="blw-field" key={key}>{BODY_FIELDS.find(([field]) => field === key)![1]}<input type="number" inputMode="decimal" min="0.1" max="999" step="0.1" value={values[key]} placeholder="Sin medir" onChange={(event) => setValues((previous) => ({ ...previous, [key]: event.target.value }))} /></label>)}</div></fieldset>)}
-    <button className="blw-sheet-primary" type="submit" disabled={!canSave}>Guardar medidas</button>
+    </div>
+    <footer className="blw-form-actions"><button type="button" className="blw-sheet-close" onClick={onCancel}>Cancelar</button><button className="blw-sheet-primary" type="submit" disabled={!canSave}>Guardar medidas</button></footer>
   </form>;
 }
 
@@ -152,7 +155,7 @@ function RecordChart({ title, unit, points, series, period, endDay, onOpen, open
   return <section className="blw-chart-section" aria-label={title}>
     <div className="blw-chart-heading"><h3>{title}</h3><small>{points.length} {points.length === 1 ? 'día con datos' : 'días con datos'}</small></div>
     {!selected ? <p className="blw-chart-empty">Sin registros en este período.</p> : <>
-      <div className="blw-chart-readout"><span>{shortDate(selected.day)}</span><div>{series.map((item, i) => <span key={item.label}><small>{series.length > 1 ? `${item.label} ` : ''}</small><strong>{selected.values[i] === undefined ? '—' : decimal(selected.values[i]!)}</strong><small> {unit}</small></span>)}</div></div>
+      <div className="blw-chart-readout"><label className="blw-chart-date-picker"><span className="blw-sr-only">Fecha del registro de {title}</span><select value={selected.day} onChange={(event) => setSelectedDay(Number(event.target.value))}>{points.map((point) => <option key={point.day} value={point.day}>{shortDate(point.day)} de {dayISO(point.day).slice(0, 4)}</option>)}</select></label><div>{series.map((item, i) => <span key={item.label}><small>{series.length > 1 ? `${item.label} ` : ''}</small><strong>{selected.values[i] === undefined ? '—' : decimal(selected.values[i]!)}</strong><small> {unit}</small></span>)}</div></div>
       <button className="blw-chart-touch" aria-label={`${title}. Seleccionado ${shortDate(selected.day)}. Toca una fecha o usa las flechas para explorar los registros.`} onClick={(event) => { if (event.detail !== 0) choosePoint(event.clientX, event.currentTarget.getBoundingClientRect()); }} onKeyDown={(event) => {
         if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
           event.preventDefault();
@@ -164,8 +167,8 @@ function RecordChart({ title, unit, points, series, period, endDay, onOpen, open
           {[low, (low + high) / 2, high].map((value, i) => <g key={i}><line x1="40" x2="328" y1={y(value)} y2={y(value)} className="blw-chart-grid" /><text x="33" y={y(value) + 3} textAnchor="end">{decimal(value)}</text></g>)}
           {series.map((item, i) => <g key={item.label}>
             {item.target !== undefined && <line x1="40" x2="328" y1={y(item.target)} y2={y(item.target)} className="blw-chart-target" />}
-            {!bars && points.map((point, index) => {
-              const previous = points[index - 1];
+            {!bars && points.filter((point) => point.values[i] !== undefined).map((point, index, seriesPoints) => {
+              const previous = seriesPoints[index - 1];
               // Food gaps remain visible; body curves connect actual measurement dates.
               return previous && point.values[i] !== undefined && previous.values[i] !== undefined && (unit !== 'g' || point.day - previous.day === 1) ? <line key={point.day} x1={x(previous.day)} y1={y(previous.values[i]!)} x2={x(point.day)} y2={y(point.values[i]!)} className="blw-chart-line" strokeDasharray={item.dash} /> : null;
             })}
@@ -175,9 +178,8 @@ function RecordChart({ title, unit, points, series, period, endDay, onOpen, open
           <text x="40" y="163">{shortDate(endDay + 1 - period)}</text><text x="328" y="163" textAnchor="end">{shortDate(endDay)}</text>
         </svg>
       </button>
-      <div className="blw-chart-legend">{series.map((item) => <span key={item.label}><i style={{ borderTopStyle: item.dash ? 'dashed' : 'solid' }} />{item.label}{item.target !== undefined && ` · meta ${decimal(item.target)} ${unit}`}</span>)}</div>
-      <label className="blw-chart-date-picker">Fecha del registro<select value={selected.day} onChange={(event) => setSelectedDay(Number(event.target.value))}>{points.map((point) => <option key={point.day} value={point.day}>{shortDate(point.day)} de {dayISO(point.day).slice(0, 4)}</option>)}</select></label>
-      <button className="blw-chart-open" onClick={() => onOpen(selected.day)}>{openLabel} del {shortDate(selected.day)}<ChevronRight size={15} /></button>
+      <div className="blw-chart-footer"><div className="blw-chart-legend">{series.map((item) => <span key={item.label}><i style={{ borderTopStyle: item.dash ? 'dashed' : 'solid' }} />{item.label}{item.target !== undefined && ` · meta ${decimal(item.target)} ${unit}`}</span>)}</div>
+      <button className="blw-chart-open" aria-label={`${openLabel} del ${shortDate(selected.day)}`} onClick={() => onOpen(selected.day)}>{openLabel}<ChevronRight size={15} /></button></div>
     </>}
   </section>;
 }
