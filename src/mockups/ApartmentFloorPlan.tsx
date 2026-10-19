@@ -27,9 +27,12 @@ import './ApartmentFloorPlan.css';
  * Bench: https://sdmed.cl/productos/banco-doble-regulacion-y-soporte-serie-tts-tt1001/
  * Published 137 × 57; flat position not dimensioned. Pad/feet are illustrative.
  * Head end is 25 behind bar; bar length is 220. No ergonomic fit is inferred.
- * Preserved layouts: A floor (10,5), rack (125,105), 0°; B floor (10,10),
- * rack (90,120), 270° (rear toward left/door wall). Initial bench overhang:
- * A 40.45 below floor; B 20.45 right after the revised J-hook position.
+ * Preserved layouts: A floor (10,5), rack (125,105), 0°; B floor (0,20),
+ * rack (75,130), 270° (rear toward left/door wall), floor (0,20).
+ * B bar tips: y=20..240 (20 cm to window); rubber touches left wall.
+ * B assumed rear discs leave 75 - 51.45 - 22.5 ≈1.05 cm to left wall.
+ * Current bench overhang:
+ * A 40.45 below floor; B 15.45 right after the revised J-hook position.
  * Earlier floor-fit conclusions used the superseded bar position; neither
  * floor coverage nor pressing posture is certified by this drawing.
  * Edit these constants/figures directly for the next iteration.
@@ -39,7 +42,7 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
   { id: 'a', title: 'A · Espalda al ventanal', floorX: 10, floorY: 5, x: 125, y: 105, angle: 0 },
-  { id: 'b', title: 'B · Espalda a la pared de la puerta', floorX: 10, floorY: 10, x: 90, y: 120, angle: 270 }
+  { id: 'b', title: 'B · Espalda a la pared de la puerta', floorX: 0, floorY: 20, x: 75, y: 130, angle: 270 }
 ];
 
 // Static dimension lines only; no editor state or measurement engine.
@@ -103,6 +106,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={210} y={261} length={140} label="140 cm" />
       <Ruler x={363} y={247} length={57} label="57 cm" vertical />
       <Ruler x={layout.floorX} y={layout.floorY+260} length={200} label="Caucho 200 × 200 cm" />
+      {layout.id === 'b' && <Ruler x={layout.x+RACK.barY+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><Rack turn={layout.angle} /></g>
     </svg>
   </section>)}</div>;
