@@ -1,5 +1,9 @@
 # Balance · Style comparator
 
+The Organic direction is accepted for the next Balance planning iteration.
+See the [accepted design and native handoff](balance-design-handoff.md) for closed
+visual decisions, future system-color preferences and Kotlin/Compose boundaries.
+
 UDS-012. `/m/balance-style-studies` compares Material, Instrumental, Editorial and
 Orgánico on one mounted prototype. Orgánico opens by default. Use the external
 Dirección visual controls and dark/light buttons; current records, page, forms,
