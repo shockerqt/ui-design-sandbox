@@ -127,13 +127,13 @@ const LAYOUTS = [
 // Only footprint fit is shown; occupied mounting/pedalling access is unmeasured.
 const BIKE = { x: 90, y: 257.25, length: 131, width: 53.5 };
 
-function ModularFloor({ extension }: { extension: boolean }) {
+function ModularFloor({ extension, turn }: { extension: boolean; turn: number }) {
   return <g data-part="modular-floor">
     <rect data-part="floor" x="-67.5" y="-75" width="135" height="150" fill={RUBBER_COLOR.rack} stroke="#6b8377" strokeWidth="1" />
     <path data-part="rack-floor-seams" d="M32.5 -75V75 M-67.5 -25H67.5" fill="none" stroke="#9eafa4" strokeWidth=".7" />
     {extension && <>
       <rect data-part="bench-floor" x="-32.5" y="75" width="65" height="85" fill={RUBBER_COLOR.bench} fillOpacity=".75" stroke="#a17f49" strokeWidth="1" strokeDasharray="4 2" />
-      <text x="0" y="155" style={{fontSize:6.5}}>B · 65 × 85 · desmontable</text>
+      <text x="-38.5" y="117.5" transform={`rotate(${turn === 270 ? 90 : -90} -38.5 117.5)`} style={{fontSize:6.5}}>B · 65 × 85</text>
     </>}
   </g>;
 }
@@ -308,7 +308,7 @@ export function ApartmentFloorPlan() {
     {layout.model === 'g3' && <p className="af-plan-caption">Banca sólida: barra libre · Contorno: Smith · B: caucho desmontable</p>}
     <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
-      <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3'} /></g>
+      <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3'} turn={layout.angle} /></g>
       <Kitchen />
       <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
