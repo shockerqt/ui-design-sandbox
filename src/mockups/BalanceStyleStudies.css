@@ -1,0 +1,101 @@
+/* Visual studies preserve the same compact geometry and stateful prototype. */
+.blw-study-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; margin-top: 24px; }
+.blw-study-picker button { display: flex; align-items: center; gap: 10px; min-height: 48px; padding: 10px 12px; border: 1px solid var(--md-outline); border-radius: 10px; background: transparent; font-size: 12px; text-align: left; }
+.blw-study-picker button[aria-pressed="true"] { background: var(--md-secondary); color: var(--md-on-secondary); font-weight: 650; outline: 2px solid var(--md-primary); outline-offset: 2px; }
+.blw-study-swatch { width: 22px; height: 22px; flex-shrink: 0; border-radius: 6px; border: 1px solid currentColor; }
+.blw-study-swatch-material { background: #a2c9f8; }
+.blw-study-swatch-instrumental { background: #264e53; border-radius: 3px; }
+.blw-study-swatch-editorial { background: #214c80; border-radius: 0; }
+.blw-study-swatch-organic { background: linear-gradient(135deg, #bedb9e, #9bd3c4 50%, #c6aedb); }
+.blw-visual-study .blw-intro h1 { font-size: 32px; letter-spacing: -.025em; line-height: 1.2; }
+.blw-visual-study .blw-intro p { min-height: 78px; }
+.blw-visual-study .blw-style-controls { margin-top: 18px; }
+/* Instrumental: neutral chrome, restrained petroleum accent, precise utility type. */
+.blw-visual-study.blw-study-instrumental {
+  --md-bg: #141516; --md-surface: #1c1e20; --md-container: #25282b;
+  --md-high: #32363a; --md-ink: #f0f2f4; --md-muted: #b3bbc3;
+  --md-outline: #7f8a96; --md-primary: #87c9cf; --md-on-primary: #05383d;
+  --md-secondary: #284a4d; --md-on-secondary: #d2f4f5; --md-amber: #f4b86a;
+  --md-font: Inter, Arial, sans-serif;
+}
+.blw-visual-study.blw-study-instrumental.blw-android-light {
+  --md-bg: #f5f7f8; --md-surface: #e9edf0; --md-container: #e0e6eb;
+  --md-high: #d4dce3; --md-ink: #1c242b; --md-muted: #4b5965;
+  --md-outline: #6a7b89; --md-primary: #1c656e; --md-on-primary: #ffffff;
+  --md-secondary: #d1ecee; --md-on-secondary: #083e43; --md-amber: #825100;
+}
+.blw-study-instrumental .blw-device { border-radius: 12px; }
+.blw-study-instrumental :is(.blw-intro h1, .blw-date-main strong, .blw-page-header h2) { font-family: Inter, Arial, sans-serif; font-weight: 600; }
+.blw-study-instrumental :is(.blw-group-identity strong, .blw-calories, .blw-time) { font-family: 'IBM Plex Mono', monospace; }
+.blw-study-instrumental .blw-group-identity strong { font-size: 15px; letter-spacing: -.5px; }
+.blw-study-instrumental .blw-group-panel { border-radius: 4px; }
+.blw-study-instrumental .blw-food { border-color: var(--md-outline); }
+.blw-study-instrumental .blw-week button[aria-pressed="true"] { border-radius: 6px; }
+.blw-study-instrumental .blw-nav-destination > svg { border-radius: 4px; }
+.blw-study-instrumental .blw-nav-destination[aria-current="page"] > svg { border-radius: 4px; }
+.blw-study-instrumental .blw button.blw-nav-add { border-radius: 12px; }
+.blw-study-instrumental .blw-segments button, .blw-study-instrumental .blw-segments button[data-active] { border-radius: 6px; }
+.blw-dialog.blw-study-instrumental { border-radius: 14px; }
+/* Editorial: ink and paper, condensed headings, typographic hierarchy and rules. */
+.blw-visual-study.blw-study-editorial {
+  --md-bg: #121b29; --md-surface: #18263a; --md-container: #21334c;
+  --md-high: #2c4462; --md-ink: #e7edf6; --md-muted: #b3c2d6;
+  --md-outline: #8b9eb6; --md-primary: #b5cef3; --md-on-primary: #153454;
+  --md-secondary: #2b4566; --md-on-secondary: #deebff; --md-amber: #efb66e;
+  --md-font: 'IBM Plex Sans', Arial, sans-serif;
+}
+.blw-visual-study.blw-study-editorial.blw-android-light {
+  --md-bg: #f2f5f9; --md-surface: #e5ebf3; --md-container: #dce4ef;
+  --md-high: #d0dced; --md-ink: #172c48; --md-muted: #4f617a;
+  --md-outline: #6a7f9a; --md-primary: #214c80; --md-on-primary: #ffffff;
+  --md-secondary: #d3e2f4; --md-on-secondary: #16365e; --md-amber: #825100;
+}
+.blw-study-editorial :is(.blw-intro h1, .blw-group-identity strong, .blw-page-header h2, .blw-date-main strong) { font-family: Archivo, Arial, sans-serif; font-variation-settings: 'wdth' 85, 'wght' 620; }
+.blw-study-editorial .blw-energy strong { font-family: 'IBM Plex Mono', monospace; font-size: 21px; letter-spacing: -.7px; }
+.blw-study-editorial .blx-log-header { border-bottom: 1px solid var(--md-primary); }
+.blw-study-editorial .blw-group-top { border-bottom: 1px solid var(--md-container); }
+.blw-study-editorial .blw-group-panel { border-radius: 0; }
+.blw-study-editorial .blw-food { background: transparent; }
+.blw-study-editorial .blw-week button[aria-pressed="true"] { border-radius: 2px; }
+.blw-study-editorial .blw-nav-destination[aria-current="page"] > svg { border-radius: 2px; }
+.blw-study-editorial .blw button.blw-nav-add { border-radius: 8px; }
+.blw-study-editorial .blw-segments button { border-radius: 0; }
+.blw-study-editorial .blw-segments button[data-active] { border-radius: 2px; }
+.blw-dialog.blw-study-editorial { border-radius: 6px; }
+/* Orgánico: user-requested opaque gradients. Data rows and fields stay on solid surfaces. */
+.blw-visual-study.blw-study-organic {
+  --md-bg: #141e1b; --md-surface: #1c2b25; --md-container: #293a31;
+  --md-high: #374b3e; --md-ink: #edf3e9; --md-muted: #bdceba;
+  --md-outline: #8b9f88; --md-primary: #c9e5ae; --md-on-primary: #233716;
+  --md-secondary: #344c38; --md-on-secondary: #e1f0d9; --md-amber: #efbd8a;
+  --md-font: Inter, Arial, sans-serif;
+  --study-header-gradient: linear-gradient(115deg, #213c34 0%, #2c3d42 48%, #413745 100%);
+  --study-action-gradient: linear-gradient(135deg, #bddfa2 0%, #a4d2bf 52%, #d6bbdf 100%);
+}
+.blw-visual-study.blw-study-organic.blw-android-light {
+  --md-bg: #f4f5ef; --md-surface: #e9eee3; --md-container: #dfe8d8;
+  --md-high: #d0ddc7; --md-ink: #27352a; --md-muted: #506450;
+  --md-outline: #6a7d65; --md-primary: #42633a; --md-on-primary: #ffffff;
+  --md-secondary: #dbeacb; --md-on-secondary: #2c4125; --md-amber: #83501e;
+  --study-header-gradient: linear-gradient(115deg, #ddebcf 0%, #cce8e1 48%, #e9dcef 100%);
+  --study-action-gradient: linear-gradient(135deg, #355a35 0%, #245e58 52%, #65475d 100%);
+}
+.blw-study-organic :is(.blw-intro h1, .blw-group-identity strong, .blw-page-header h2, .blw-date-main strong, .blw-energy strong, .blw-dialog-heading h2) { font-family: Outfit, Inter, Arial, sans-serif; font-weight: 550; }
+.blw-study-organic .blx-log-header { background: var(--study-header-gradient); }
+.blw-study-organic .blw-summary { color: var(--md-ink); }
+.blw-study-organic .blw-group-panel { border-radius: 18px 6px 18px 18px; }
+.blw-study-organic .blw-week button[aria-pressed="true"] { border-radius: 16px; }
+.blw-study-organic .blw-nav-destination[aria-current="page"] > svg { border-radius: 16px; }
+.blw-study-organic .blw button.blw-nav-add { background: var(--study-action-gradient); border-radius: 22px 22px 10px 22px; }
+.blw-study-organic .blw button.blw-nav-add:active { border-radius: 50%; }
+.blw-study-organic .blw-add-confirm button,
+.blw-dialog.blw-study-organic .blw-sheet-primary { background: var(--study-action-gradient); }
+.blw-dialog.blw-study-organic { border-radius: 28px; }
+@container blw-review (max-width: 800px) {
+  .blw-visual-study .blw-intro h1 { font-size: 27px; }
+  .blw-visual-study .blw-intro p { min-height: 0; }
+  .blw-study-picker { margin-top: 18px; }
+}
+@container blw-review (max-width: 420px) {
+  .blw-visual-study .blw-device { border-radius: 0; }
+}

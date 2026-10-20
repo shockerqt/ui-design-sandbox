@@ -15,6 +15,15 @@ import { FoodQuantityFields } from './BalanceFoodQuantity';
 import './BalanceLogWireframes.css';
 import './BalanceAndroidMaterial.css';
 import './BalanceMaterialExpressive.css';
+import './BalanceStyleStudies.css';
+
+const STYLE_STUDIES = {
+  material: { label: 'Material', description: 'La dirección Expressive compacta, como referencia para comparar.' },
+  instrumental: { label: 'Instrumental', description: 'Grafito, acentos petróleo y datos alineados. Una herramienta de registro precisa.' },
+  editorial: { label: 'Editorial', description: 'Tinta azul, títulos condensados y una estructura de lectura más tipográfica.' },
+  organic: { label: 'Orgánico', description: 'Bosque, salvia y ciruela. Degradados suaves en la cabecera y el +, con filas sobre superficies sólidas.' },
+} as const;
+type StyleStudy = keyof typeof STYLE_STUDIES;
 
 type View = 'day' | 'detail' | 'selection';
 type Sheet = { kind: 'edit'; food: Food } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'body' } | { kind: 'nutrition' } | null;
@@ -127,11 +136,13 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
   </button>;
 }
 
-export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wireframe', basePath = BALANCE_WIREFRAME_PATH }: { initialPage?: AppPage; appearance?: 'wireframe' | 'android' | 'expressive'; basePath?: string } = {}) {
+export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wireframe', basePath = BALANCE_WIREFRAME_PATH }: { initialPage?: AppPage; appearance?: 'wireframe' | 'android' | 'expressive' | 'studies'; basePath?: string } = {}) {
   const android = appearance !== 'wireframe';
-  const expressive = appearance === 'expressive';
+  const styleStudy = appearance === 'studies';
+  const expressive = appearance === 'expressive' || styleStudy;
+  const [study, setStudy] = useState<StyleStudy>('organic');
   const [colorMode, setColorMode] = useState<'dark' | 'light'>('dark');
-  const themeClass = android ? `blw-android blw-android-${colorMode}${expressive ? ' blw-expressive' : ''}` : '';
+  const themeClass = android ? `blw-android blw-android-${colorMode}${expressive ? ' blw-expressive' : ''}${styleStudy ? ` blw-visual-study blw-study-${study}` : ''}` : '';
   const [location, navigate] = useLocation();
   const search = useSearch();
   const addingFood = location === `${basePath}/agregar-alimento`;
@@ -280,11 +291,13 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
 
   return <div className={`blw-root ${themeClass}`}><div className="blw">
     <section className="blw-review" aria-label="Controles del wireframe">
-      <div className="blw-intro"><span className="blw-kicker">{expressive ? 'Balance / Material Expressive · Estudio 02' : android ? 'Balance / Android · Estudio visual 01' : 'Balance / Propuesta multivista'}</span><h1>{expressive ? 'Balance · Expressive' : android ? <>Balance.<br /> En Android.</> : 'Registrar. Después, explorar.'}</h1><p>{expressive ? 'Más intención en las acciones y las transiciones. La misma información, con otra jerarquía.' : android ? 'Material 3 Expressive. Color tonal, formas suaves y el mismo registro cotidiano.' : 'Alimentos y mediciones para registrar; Resumen para mirar la evolución. Solo estructura e interacción.'}</p></div>
+      <div className="blw-intro"><span className="blw-kicker">{styleStudy ? 'Balance / Comparador de estilos' : expressive ? 'Balance / Material Expressive · Estudio 02' : android ? 'Balance / Android · Estudio visual 01' : 'Balance / Propuesta multivista'}</span><h1>{styleStudy ? `Balance · ${STYLE_STUDIES[study].label}` : expressive ? 'Balance · Expressive' : android ? <>Balance.<br /> En Android.</> : 'Registrar. Después, explorar.'}</h1><p>{styleStudy ? STYLE_STUDIES[study].description : expressive ? 'Más intención en las acciones y las transiciones. La misma información, con otra jerarquía.' : android ? 'Material 3 Expressive. Color tonal, formas suaves y el mismo registro cotidiano.' : 'Alimentos y mediciones para registrar; Resumen para mirar la evolución. Solo estructura e interacción.'}</p></div>
+      {styleStudy && <div className="blw-study-picker" role="group" aria-label="Dirección visual">{(Object.entries(STYLE_STUDIES) as [StyleStudy, typeof STYLE_STUDIES[StyleStudy]][]).map(([id, { label }]) => <button key={id} type="button" aria-pressed={study === id} onClick={() => setStudy(id)}><span className={`blw-study-swatch blw-study-swatch-${id}`} aria-hidden="true" /><span>{label}</span></button>)}</div>}
       {android && <div className="blw-style-controls">
         <div role="group" aria-label="Apariencia"><button aria-pressed={colorMode === 'dark'} onClick={() => setColorMode('dark')}>Oscuro</button><button aria-pressed={colorMode === 'light'} onClick={() => setColorMode('light')}>Claro</button></div>
         {expressive && <a href="/m/balance-android-material">Comparar con Android inicial ↗</a>}
         {appearance === 'android' && <a href="/m/balance-material-expressive">Comparar con Expressive ↗</a>}
+        {!styleStudy && <a href="/m/balance-style-studies">Probar otros estilos ↗</a>}
         <a href={BALANCE_WIREFRAME_PATH}>Ver wireframe original ↗</a>
       </div>}
       <Tabs.Root value={page} onValueChange={(value) => changePage(value as AppPage)}>
@@ -299,7 +312,7 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
         {page === 'foods' && !addingFood && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { let day = 0; if (event.target.checked) { day = 1; while (foodsByDay[day]?.length) day++; } setDate(day); setEmptyDay(event.target.checked); }} /> Día vacío</label>}
         <button onClick={() => { changeView('day'); setPage(page); }}>Restablecer ejemplo</button>
       </div>
-      {android && <div className="blw-material-notes"><div className="blw-swatches" aria-hidden="true"><i /><i /><i /><i /></div><p>{expressive ? "Fecha y totales compactos para dar más espacio a la lista. El + conserva su acceso a los tres registros." : "Superficies minerales. Azul para actuar. Ámbar para el exceso de energía."}</p><p>Explora las cuatro vistas, abre el + o cambia a Detalle para revisar los alimentos.</p><small>Prototipo web · referencia para Jetpack Compose<br />Datos ilustrativos · cambios solo en memoria</small></div>}
+      {android && <div className="blw-material-notes"><div className="blw-swatches" aria-hidden="true"><i /><i /><i /><i /></div><p>{styleStudy ? "El estilo cambia; tus registros y filtros permanecen. Compara también los modos oscuro y claro." : expressive ? "Fecha y totales compactos para dar más espacio a la lista. El + conserva su acceso a los tres registros." : "Superficies minerales. Azul para actuar. Ámbar para el exceso de energía."}</p><p>Explora las cuatro vistas, abre el + o cambia a Detalle para revisar los alimentos.</p><small>Prototipo web · referencia para Jetpack Compose<br />Datos ilustrativos · cambios solo en memoria</small></div>}
       <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p><strong>Agregar alimento.</strong> Ruta propia con Bibliotecas y Etiquetas. En Etiquetas, completa la información nutricional por porción o usa el ejemplo para registrar un alimento.</p><p><strong>Perfil.</strong> Primera anatomía de cuenta, unidades actuales y preferencias. Los recordatorios son controles de ejemplo; no envían notificaciones.</p><p>El + compartido queda al centro y permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
     </section>
 
@@ -340,7 +353,7 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
           <button className="blw-nav-destination" aria-current={page === 'profile' ? 'page' : undefined} onClick={() => changePage('profile')}><UserRound size={18} aria-hidden="true" /><span>Perfil</span></button>
         </nav>}</>}
       </div>
-      <p className="blw-caption">{android ? expressive ? "Material 3 Expressive / Exploración 02" : "Material 3 / Exploración Android · 01" : "Alimentos · Mediciones · + · Resumen · Perfil / datos de ejemplo"}</p>
+      <p className="blw-caption">{styleStudy ? `${STYLE_STUDIES[study].label} / Distribución compacta · Datos de ejemplo` : android ? expressive ? "Material 3 Expressive / Exploración 02" : "Material 3 / Exploración Android · 01" : "Alimentos · Mediciones · + · Resumen · Perfil / datos de ejemplo"}</p>
     </section>
 
     <Dialog.Root open={sheet !== null} onOpenChange={(open) => { if (!open) setSheet(null); }}>

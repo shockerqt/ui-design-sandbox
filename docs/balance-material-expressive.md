@@ -76,3 +76,6 @@ References: [Material Expressive](https://m3.material.io/get-started),
 [Compose Material 3](https://developer.android.com/develop/ui/compose/designsystems/material3),
 [Base UI accordion](https://base-ui.com/react/components/accordion),
 [Base UI dialog](https://base-ui.com/react/components/dialog).
+
+Compare the additional visual directions at `/m/balance-style-studies`; see
+[Style comparator](balance-style-studies.md) for palettes and gradient boundaries.

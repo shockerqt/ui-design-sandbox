@@ -95,4 +95,7 @@ assert.match(route('/m/balance-android-material/unknown'), /Esta ruta no corresp
 assert.match(route('/m/balance-material-expressive'), /blw-expressive/);
 assert.match(route('/m/balance-material-expressive/agregar-alimento?modo=labels'), /Datos de la etiqueta/);
 assert.match(route('/m/balance-material-expressive/unknown'), /Esta ruta no corresponde/);
+assert.match(route('/m/balance-style-studies'), /blw-study-organic/);
+assert.match(route('/m/balance-style-studies/agregar-alimento?modo=labels'), /Datos de la etiqueta/);
+assert.match(route('/m/balance-style-studies/unknown'), /Esta ruta no corresponde/);
 console.log('Balance wireframe contracts: quantity conversion/recalculation, optional fiber, official catalogue, Santiago weight dates, midnight ordering and routed form checks pass.');

@@ -8,18 +8,29 @@ import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
+import { BalanceStyleStudies } from './BalanceStyleStudies';
 import { BalanceMaterialExpressive } from './BalanceMaterialExpressive';
 import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
   {
+    id: 'balance-style-studies',
+    title: 'Balance · Comparador de estilos',
+    category: 'Dashboards',
+    description: 'Material, Instrumental, Editorial y Orgánico con degradados: cuatro direcciones sobre la misma distribución compacta y los mismos datos.',
+    tags: ['Balance', 'styles', 'gradients', 'mobile', 'comparison'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-20',
+    component: BalanceStyleStudies
+  },
+  {
     id: 'balance-material-expressive',
     title: 'Balance · Material Expressive',
     category: 'Dashboards',
     description: 'Cabecera compacta con fecha, totales y semana; más espacio para alimentos, + sin texto y transiciones con movimiento reducido.',
     tags: ['Balance', 'Material 3', 'Expressive', 'motion', 'Compose', 'mobile'],
-    version: 'v1.1.0',
+    version: 'v1.2.0',
     updatedAt: '2026-10-20',
     component: BalanceMaterialExpressive
   },
