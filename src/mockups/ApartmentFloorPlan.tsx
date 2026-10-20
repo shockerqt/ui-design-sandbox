@@ -69,21 +69,22 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
  * the front spotters. The user's separate 15 cm plate-loading gap sits behind
  * that envelope and is not part of the equipment dimensions.
  * The manual has elevation drawings, not plan coordinates. Plan positions are
- * proportional estimates: ~33.5 cm rear storage-rod zone (long Ø50 rods from
- * the parts list), ~64.5 cm between post planes, then the user's confirmed
- * 44 cm front spotters. That partitions the 142 cm total without adding the
- * spotters twice. Six Ø25 × 24.5 cm rods and two Ø50 × 33.5 cm rods are listed;
- * their exact mount points and overlap in plan are schematic. The Smith's two
- * guide rails sit on the front post plane; its 203 cm bar is shown transverse
- * there. Main posts are 122 cm overall; their exact spacing is inferred.
+ * proportional estimates from the side elevation: ~21 cm rear storage-rod
+ * projection, ~77 cm between post planes, then the user's confirmed44 cm
+ * front spotters. That partitions the142 cm total without adding the spotters
+ * twice. The parts list names six Ø25×24.5 cm and two Ø50×33.5 cm rods; those
+ * are component lengths, not evidence of their plan-axis projection. Their
+ * exact mount points and overlap in plan are schematic. The Smith's two guide
+ * rails sit on the front post plane; its203 cm bar is shown transverse there.
+ * Main posts are122 cm overall; their exact spacing is inferred.
  * The existing 220 cm free bar and bench remain a separate study. J-hook,
  * Smith/bench compatibility and operating clearance are not verified.
  */
 const G3 = {
   width: 122, depth: 142, smithWidth: 203,
-  postX: 55, rearPostY: -37.5, frontPostY: 27,
+  postX: 55, rearPostY: -50, frontPostY: 27,
   rearY: -71, frontY: 71, spotter: 44, rearGap: 15,
-  rearRodShort: 24.5, rearRodLong: 33.5, barY: -28
+  rearProjection: 21, barY: -28
 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 // Cut plan from200×200: main200×145, bike135×55, offcut65×55.
@@ -197,9 +198,8 @@ function G3Rack({ turn }: { turn: number }) {
       <rect data-part="smith-guide" x={side*r.postX-2} y={r.frontPostY-5} width="4" height="10" rx="1" fill="#70909c" stroke="#344e57" strokeWidth=".7" />
       {/* The 44 cm safety arms run from the front posts to the envelope edge. */}
       <rect data-part="spotter-arm" x={side*r.postX-3} y={r.frontPostY} width="6" height={r.spotter} rx="1" fill="#84969a" stroke="#40545b" strokeWidth=".8" />
-      {/* Stow rods are stacked at different heights and overlap in plan. */}
-      {[0, 1, 2].map(i => <path key={`short-${i}`} data-part="rear-plate-horn" d={`M${side*(r.postX-2+i*2)} ${r.rearPostY}V${r.rearPostY-r.rearRodShort}`} stroke="#9c8060" strokeWidth="1.4" />)}
-      <path data-part="rear-plate-horn-long" d={`M${side*r.postX} ${r.rearPostY}V${r.rearY}`} stroke="#806344" strokeWidth="2.2" />
+      {/* Stow-rod levels are stacked vertically and collapse in plan view. */}
+      {[0, 1, 2].map(i => <path key={`storage-${i}`} data-part="rear-plate-horn" d={`M${side*(r.postX-2+i*2)} ${r.rearPostY}V${r.rearY}`} stroke="#9c8060" strokeWidth={i === 2 ? 2 : 1.4} />)}
       {/* Schematic stack edges; plan position is inferred, not a measured mount. */}
       <rect data-part="stored-discs" x={side*r.postX-5} y={r.rearY+7} width="10" height="7" rx="1" fill="#bcb8ad" stroke="#827b6e" strokeWidth=".8" />
       <path data-part="j-hook" d={`M${side*r.postX-4} ${r.barY-5}v7h8v-3`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
@@ -211,7 +211,7 @@ function G3Rack({ turn }: { turn: number }) {
     <Ruler x={-r.smithWidth/2} y={r.rearY-12} length={r.smithWidth} label="Smith ≈203 cm" at={.4} />
     <Ruler x={r.smithWidth/2+12} y={r.frontY} length={r.depth} label="Equipo 142 cm" vertical flip={turn === 270} />
     <Ruler x={-r.smithWidth/2-12} y={r.rearY} length={r.rearGap} label="15 cm carga" vertical flip={turn === 270} />
-    <Ruler x={r.width/2+8} y={r.rearPostY} length={r.rearRodLong} label="Portadiscos 33,5 cm" vertical flip={turn === 270} />
+    <Ruler x={r.width/2+8} y={r.rearPostY} length={r.rearProjection} label="Portadiscos ≈21 cm" vertical flip={turn === 270} />
     <Ruler x={r.width/2+18} y={r.frontY} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
   </g>;
 }
