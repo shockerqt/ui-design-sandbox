@@ -61,27 +61,18 @@ const KITCHEN = { passage: 115, sinkX: 297, sinkY: 247, sinkWidth: 53, sinkLengt
 const FRIDGE = { x: 275, y: 70, width: 70, depth: 70 };
 const TABLE = { width: 70 };
 const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
-/* Force USA MyRack Folding, US current F-MR-BASE-SPACESAVER-V2:
- * https://www.forceusa.com/products/myrack-folding-power-rack
- * https://force-manuals.nmg.io/F-MR-BASE-SPACESAVER-V2.pdf (steps1..5)
- * Official current page: W120×D140×H221 cm, interior depth74, posts60mm.
- * Rounded metric figures are used as listed, not converted to false precision.
- * Older/regional folding listings give different envelopes (e.g.124×105);
- * do not mix these revisions. Current-page overall depth is conservatively
- * retained as dashed footprint; manual supplies topology, not component cotas.
- * Four posts, rear crossmember, hinged upper/lower side links, front pivoting
- * feet and rear feet/bar-storage sleeves. No FTR stacks/pulleys/pegboard.
- * Post centres x±57, y±40 infer74 clear between6cm posts. Distribution within
- * the140 depth envelope and individual feet/sleeves/pivots are schematic.
- * Dashed top side links project above bottom links; not floor obstructions.
- * Rear-facing bench study: optional inward J-hooks seat12 ahead of rearpost,
- * barY=-28; head=-53, bench end84. Optional safety slings between posts are
- * illustrative only; no accessory included, exact part/mounting/height assumed.
- * C centre(125,75) and D(75,130) put rear envelope5 from window/left wall;
- * D bar tips remain20cm from window. Same bench/bar/rubber; no folded state,
- * folding sweep, certified bench clearance or stored-accessory footprint shown.
+/* Force USA G3 V1, official manual page6: https://force-manuals.nmg.io/F-G3-B.pdf
+ * Assembled dimensions2030×1420×2195mm. User confirms203cm is the Smith-bar /
+ * outer width and the main frame is≈122cm wide. Model the frame at122×142;
+ * component locations are schematic because the manual gives no plan cotas.
+ * Keep rear plate-storage silhouettes inside the frame; reserve≈15cm behind.
+ * Front spotter arms project44cm per user. So the illustrated working length
+ * is≈201cm (142+15+44), not a second manufacturer dimension. C/D move only
+ * 11cm inward to fit the rear strip; bar and bench stay aligned with the rack.
+ * The203cm Smith bar is drawn separately from the existing220cm free bar.
+ * Hook compatibility and bench/operating clearance are not verified.
  */
-const FOLDING = { width: 120, depth: 140, postX: 57, rearY: -40, frontY: 40, barY: -28 };
+const G3 = { width: 122, depth: 142, postX: 55, postY: 54, smithWidth: 203, rearY: -71, frontY: 71, spotter: 44, rearGap: 15, barY: -28 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 // Cut plan from200×200: main200×145, bike135×55, offcut65×55.
 // A main(25,35)200×145; B/D(5,55)200×145; C(52.5,0)145×200.
@@ -94,8 +85,8 @@ const BENCH = { width: 57, length: 137, headOffset: 25 };
 const LAYOUTS = [
   { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 25, floorY: 35, floorW: 200, floorH: 145, x: 125, y: 105, angle: 0, model: 'sid' },
   { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 75, y: 130, angle: 270, model: 'sid' },
-  { id: 'c', title: 'C · MyRack Folding · Espalda al ventanal', floorX: 52.5, floorY: 0, floorW: 145, floorH: 200, x: 125, y: 75, angle: 0, model: 'folding' },
-  { id: 'd', title: 'D · MyRack Folding · Espalda a la pared de la puerta', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 75, y: 130, angle: 270, model: 'folding' }
+  { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 52.5, floorY: 0, floorW: 145, floorH: 200, x: 125, y: 86, angle: 0, model: 'g3' },
+  { id: 'd', title: 'D · Force USA G3 V1 · Espalda a la pared de la puerta', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 86, y: 130, angle: 270, model: 'g3' }
 ];
 
 // Ultimate Fitness P900 Premium, product3386:
@@ -177,29 +168,28 @@ function BenchAndBar({ barY, turn }: { barY: number; turn: number }) {
   </>;
 }
 
-function FoldingRack({ turn }: { turn: number }) {
-  const r = FOLDING;
-  return <g data-model="folding">
-    <rect data-part="rack-envelope" x={-r.width/2} y={-r.depth/2} width={r.width} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".7" strokeDasharray="3 3" />
-    <path d={`M${-r.postX} ${r.rearY}H${r.postX}`} stroke="#40545b" strokeWidth="6" />
+function G3Rack({ turn }: { turn: number }) {
+  const r = G3;
+  return <g data-model="g3-v1">
+    <rect data-part="g3-envelope" x={-r.width/2} y={r.rearY} width={r.width} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".7" strokeDasharray="3 3" />
+    <rect data-part="rear-disc-clearance" x={-r.width/2} y={r.rearY-r.rearGap} width={r.width} height={r.rearGap} fill="#d8c8aa" fillOpacity=".28" stroke="#a48a60" strokeWidth=".7" strokeDasharray="2 2" />
+    <path d={`M${-r.postX} ${r.rearY+12}H${r.postX} M${-r.postX} ${r.frontY-12}H${r.postX}`} stroke="#40545b" strokeWidth="5" />
     {[-1,1].map(side => <g key={side}>
-      {[r.rearY,r.frontY].map(y=><g key={y}>
-        <rect data-part="folding-foot" x={side*r.postX-3} y={y < 0 ? -70 : 30} width="6" height="40" rx="1" fill="#70848c" stroke="#40545b" />
-        <rect data-part="folding-post" className="af-rack" x={side*r.postX-3} y={y-3} width="6" height="6" />
-      </g>)}
-      <g data-part="hinged-links">
-        <path d={`M${side*r.postX} ${r.rearY}V${r.frontY}`} stroke="#4b646e" strokeWidth="4" />
-        <path d={`M${side*(r.postX-7)} ${r.rearY}V${r.frontY}`} stroke="#7c939d" strokeWidth="2" strokeDasharray="3 2" />
-        {[r.rearY,r.frontY].map(y=><circle key={y} cx={side*r.postX} cy={y} r="2" fill="#c5d4da" stroke="#40545b" strokeWidth=".6" />)}
-      </g>
-      <circle data-part="bar-storage-sleeve" cx={side*(r.postX-7)} cy={r.rearY-8} r="3" fill="#b4c6cd" stroke="#40545b" />
-      <path data-part="optional-safety-sling" d={`M${side*(r.postX-4)} ${r.rearY}Q${side*(r.postX-10)} 0 ${side*(r.postX-4)} ${r.frontY}`} fill="none" stroke="#a18b6f" strokeWidth="2" strokeDasharray="3 2" />
-      <path data-part="folding-hook" d={`M${side*r.postX-4} ${r.rearY}v14h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
+      <rect data-part="g3-post" className="af-rack" x={side*r.postX-3.5} y={-r.postY-3.5} width="7" height="7" />
+      <rect data-part="g3-post" className="af-rack" x={side*r.postX-3.5} y={r.postY-3.5} width="7" height="7" />
+      <path data-part="smith-guide" d={`M${side*(r.postX-7)} ${r.rearY+10}V${r.frontY-10}`} stroke="#718992" strokeWidth="2.5" />
+      <rect data-part="spotter-arm" x={side*r.postX-3} y={r.frontY} width="6" height={r.spotter} rx="1" fill="#84969a" stroke="#40545b" strokeWidth=".8" />
+      <path data-part="rear-plate-horn" d={`M${side*(r.postX-7)} ${r.rearY+12}V${r.rearY+28}`} stroke="#9c8060" strokeWidth="2.5" />
+      <ellipse data-part="stored-discs" cx={side*37} cy={r.rearY+17} rx="10" ry="5" fill="#bcb8ad" stroke="#827b6e" strokeWidth=".8" />
+      <path data-part="j-hook" d={`M${side*r.postX-4} ${r.barY-5}v7h8v-3`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
     </g>)}
+    <path data-part="smith-bar" d={`M${-r.smithWidth/2} 0H${r.smithWidth/2}`} stroke="#617984" strokeWidth="3" strokeDasharray="4 2" />
     <BenchAndBar barY={r.barY} turn={turn} />
-    <Ruler x={-r.width/2} y={-r.depth/2+12} length={r.width} label="MyRack ≈120 cm" />
-    <Ruler x={r.width/2+13} y={r.depth/2} length={r.depth} label="Abierto ≈140 cm" vertical flip={turn === 270} />
-    <Ruler x={-r.postX+19} y={r.frontY-3} length={74} label="Interior 74 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.width/2} y={r.rearY-5} length={r.width} label="Bastidor ≈122 cm" />
+    <Ruler x={-r.smithWidth/2} y={-9} length={r.smithWidth} label="Smith ≈203 cm" at={.38} />
+    <Ruler x={r.width/2+15} y={r.frontY} length={r.depth} label="Equipo ≈142 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.width/2-13} y={r.rearY} length={r.rearGap} label="≈15 cm atrás" vertical flip={turn === 270} />
+    <Ruler x={r.width/2+5} y={r.frontY+r.spotter} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
   </g>;
 }
 
@@ -276,8 +266,8 @@ export function ApartmentFloorPlan() {
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
       <Ruler x={layout.floorX} y={280} length={layout.floorW} label={`Jaula ${layout.floorW} × ${layout.floorH} cm`} />
       <Ruler x={88} y={294} length={135} label="Caucho bici 135 × 55 cm" />
-      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'folding' ? FOLDING.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
-      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'folding' ? <FoldingRack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
+      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
+      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
     </svg>
   </section>)}</div>;
 }
