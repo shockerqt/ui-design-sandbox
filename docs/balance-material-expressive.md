@@ -17,12 +17,14 @@ selection behavior and registration forms remain shared. No new domain layer.
 | Clear | Day heading, nutrient labels, selected filters | Make hierarchy and state recognizable |
 | Expressive | Register action, connected controls, dialog entry/exit | Reinforce primary action and continuity |
 
-Nutrition context uses explicit energy and nutrient labels, stable tabular
-numbers and three compact meters based on the existing totals/targets. The
-meters saturate at the target and do not represent completion; precise consumed
-and target values remain visible and accessible. The accepted neutral date ring
-and amber excess retain their meaning. No congratulatory or adverse health
-interpretation is added to exceeding a sample target.
+The food view combines date and daily context in one compact header, followed
+by the weekly selector. The repeated Balance/Alimentos brand row is omitted in
+this view. Energy shows consumed/target; P/C/G show consumed grams with full
+names and targets available through the existing nutrition-detail dialog.
+Compact text preserves semantic names and the summary's accessible consumed /
+target description. There are no inline nutrient meters in this revision.
+The accepted neutral date ring and amber excess retain their meaning.
+The central + is icon-only, with its full accessible registration name.
 
 Hour groups use implicit containment; expanded foods share a disclosure surface.
 Charts lose repeated surrounding cards while retaining their actual example

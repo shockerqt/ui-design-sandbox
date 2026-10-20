@@ -7,22 +7,27 @@
 .blw-expressive .blw-device { border-radius: 24px; box-shadow: none; }
 .blw-expressive .blw-app-brand { min-height: 54px; padding: 14px 20px 8px; }
 .blw-expressive .blw-app-brand > span { font-size: 20px; }
-.blw-expressive .blw-date { padding-bottom: 10px; }
-.blw-expressive .blw-date-main { gap: 24px; padding-bottom: 6px; }
-.blw-expressive .blw-date-main strong { font-size: 28px; font-weight: 550; }
-.blw-expressive .blw-week button { min-height: 60px; border-radius: 18px; }
-.blw-expressive .blw-week button[aria-pressed="true"] { border-radius: 18px 18px 8px 8px; }
-.blw-expressive .blw-summary { padding: 14px 16px 16px; margin-bottom: 8px; border-radius: 24px 24px 10px 10px; }
-.blx-energy-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; line-height: 1.4; margin-bottom: 3px; }
-.blw-expressive .blw-energy strong { font-size: 36px; font-weight: 550; line-height: 1.12; letter-spacing: -1px; }
-.blx-energy-target { font-size: 12px; }
-.blx-nutrients { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
-.blx-nutrients > span { min-width: 0; display: grid; gap: 4px; }
-.blx-nutrient-label { font-size: 11px; line-height: 1.3; }
-.blx-nutrients strong { font-size: 15px; font-weight: 550; }
-.blx-nutrients small { font-size: 10px; white-space: nowrap; }
-.blx-nutrient-meter { height: 4px; display: block; position: relative; margin-top: 3px; background: var(--md-bg); border-radius: 3px; overflow: hidden; }
-.blx-nutrient-meter i { display: block; height: 100%; background: var(--md-primary); border-radius: inherit; }
+/* One date/context region, followed by the week. Reading order matches DOM order. */
+.blx-log-header { flex-shrink: 0; padding: 4px 16px; background: var(--md-surface); }
+.blw-expressive .blx-log-header .blw-date-main { gap: 8px; padding: 0; justify-content: space-between; }
+.blw-expressive .blw-date-main strong { font-size: 18px; font-weight: 550; letter-spacing: -.2px; }
+.blw-expressive .blw-date-main .blx-date-title { display: flex; align-items: center; justify-content: center; gap: 8px; min-width: 0; }
+.blw-expressive .blx-date-title strong { white-space: nowrap; }
+.blw-expressive .blx-date-title .blx-return-today { width: auto; min-width: 48px; min-height: 48px; padding: 0 6px; font-size: 12px; color: var(--md-primary); text-decoration: underline; text-underline-offset: 4px; }
+.blw-expressive .blx-log-header .blw-summary { width: 100%; margin: 0; padding: 4px; border: 0; border-radius: 10px; background: transparent; color: var(--md-ink); }
+.blw-expressive .blw-energy { align-items: center; }
+.blw-expressive .blw-energy strong { font-size: 22px; font-weight: 550; line-height: 1.2; letter-spacing: -.3px; }
+.blx-energy-target { font-size: 12px; color: var(--md-muted); }
+.blx-compact-macros { display: flex; gap: 18px; margin-top: 4px; font-size: 12px; line-height: 1.4; }
+.blx-compact-macros abbr { color: var(--md-muted); text-decoration: none; }
+.blx-compact-macros strong { font-weight: 500; }
+.blx-compact-macros small { font-size: 11px; color: var(--md-muted); }
+.blw-expressive .blw-week { margin-top: 4px; gap: 2px; }
+.blw-expressive .blw-week button { min-height: 48px; padding: 3px 0; gap: 1px; border-radius: 14px; }
+.blw-expressive .blw-weekday { font-size: 10px; line-height: 1.2; }
+.blw-expressive .blw-day-number { width: 30px; height: 30px; font-size: 11px; }
+.blw-expressive .blw-week button[aria-pressed="true"] { border-radius: 14px 14px 6px 6px; }
+.blw-expressive .blw-feed { padding-top: 4px; }
 /* Homogeneous hour groups use alignment and disclosure instead of six repeated cards. */
 .blw-expressive .blw-groups { gap: 0; padding-inline: 16px; }
 .blw-expressive .blw-group { background: transparent; border-radius: 0; overflow: visible; }
@@ -45,8 +50,8 @@
 .blw-expressive .blw-nav-destination[aria-current="page"] > svg { border-radius: 10px; }
 .blw-expressive .blw-nav-destination:active > svg { border-radius: 20px; }
 .blw-expressive .blw button.blw-nav-add {
-  display: flex; flex-direction: column; justify-content: center; gap: 2px;
-  width: 62px; height: 62px; border-radius: 22px; font-size: 10px; font-weight: 600;
+  display: grid; place-items: center;
+  width: 56px; height: 56px; border-radius: 20px;
   transition: border-radius var(--blx-motion-short) var(--blx-easing), transform var(--blx-motion-short) var(--blx-easing);
 }
 .blw-expressive .blw button.blw-nav-add:active { border-radius: 50%; transform: scale(.94); }

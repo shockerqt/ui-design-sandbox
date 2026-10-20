@@ -17,9 +17,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-material-expressive',
     title: 'Balance · Material Expressive',
     category: 'Dashboards',
-    description: 'Segunda dirección visual: jerarquía de nutrientes, acciones con forma reactiva, controles conectados y transiciones con movimiento reducido.',
+    description: 'Cabecera compacta con fecha, totales y semana; más espacio para alimentos, + sin texto y transiciones con movimiento reducido.',
     tags: ['Balance', 'Material 3', 'Expressive', 'motion', 'Compose', 'mobile'],
-    version: 'v1.0.0',
+    version: 'v1.1.0',
     updatedAt: '2026-10-20',
     component: BalanceMaterialExpressive
   },
