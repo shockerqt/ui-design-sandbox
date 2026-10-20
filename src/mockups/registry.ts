@@ -16,9 +16,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Cuatro planos a escala para comparar SID y Force USA G3 V1, con Smith, barra libre y posiciones de banca para press.',
+    description: 'Planos SID/G3 con caucho modular para rack, banca y P900, más esquema de cortes de cuatro planchetas.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.12.0',
+    version: 'v1.13.0',
     updatedAt: '2026-10-20',
     component: ApartmentFloorPlan
   },
