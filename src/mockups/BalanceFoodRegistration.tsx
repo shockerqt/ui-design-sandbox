@@ -20,8 +20,8 @@ export function parseFoodRegistration(search: string): FoodRegistrationContext {
   return { day: validDate ? dayOffset(date) : 0, time: /^([01]\d|2[0-3]):[0-5]\d$/.test(time) ? time : '13:00', method: params.get('modo') === 'labels' ? 'labels' : 'libraries' };
 }
 
-export function foodRegistrationURL(context: FoodRegistrationContext) {
-  return `${ADD_FOOD_PATH}?${new URLSearchParams({ fecha: dayISO(context.day), hora: context.time, modo: context.method })}`;
+export function foodRegistrationURL(context: FoodRegistrationContext, basePath = BALANCE_WIREFRAME_PATH) {
+  return `${basePath}/agregar-alimento?${new URLSearchParams({ fecha: dayISO(context.day), hora: context.time, modo: context.method })}`;
 }
 
 const personalIds = new Set(['a1', 'a2', 'c1', 'c2', 'd1', 'd2']);

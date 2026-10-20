@@ -86,4 +86,16 @@ const sparseIntake = summary({}, [-2, 0].map((day) => ({ day, calories: 2000, pr
 assert.equal((sparseIntake.match(/class="blw-chart-line"/g) ?? []).length, 0);
 assert.doesNotMatch(route('/m/balance-log-wireframes'), /NaN|Infinity/);
 assert.match(route('/m/base-ui-color-system/agregar-alimento'), /Esta ruta no corresponde/);
+// Visual variants share forms but own their routes; unknown screens remain 404.
+assert.match(route('/m/balance-android-material'), /blw-android-dark/);
+assert.doesNotMatch(route('/m/balance-log-wireframes'), /class="[^"]*blw-android/);
+assert.match(route('/m/balance-android-material/agregar-alimento'), /Oficial/);
+assert.match(route('/m/balance-android-material/agregar-alimento?modo=labels'), /Datos de la etiqueta/);
+assert.match(route('/m/balance-android-material/unknown'), /Esta ruta no corresponde/);
+assert.match(route('/m/balance-material-expressive'), /blw-expressive/);
+assert.match(route('/m/balance-material-expressive/agregar-alimento?modo=labels'), /Datos de la etiqueta/);
+assert.match(route('/m/balance-material-expressive/unknown'), /Esta ruta no corresponde/);
+assert.match(route('/m/balance-style-studies'), /blw-study-organic/);
+assert.match(route('/m/balance-style-studies/agregar-alimento?modo=labels'), /Datos de la etiqueta/);
+assert.match(route('/m/balance-style-studies/unknown'), /Esta ruta no corresponde/);
 console.log('Balance wireframe contracts: quantity conversion/recalculation, optional fiber, official catalogue, Santiago weight dates, midnight ordering and routed form checks pass.');
