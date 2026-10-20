@@ -1,0 +1,305 @@
+# Balance multiview wireframes
+
+Review route: `/m/balance-log-wireframes`.
+
+Food registration route: `/m/balance-log-wireframes/agregar-alimento`.
+
+## Objetivo y alcance de la revisión
+
+Validar la organización de la información y los flujos móviles para registrar
+alimentos, peso y medidas corporales, y consultar su evolución por separado.
+La entrega es un prototipo navegable para decidir la diagramación antes de
+definir la identidad visual o implementar estos cambios en Balance.
+
+La [tarea canónica UDS-010](https://github.com/shockerqt/workspace-governance/blob/47d3a701e9f3aa7757b6b7c12e0b22d0ab6860f1/tasks/UDS-010-balance-log-wireframes.md)
+define los objetivos y criterios de aceptación. Esta guía los presenta dentro
+del repositorio para que el PR pueda revisarse sin leer la conversación.
+
+| Objetivo | Qué debe permitir evaluar el prototipo |
+| --- | --- |
+| O1 · Consultar y corregir la alimentación | Encontrar alimentos en grupos horarios; leer porción, hora, kcal y macros; editar o seleccionar sin saturar la vista diaria. |
+| O2 · Agregar por bibliotecas o etiquetas | Entrar a una ruta normal, elegir o describir un alimento y guardarlo en el día/hora correctos con una vuelta clara al registro. |
+| O3 · Registrar mediciones de distinta frecuencia | Consultar un calendario mensual, anotar peso o solo las zonas medidas y distinguir izquierda/derecha y la fecha de cada última medida. |
+| O4 · Separar registro y análisis | Mantener los gráficos en Resumen, explorar períodos y volver a los registros de una fecha sin perder los filtros de análisis. |
+| O5 · Navegar y registrar desde un lugar estable | Reconocer Alimentos, Mediciones, Resumen y Perfil, con el + exactamente al centro y acceso común a los tres tipos de registro. |
+| O6 · Revisar la diagramación antes del estilo | Evaluar jerarquía, densidad, áreas táctiles y estados a 375–390px mediante datos sintéticos y presentación neutra. |
+
+Terminología: **alimento** es el producto; **registro** es su consumo con porción
+y hora; **grupo horario** reúne registros cercanos. No se pide nombrar comidas.
+
+## Recorrido de revisión
+
+1. Abrir la preview de UDS-010 en `/m/balance-log-wireframes` y elegir 375px en
+   el visor. La fecha de referencia del ejemplo es **9 de octubre de 2026**.
+   Comparar Día plegado, Detalle, Selección y Día vacío; los presets restablecen
+   los ejemplos, por lo que conviene probarlos antes de hacer ediciones.
+2. En Alimentos, abrir el grupo 13:00 para revisar macros de tres dígitos,
+   tocar un registro y usar «Seleccionar varios» o pulsación larga para seleccionar. Comprobar el +
+   independiente del grupo y el detalle nutricional del resumen diario.
+3. Desde un + de grupo, entrar a Agregar alimento. Probar búsqueda y filtro de
+   biblioteca; después Etiquetas con un ejemplo o valores propios de prueba.
+   Cambiar día/hora, registrar y comprobar dónde quedó el alimento. Volver sin
+   guardar debe abandonar el formulario; la ruta admite también entrada directa.
+4. En Mediciones, alternar Peso/Medidas corporales, cambiar de mes y seleccionar
+   una fecha. El ejemplo tiene sesiones corporales el 1 y 27 de septiembre y el
+   9 de octubre; la última solo incluye cintura/cuello. Revisar campos opcionales,
+   pares izquierdo/derecho y las fechas de «últimas medidas por zona».
+5. En Resumen, alternar Alimentación/Cuerpo y 7/30/90 días; elegir una medida
+   corporal y una fecha de un gráfico. Abrir sus registros, editar y volver para
+   comprobar el vínculo con el mismo estado y la conservación de los filtros.
+6. Verificar las cinco posiciones Alimentos / Mediciones / + / Resumen / Perfil.
+   Probar nombre/preferencias de Perfil, cambiar de vista y comprobar que se
+   conservan durante la instancia. Revisar espacios, truncamientos y controles
+   táctiles en cada pantalla, incluidos los formularios.
+
+La inspección visual en navegador a 375/390px informa esta iteración; la
+aprobación del usuario y la comodidad táctil en un dispositivo siguen pendientes. CI valida empaquetado y TypeScript/build;
+los checks de fechas, búsqueda, formularios y render del run no sustituyen esa
+revisión. El PR debe recoger los hallazgos antes de dar por aceptada la propuesta.
+
+## Ajustes de la revisión de diseño · 19 oct 2026
+
+- Lectura: nombre de alimento de 14px, porción/hora/macros de 12px; se mantienen
+  dos líneas, metas compactas y truncamiento accesible de textos largos.
+- Etiquetas: primero los datos del envase, después el consumo; borrador conservado
+  al alternar pestañas y acción de registro fuera del área de desplazamiento.
+- Bibliotecas: chevron para elegir y check al seleccionar; la cantidad se confirma
+  antes de registrar, con la misma jerarquía de acción que los otros formularios.
+- Resumen: controles de período estables a ambos anchos, selector de fecha junto
+  al valor del gráfico y enlace al registro junto a su leyenda.
+- Selección: acceso «Seleccionar varios» en el detalle, además del gesto;
+  acciones de al menos 44px, sin barra persistente en el registro normal.
+- Mediciones: campos desplazables y Guardar/Cancelar visibles al pie; se retira
+  del flujo el texto sobre implementación y funcionamiento del prototipo.
+
+La revisión también detectó transiciones relacionadas: pulsar largo conserva la
+selección acumulada; Día vacío usa otra fecha y no borra registros; cada curva
+corporal conecta sus propios puntos aunque el otro lado se mida en otra fecha;
+las flechas del mes respetan los límites del selector. Los faltantes de
+alimentación siguen interrumpiendo sus curvas.
+
+## Límites de esta entrega
+
+Datos, metas, bibliotecas y preferencias son ejemplos en memoria. Recargar
+reinicia el prototipo. Editar una cantidad conserva la base nutricional histórica
+y recalcula el consumo con la cantidad canónica convertida a g/ml. No se incluye integración con Balance/backend,
+persistencia, QR/OCR/cámara, notificaciones reales, cambios de unidades de peso/medidas,
+ilustraciones definitivas ni identidad visual final. Las unidades de Perfil
+son una lectura de kg/cm/kcal. Publicar este PR para revisión no realiza merge,
+release permanente ni cambios a la infraestructura de previews.
+
+This iteration explores the anatomy agreed with the user before visual styling.
+It uses 22 synthetic food records grouped into six hours: five groups of four
+foods and one group of peanuts/raisins. It does not read Balance data or reuse
+its theme, targets or food imagery. The sample calorie target is illustrative.
+Four functional app destinations share the same in-memory state:
+Alimentos, Mediciones, Resumen and Perfil. Five equal navigation slots put the
+registration plus exactly in the center: Alimentos / Mediciones / + / Resumen / Perfil.
+
+## Compatibilidad contrastada con Balance
+
+Referencia auditada: `origin/main` de Balance en
+[`0c01f5a`](https://github.com/shockerqt/balance/tree/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a).
+El prototipo refleja esas restricciones con fixtures locales, sin integrar ni
+modificar su backend.
+
+| Hallazgo | Tratamiento en esta propuesta |
+| --- | --- |
+| Contrato V2 de cantidades | Base nutricional por 100 g/ml, cantidad numérica y razón explícita de porción. Editar cantidad conserva la base histórica y recalcula nutrientes consumidos. |
+| Fibra opcional | Campo opcional en Etiquetas; ausencia, cero explícito y subtotal parcial se distinguen. |
+| Catálogo personal/oficial | «Mi biblioteca» y «Oficial»; no se propone compartir datos entre usuarios. |
+| Peso diario | 1–500 kg, paso 0,1; fecha no futura respecto de Santiago. |
+| Circunferencias | Propuesta de interfaz que exige futura ampliación del modelo, tablas y sync en Balance bajo una tarea propia. |
+| Orden temporal | Redondear 23:45 no lo coloca al comienzo del mismo día; grupos y registros mantienen orden cronológico. |
+
+Fuentes: [tipos V2](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/packages/balance-domain/src/types.ts),
+[conversión de porciones](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/packages/balance-domain/src/portion.ts),
+[connector y validación de peso](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/apps/server/src/connectors/sync.rs)
+y [fecha futura en sync](https://github.com/shockerqt/balance/blob/0c01f5ad92537e148ecac9c72961f5c4ba49cf1a/apps/server/src/modules/sync/ws.rs).
+
+`node scripts/test-balance-wireframes.mjs` verifica conversiones y recálculo,
+base histórica, fibra ausente/cero, catálogo oficial, precisión/fechas de peso,
+orden cerca de medianoche y render de la ruta. CI ejecuta estos checks después
+de instalar las dependencias. La densidad y el contexto del + siguen siendo
+hipótesis de UX para revisión visual, no fallos demostrados por estos tests.
+
+## Review states
+
+- **Día plegado:** six time groups, counts, energy and P/C/G subtotals.
+- **Detalle:** the 13:00 and 18:00 groups expanded, showing the same sample data.
+- **Selección:** those groups expanded with three food records selected and
+  cancel/move/delete actions. Group check controls select or deselect all foods.
+
+Changing the review preset restores its original example data. A separate reset
+control does the same while retaining the current app destination. The empty-day
+toggle navigates to a genuinely empty example date after the reference day; it
+does not mask or replace existing records. Date controls show partial example intake on October 5, 7 and 8,
+initially empty days on October 6, 10 and 11, and the populated reference day,
+2026-10-09. Adding, moving, editing and deleting operate within the selected
+day; navigating preserves each day's in-memory changes. The reference day is
+2026-10-09, rather than the machine's current date. The food week follows the
+selected date, including dates reached from a graph or measurement calendar.
+
+## Date strip and compact totals
+
+The continuous ring around the day number represents recorded calories divided
+by the illustrative 2,200 kcal target. There is no extra recording dot or plus
+character. An empty day has only the muted track. A single ring fills up to
+100% in gray; above the calorie target, amber (#b66a12) progressively covers
+the same perimeter. At 120% intake, the ring shows 20% amber and 80% gray.
+At 200% or more it is fully amber. The overlay shares the main ring's radius,
+center and stroke width, so there is one visible ring with no inner ring.
+The expanded daily nutrition detail and accessible date labels retain the
+uncapped percentage. Date labels retain exact amounts and food-record counts. A full ring does not declare the day completely logged or
+assess dietary quality. Exact amounts remain available independently of color.
+
+The daily summary is a single full-width button using two compact lines:
+calorie total/target, then inline P/C/G consumed/target grams. It hides fiber and
+percentage. Illustrative targets are 2,200 kcal, P 150g, C 265g and G 60g.
+Tapping it opens the selected day's advanced nutrition sheet, including fiber
+with an illustrative 30g target and the uncapped calorie percentage. Sugar,
+saturated fat, sodium and cholesterol show “Sin datos” because the sample
+records do not contain them; missing data is never presented as zero.
+These values are layout fixtures, not personalized nutrition guidance. The previous large progress bar and
+four-column macro cards are removed. Daily weight is excluded from the feed and summary.
+Collapsed and expanded group headings show two lines: hour/count/calorie
+subtotal, then a compact right-aligned P/C/G line. The entire heading area is
+the expansion button; its chevron is a decorative cue inside that same button.
+The separate rightmost plus has a divided, at-least-44×44px touch area, fills the
+heading height and does not toggle expansion. Selection adds a separate 44px
+group checkbox. Food-row anatomy keeps its two lines.
+
+## Food-row anatomy
+
+Each food uses a fixed neutral image symbol and two content lines:
+
+1. Name and calories.
+2. Quantity, exact time and an inline protein/carbohydrate/fat summary in grams.
+
+Macro values stay together with subtle dot separators and tabular numerals;
+intrinsic-width values accommodate three digits without spreading the labels
+across the card. Group macros align below the energy subtotal. Food
+macros take their intrinsic compact width, with portion text yielding first
+when space is tight. The illustrative rice
+portion contains 107g carbs to exercise three-digit values in expanded and
+selection states. Numeric values remain explicit; no category color system is
+introduced in this grayscale iteration.
+
+Names and quantities may ellipsize at phone widths; the full values remain in
+the accessible label and edit dialog. Exact time and macro values remain visible.
+This is a deliberate prototype tradeoff to review, not a production typography
+decision. No manual meal naming or food categorization is introduced.
+
+Tap a food to edit its time and numeric quantity/unit. Portion ratios convert
+units to g/ml; consumption is recalculated from the unchanged historical
+nutritionPer100 snapshot. A free-text amount is not a consumption model. Hold
+for 550 ms to select (Shift+Enter or Shift+Space with keyboard focus), or choose
+«Seleccionar varios» from the edit detail. Holds toggle one item when selection
+is already active. The list
+has no permanent food/group count or selection toolbar; count and actions appear
+only during selection. Moving/deleting and
+adding a sample food affect only this instance in memory; reset reloads samples.
+The bottom navigation now opens actual food, measurement and summary views.
+No network calls or real-data persistence are implemented.
+
+## Measurement calendar and recording
+
+Mediciones separates Peso from Medidas corporales. Both use a monthly calendar
+with previous/next month arrows and a native month/year selector. The selected
+filter determines the recording dots and legend; no progress or overdue state
+is shown. Selecting a date shows that day's values and editing action. Calendar
+navigation and filter switching retain the selected date; month navigation
+selects the first day of the destination month.
+
+Weight is one kg value per day, prefilled for editing. Values are 1–500 kg in
+0.1 kg steps, with no future date according to America/Santiago (the actual
+current local date, independent of the fixed sample reference day). Body sessions contain
+optional cm values for waist, hips, chest, neck, paired arms, thighs and calves.
+Left and right inputs appear together. Save/Cancel remain visible below the
+scrollable fields, so a partial session can be saved without traversing other zones. Changing the form date loads the values
+for that date; saving upserts the day's session. Blank fields are absent, rather
+than zero; clearing an existing field removes that value from that date. An
+expandable latest-by-zone list includes each zone's own last measurement date.
+This view has no trend charts or prescribed recording schedule. Body
+circumferences are a proposed extension: the audited Balance backend has no
+corresponding model/table/sync contract, so its later implementation needs a
+separate Balance-owned task.
+
+Fixtures include frequent weights over 43 days, with explicit gaps, and body
+sessions on September 1, September 27 and October 9. The most recent body
+session only measures waist and neck, so other zones retain September dates.
+
+## Separate statistics
+
+Resumen has Alimentación / Cuerpo tabs and a shared 7/30/90-day period, including
+an editable end date. Alimentación includes calorie bars and P/C/G curves;
+Cuerpo includes weight and one selectable circumference chart. Paired zones
+compare left/right lines. All figures derive from the same editable memory
+records; missing days are not filled with zero. Nutrition curves break at
+unrecorded dates; body curves connect actual measurements over elapsed time.
+The chart labels and axes preserve units and dates. Grayscale line patterns
+distinguish series for this diagramming iteration.
+
+Tap a chart to inspect the nearest recorded date; arrow keys and a date selector
+provide equivalent navigation. The date selector appears alongside its values, without a second repeated date
+control. A compact link alongside the legend opens the selected date in
+Alimentos or the appropriate Peso/Medidas calendar, where it can be edited.
+Returning to Resumen preserves its area, period, end date and body metric.
+
+## Central registration action
+
+Perfil proposes account/name, current units and weight/body reminder preferences.
+Name and checkbox changes are held in memory across navigation and reset with
+the example. Reminder controls do not schedule or send notifications; units
+remain the current kg/cm/kcal readout for this anatomy iteration.
+
+The bottom navigation contains a central 44px plus button. It opens a bottom
+sheet with Alimento, Peso and Medidas corporales actions for the selected day. Alimento opens
+the normal food-registration route; Peso opens a kg input and
+stores one example value per day in memory, prefilled when reopened. Body
+measurements use the optional grouped form. Resetting the example restores the
+synthetic weights/body sessions as well as food records. Weight is not added to
+the food feed, summary or calorie ring.
+
+The previous separate registration row is removed. Selection actions replace
+the bottom navigation while selecting rather than stacking above it. Per-group
+plus buttons keep their direct, hour-specific food-registration shortcut.
+
+## Food registration route
+
+Adding food is a full screen with a back button, date/hour fields and Bibliotecas /
+Etiquetas tabs. It has no dialog backdrop or bottom navigation. The main plus's
+Alimento action, group pluses and empty-day action all enter this route, carrying
+the current day/hour in validated query parameters (`fecha`, `hora`, `modo`).
+Direct links use the same screen; missing/invalid parameters fall back to the
+reference date, 13:00 and Bibliotecas. Browser back returns to the previous view;
+the in-screen back button falls back to the mockup root after direct entry.
+Changing tabs/date/hour replaces the current history entry, avoiding extra back
+steps. The shared mockup stays mounted, so existing in-memory edits survive.
+
+Bibliotecas searches 22 synthetic foods across Mi biblioteca and Oficial,
+supports accent-insensitive names, filtering, no-results feedback and selection.
+The chosen food exposes a positive numeric quantity and canonical g/ml or a
+known portion ratio; the nutrient preview recalculates before confirmation. Saving appends exactly one example to the chosen day/hour and returns
+to its food group. No external libraries or catalogues are accessed.
+
+Etiquetas captures a food name, canonical g/ml unit, numeric consumption and
+nutrition values per 100 or per a portion with an explicit size. Portion-based
+label values normalize to nutritionPer100; the consumed amount is calculated
+from enteredQuantity and the portion ratio. The form separates «Datos de la
+etiqueta» (base, portion size, nutrients) from «Tu consumo» (quantity, equivalence,
+preview). The registration action stays visible; the draft survives tab changes.
+Fiber is optional: absent stays
+absent, while an explicit zero remains zero. The day detail shows unknown fiber
+as “Sin datos” or identifies the known subtotal as partial. No QR, camera or OCR
+is used.
+Only the exact Balance add-food subroute is enabled; other mockup subroutes
+retain the not-found behavior. The route survives direct static SPA refreshes;
+a full refresh still resets the prototype's memory-only example records.
+
+## Worktree review
+
+Follow the root INSTRUCTIONS.md preview section and the INF-013 owning runbook.
+Prepare the two-hour `vite` plan for UDS-010 and this route. Public activation
+requires explicit approval of the exact plan; the wireframe iteration itself
+does not merge main or publish a permanent Sandbox release.
