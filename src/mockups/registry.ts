@@ -8,9 +8,20 @@ import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
+import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-android-material',
+    title: 'Balance · Android Material',
+    category: 'Dashboards',
+    description: 'Exploración Material 3 Expressive sobre los flujos de Balance: superficies tonales, formas suaves y modos oscuro y claro.',
+    tags: ['Balance', 'Android', 'Material 3', 'Compose', 'mobile'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-20',
+    component: BalanceAndroidMaterial
+  },
   {
     id: 'balance-log-wireframes',
     title: 'Balance · Wireframes multivista',

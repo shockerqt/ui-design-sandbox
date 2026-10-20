@@ -1,0 +1,178 @@
+/* Android visual study. Semantic roles are shared by the canvas and portaled dialogs. */
+.blw-android {
+  --md-bg: #101418; --md-surface: #181c20; --md-container: #22272d;
+  --md-high: #2c3239; --md-ink: #e1e2e8; --md-muted: #b9c3cf;
+  --md-outline: #414b57; --md-primary: #a2c9f8; --md-on-primary: #063257;
+  --md-secondary: #304b66; --md-on-secondary: #d2e5ff; --md-amber: #efba73;
+  --md-state: #ffffff0d; --md-font: Roboto, 'Helvetica Neue', Arial, sans-serif;
+  color-scheme: dark;
+}
+.blw-android-light {
+  --md-bg: #f7f9fe; --md-surface: #edf1f7; --md-container: #e3e9f0;
+  --md-high: #d8e2ee; --md-ink: #191d23; --md-muted: #455568;
+  --md-outline: #b9c7d6; --md-primary: #285d90; --md-on-primary: #ffffff;
+  --md-secondary: #d2e5ff; --md-on-secondary: #133a5c; --md-amber: #895000;
+  --md-state: #001c3b0a; color-scheme: light;
+}
+.blw-android .blw {
+  --blw-text: var(--md-ink); --blw-muted: var(--md-muted);
+  --blw-line: var(--md-outline); --blw-soft: var(--md-container);
+  background: var(--md-bg); color: var(--md-ink); font-family: var(--md-font);
+  gap: clamp(32px, 6vw, 100px); padding-block: 48px;
+}
+.blw-android :is(button, input, select, a) { -webkit-tap-highlight-color: transparent; }
+.blw-android :focus-visible { outline: 2px solid var(--md-primary); outline-offset: 3px; }
+.blw-android .blw-kicker { font-size: 11px; letter-spacing: .06em; color: var(--md-primary); }
+.blw-android .blw-intro h1 { font-size: 46px; line-height: 1.05; font-weight: 500; letter-spacing: -.035em; margin-bottom: 20px; }
+.blw-android .blw-intro p { color: var(--md-muted); font-size: 16px; max-width: 30ch; }
+.blw-android .blw-style-controls { margin-top: 28px; display: grid; gap: 16px; }
+.blw-style-controls > div { display: flex; border: 1px solid var(--md-outline); border-radius: 30px; padding: 3px; }
+.blw-style-controls button { min-height: 48px; flex: 1; border: 0; border-radius: 26px; background: transparent; font-size: 14px; }
+.blw-style-controls button[aria-pressed="true"] { background: var(--md-secondary); color: var(--md-on-secondary); font-weight: 600; }
+.blw-style-controls a { width: fit-content; min-height: 36px; display: flex; align-items: center; color: var(--md-primary); font-size: 13px; text-underline-offset: 5px; }
+.blw-android .blw-views { background: var(--md-surface); border-radius: 16px; padding: 4px; gap: 2px; margin-top: 16px; }
+.blw-android .blw-views button { font-size: 12px; border-radius: 12px; min-height: 48px; }
+.blw-android .blw-views button[data-active] { background: var(--md-secondary); color: var(--md-on-secondary); outline: none; }
+.blw-android .blw-options { border-color: var(--md-outline); color: var(--md-muted); align-items: center; padding: 14px 0; }
+.blw-android .blw-options button { min-height: 48px; color: var(--md-primary); }
+.blw-android input { accent-color: var(--md-primary); }
+.blw-android .blw-review-notes { display: none; }
+.blw-material-notes { color: var(--md-muted); font-size: 13px; line-height: 1.6; margin-top: 24px; display: grid; gap: 14px; }
+.blw-material-notes p { margin: 0; }
+.blw-material-notes small { font-size: 11px; line-height: 1.8; }
+.blw-swatches { display: flex; gap: 6px; margin-bottom: 4px; }
+.blw-swatches i { width: 42px; height: 28px; background: var(--md-primary); border-radius: 16px; }
+.blw-swatches i:nth-child(2) { background: var(--md-secondary); }
+.blw-swatches i:nth-child(3) { background: var(--md-high); }
+.blw-swatches i:nth-child(4) { background: var(--md-amber); }
+.blw-android .blw-device { background: var(--md-bg); border: 1px solid var(--md-outline); border-radius: 32px; height: 840px; box-shadow: 0 20px 64px #0002; }
+.blw-app-brand { flex-shrink: 0; min-height: 60px; padding: 16px 20px 10px; display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.blw-app-brand > span { display: flex; align-items: center; gap: 9px; font-size: 21px; font-weight: 550; letter-spacing: -.4px; }
+.blw-app-brand svg { color: var(--md-primary); }
+.blw-app-brand small { font-size: 12px; color: var(--md-muted); }
+.blw-android .blw-date { border: 0; padding: 0 16px 12px; }
+.blw-android .blw-date-main { justify-content: center; gap: 30px; padding: 2px 0 8px; }
+.blw-android .blw-date-main > span { min-width: 130px; }
+.blw-android .blw-date-main strong { font-size: 22px; font-weight: 500; letter-spacing: -.3px; }
+.blw-android .blw-date-main small { font-size: 12px; margin-top: 3px; }
+.blw-android :is(.blw-date-main button, .blw-month-navigation > button, .blw-add-header button) { width: 48px; height: 48px; border-radius: 50%; }
+.blw-android .blw-week { gap: 2px; }
+.blw-android .blw-week button { min-height: 68px; border-radius: 24px; padding: 7px 0; border: 0; }
+.blw-android .blw-week button[aria-pressed="true"] { background: var(--md-secondary); color: var(--md-on-secondary); }
+.blw-android .blw-weekday { font-size: 11px; }
+.blw-android .blw-day-number { font-size: 12px; }
+.blw-android .blw-ring-track { stroke: var(--md-outline); }
+/* Registered kcal retain the accepted neutral ring; amber overlays only excess. */
+.blw-android .blw-ring-value { stroke: var(--md-muted); }
+.blw-android .blw-ring-overflow { stroke: var(--md-amber); }
+.blw-android .blw-summary { width: calc(100% - 32px); margin: 0 16px 14px; padding: 16px; background: var(--md-secondary); color: var(--md-on-secondary); border: 0; border-radius: 24px; }
+.blw-android .blw-energy { font-size: 12px; }
+.blw-android .blw-energy strong { font-size: 29px; font-weight: 500; letter-spacing: -.7px; }
+.blw-android .blw-energy > svg { color: inherit; }
+.blw-android .blw-summary-macros { margin-top: 10px; gap: 4px; font-size: 12px; }
+.blw-android .blw-summary-macros :is(abbr, small) { color: inherit; opacity: .85; font-size: 11px; }
+.blw-android .blw-groups { display: grid; gap: 8px; padding: 0 12px 16px; }
+.blw-android .blw-group { border: 0; border-radius: 20px; overflow: hidden; background: var(--md-surface); }
+.blw-android .blw-group:last-child { border: 0; }
+.blw-android .blw-group-top { background: var(--md-container); }
+.blw-android .blw-group-trigger { padding: 12px 8px 12px 16px; min-height: 76px; }
+.blw-android .blw-group-identity strong { font-size: 17px; font-weight: 550; }
+.blw-android .blw-group-identity small { color: var(--md-muted); }
+.blw-android .blw-group-add { color: var(--md-primary); width: 48px; min-height: 48px; border: 0; background: transparent; }
+.blw-android .blw-food { background: var(--md-surface); color: var(--md-ink); border-color: var(--md-bg); min-height: 76px; padding: 12px 10px; gap: 8px; }
+.blw-android .blw-food[data-selected] { background: var(--md-secondary); }
+.blw-android .blw-image { width: 28px; height: 36px; border: 0; border-radius: 10px; background: var(--md-high); color: var(--md-muted); }
+.blw-android .blw-food-name { font-size: 14px; font-weight: 500; }
+.blw-android .blw-line-two { font-size: 11px; color: var(--md-muted); }
+.blw-android .blw-line-two .blw-macro-line { gap: 5px; font-size: 10px; }
+.blw-android .blw-macro-line small { color: var(--md-muted); }
+.blw-android .blw-check { border-color: var(--md-muted); border-radius: 4px; }
+.blw-android :is(.blw-food[data-selected] .blw-check, .blw-group-select[aria-pressed="true"] .blw-check) { background: var(--md-primary); border-color: var(--md-primary); color: var(--md-on-primary); }
+.blw-android .blw-bottom-nav { background: var(--md-surface); border: 0; min-height: 88px; padding: 10px 8px 14px; gap: 2px; }
+.blw-android .blw-nav-destination { min-height: 58px; gap: 7px; border-radius: 18px; color: var(--md-muted); background: transparent; }
+.blw-android .blw-nav-destination > svg { box-sizing: content-box; padding: 5px 15px; border-radius: 20px; }
+.blw-android .blw-nav-destination[aria-current="page"] { color: var(--md-ink); background: transparent; }
+.blw-android .blw-nav-destination[aria-current="page"] > svg { background: var(--md-secondary); color: var(--md-on-secondary); }
+.blw-android .blw button.blw-nav-add { width: 52px; height: 52px; border-radius: 18px; border: 0; background: var(--md-primary); color: var(--md-on-primary); }
+.blw-android .blw-action { padding: 12px; background: var(--md-container); border: 0; }
+.blw-android .blw-action > div button { background: var(--md-secondary); color: var(--md-on-secondary); border: 0; border-radius: 24px; min-height: 48px; }
+.blw-android .blw-caption { color: var(--md-muted); font-size: 11px; letter-spacing: .025em; margin-top: 20px; }
+.blw-android :is(.blw-page-header, .blw-add-header) { padding: 10px 16px 18px; }
+.blw-android :is(.blw-page-header h2, .blw-add-header h2) { font-size: 26px; font-weight: 500; letter-spacing: -.5px; }
+.blw-android .blw-page-header > span { color: var(--md-muted); }
+.blw-android .blw-segments { border: 1px solid var(--md-outline); padding: 3px; border-radius: 28px; background: transparent; gap: 2px; }
+.blw-android .blw-segments button { min-height: 48px; border-radius: 24px; color: var(--md-muted); }
+.blw-android .blw-segments button[data-active] { background: var(--md-secondary); color: var(--md-on-secondary); outline: none; }
+.blw-android .blw-calendar { border-color: var(--md-outline); }
+.blw-android .blw-month-grid button { min-height: 48px; background: transparent; color: var(--md-ink); border-radius: 50%; }
+.blw-android .blw-month-grid button[aria-pressed="true"] { background: var(--md-secondary); color: var(--md-on-secondary); border-color: transparent; }
+.blw-android :is(.blw-calendar-mark i, .blw-calendar-key i) { background: var(--md-primary); }
+.blw-android :is(.blw-month-weekday, .blw-calendar-key, .blw-measurement-row small, .blw-body-record small, .blw-measurement-empty) { color: var(--md-muted); }
+.blw-android :is(.blw-measurement-row, .blw-profile-section, .blw-body-record > div, .blw-latest-measures) { border-color: var(--md-outline); }
+.blw-android .blw-measurement-row { padding: 14px; border: 0; border-radius: 20px; background: var(--md-container); }
+.blw-android .blw-measurement-row strong { color: var(--md-primary); }
+.blw-android :is(.blw-measurement-empty button, .blw-empty button) { background: var(--md-secondary); color: var(--md-on-secondary); border: 0; border-radius: 24px; min-height: 48px; padding-inline: 18px; }
+.blw-android .blw-period-controls { border-color: var(--md-outline); gap: 4px; }
+.blw-android .blw-period-controls button { min-height: 48px; border-radius: 20px; }
+.blw-android .blw-period-controls button[aria-pressed="true"] { border-color: transparent; background: var(--md-secondary); color: var(--md-on-secondary); }
+.blw-android :is(.blw-period-controls > label, .blw-chart-readout > span, .blw-chart-heading > small, .blw-chart-readout small, .blw-chart-legend, .blw-chart-footnote, .blw-chart-empty, .blw-chart-date-picker) { color: var(--md-muted); }
+.blw-android .blw-chart-section { border: 0; margin: 0 12px 10px; padding: 18px 12px; background: var(--md-surface); border-radius: 22px; }
+.blw-android .blw-chart-touch { background: transparent; }
+.blw-android .blw-chart-touch text { fill: var(--md-muted); }
+.blw-android .blw-chart-grid { stroke: var(--md-outline); opacity: .5; }
+.blw-android :is(.blw-chart-line, .blw-chart-target, .blw-chart-cursor) { stroke: var(--md-primary); }
+.blw-android :is(.blw-chart-point, .blw-chart-bar) { fill: var(--md-primary); }
+.blw-android .blw-chart-legend i { border-color: var(--md-primary); }
+.blw-android :is(.blw-chart-open, .blw-inline-action, .blw-calendar-key button, .blw-label-example) { color: var(--md-primary); min-height: 48px; }
+.blw-android .blw-profile-identity > span { background: var(--md-secondary); border: 0; color: var(--md-on-secondary); border-radius: 18px; width: 56px; height: 56px; }
+.blw-android :is(.blw-profile-identity small, .blw-preference-row small, .blw-field, .blw-form-hint) { color: var(--md-muted); }
+.blw-android .blw-preference-row input { appearance: none; width: 48px; height: 28px; border-radius: 20px; border: 2px solid var(--md-muted); background: var(--md-container); position: relative; margin: 10px 0 10px 10px; }
+.blw-android .blw-preference-row input::before { content: ''; position: absolute; width: 16px; height: 16px; top: 4px; left: 4px; border-radius: 50%; background: var(--md-muted); transition: transform 160ms ease; }
+.blw-android .blw-preference-row input:checked { background: var(--md-primary); border-color: var(--md-primary); }
+.blw-android .blw-preference-row input:checked::before { transform: translateX(20px); background: var(--md-on-primary); }
+.blw-android :is(.blw-field input, .blw-field select, .blw-add-context input, .blw-library-filter select, .blw-chart-date-picker select, .blw-body-chart-picker select) { background: var(--md-surface); color: var(--md-ink); border: 1px solid var(--md-outline); border-radius: 12px; min-height: 48px; padding: 10px; font-family: var(--md-font); }
+.blw-android .blw-library-search > label:first-child { border: 0; border-radius: 28px; padding-inline: 16px; background: var(--md-container); }
+.blw-android .blw-library-search input { min-height: 52px; background: transparent; color: var(--md-ink); font-size: 14px; }
+.blw-android :is(.blw-add-context label, .blw-library-filter, .blw-label-section > p, .blw-label-nutrients legend, .blw-library-food-name small, .blw-library-food-kcal small, .blw-add-confirm small) { color: var(--md-muted); }
+.blw-android .blw-library-food { background: var(--md-bg); color: var(--md-ink); border-color: var(--md-outline); min-height: 76px; }
+.blw-android .blw-library-food[aria-pressed="true"] { background: var(--md-secondary); }
+.blw-android :is(.blw-add-confirm, .blw-label-consumption, .blw-label-nutrients) { background: var(--md-bg); border-color: var(--md-outline); }
+.blw-android .blw-add-confirm button { background: var(--md-primary); color: var(--md-on-primary); border: 0; border-radius: 24px; min-height: 48px; font-size: 14px; font-weight: 500; }
+.blw-android .blw-empty, .blw-android .blw-empty h2 { color: var(--md-muted); }
+.blw-android .blw-announcement { border-radius: 12px; background: var(--md-secondary); color: var(--md-on-secondary); margin: 8px 12px; }
+/* Dialog portals are outside the canvas and receive the same appearance classes. */
+.blw-dialog.blw-android { font-family: var(--md-font); border: 0; border-radius: 28px; background: var(--md-container); color: var(--md-ink); }
+.blw-dialog.blw-android.blw-registration-sheet { border-radius: 28px 28px 20px 20px; }
+.blw-dialog.blw-android .blw-dialog-heading { padding-top: 24px; }
+.blw-dialog.blw-android h2 { font-size: 24px; font-weight: 500; line-height: 1.25; }
+.blw-dialog.blw-android :is(.blw-dialog-heading p, .blw-nutrition-note, .blw-nutrition-details dd, .blw-registration-options small, .blw-snapshot small, .blw-quantity-equivalence) { color: var(--md-muted); }
+.blw-dialog.blw-android :is(.blw-nutrition-details dd strong, .blw-select-multiple) { color: var(--md-ink); }
+.blw-dialog.blw-android :is(.blw-nutrition-details > div, .blw-snapshot, .blw-body-fields, .blw-registration-options button) { border-color: var(--md-outline); }
+.blw-dialog.blw-android .blw-form-actions { background: var(--md-container); border: 0; padding: 16px 20px 20px; }
+.blw-dialog.blw-android .blw-form-actions button { border: 0; border-radius: 24px; min-height: 48px; }
+.blw-dialog.blw-android .blw-sheet-close { background: transparent; color: var(--md-primary) !important; }
+.blw-dialog.blw-android .blw-sheet-primary { background: var(--md-primary); color: var(--md-on-primary) !important; }
+.blw-dialog.blw-android .blw-select-multiple { background: transparent; border-color: var(--md-outline); color: var(--md-primary); min-height: 48px; }
+.blw-dialog.blw-android .blw-registration-options button { background: transparent; color: var(--md-ink); min-height: 80px; }
+.blw-dialog.blw-android .blw-registration-options button > svg:first-child { color: var(--md-primary); }
+@media (hover: hover) {
+  .blw-android button:not(:disabled):hover { filter: brightness(1.12); }
+  .blw-android :is(.blw-food, .blw-library-food):hover { background: var(--md-high); }
+}
+@media (prefers-reduced-motion: reduce) { .blw-android * { transition: none !important; } }
+@container blw-review (max-width: 800px) {
+  .blw-android .blw { padding: 28px 16px; }
+  .blw-android .blw-intro h1 { font-size: 34px; }
+  .blw-android .blw-intro h1 br { display: none; }
+  .blw-android .blw-intro p { max-width: none; font-size: 14px; }
+  .blw-material-notes { display: none; }
+  .blw-android .blw-style-controls { margin-top: 18px; gap: 8px; }
+  .blw-android .blw-device { height: 840px; }
+}
+@container blw-review (max-width: 420px) {
+  .blw-android .blw { padding: 24px 0 0; }
+  .blw-android .blw-device { border: 0; border-radius: 0; box-shadow: none; }
+  .blw-android .blw-caption { padding: 16px; margin: 0; }
+}
+.blw-android .blw-macro-line { color: var(--md-ink); }
+.blw-android .blw-macro-line > span + span::before { color: var(--md-muted); }
