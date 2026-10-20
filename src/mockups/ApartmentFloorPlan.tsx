@@ -315,21 +315,23 @@ function Remodel() {
   </g>;
 }
 
-// Generic individual armchair, not a product measurement:80 wide along y,
-// 75 deep along x, facing +x. Bounds90..165,175..255 leave80 to kitchen335,
-// 115 to table280,90 from door wall and6 from stored bench tail169.
-// Assumed seated eye(120,215) to TV centre(341.5,193.5):~2.2m,~6° off-axis.
-function Armchair() {
-  return <g data-part="armchair">
-    <rect data-part="armchair-envelope" x="90" y="175" width="75" height="80" rx="5" fill="#dfc6af" stroke="#8d705e" strokeWidth="1" />
-    <rect x="103" y="185" width="54" height="60" rx="5" fill="#eddcc9" stroke="#ab8d75" strokeWidth=".7" />
-    <rect x="92" y="179" width="12" height="72" rx="4" fill="#c6a78d" />
-    {[177,246].map(y=><rect key={y} x="99" y={y} width="63" height="7" rx="3" fill="#c6a78d" />)}
-    <text x="131" y="212" style={{fontSize:7}}>Sillón*</text>
-    <text x="131" y="223" style={{fontSize:6.5}}>80 × 75 cm</text>
-    <path d="M165 215h9l-3 -3m3 3l-3 3" fill="none" stroke="#8d705e" strokeWidth="1" />
-    <Ruler x={165} y={238} length={115} label="115 cm hasta mesa" />
-    <Ruler x={190} y={335} length={80} label="80 cm libres · cocina" vertical />
+// IKEA GLOSTAD50489012: published121 W ×78 D cm, facing +x.
+// https://www.ikea.com/cl/es/p/glostad-sofa-2-cuerpos-knisa-gris-oscuro-50489012/
+// Keep previous back/top anchor90,175: bounds90..168,175..296.
+// Gap39 to kitchen335 is narrow;112 to table280,6 to stored bench tail169.
+// Assumed seated eye(120,235.5) to TV(341.5,193.5):~2.25m,~11° off-axis.
+// Upholstery and cushions schematic; only the outer footprint is published.
+function Sofa() {
+  return <g data-part="sofa">
+    <rect data-part="sofa-envelope" x="90" y="175" width="78" height="121" rx="4" fill="#b9c0c3" stroke="#596a70" strokeWidth="1" />
+    {[179,237].map(y=><rect key={y} x="111" y={y} width="54" height="55" rx="4" fill="#d7dcde" stroke="#87969c" strokeWidth=".7" />)}
+    <rect x="92" y="179" width="12" height="113" rx="3" fill="#95a2a8" />
+    {[175,292.5].map(y=><rect key={y} x="99" y={y} width="67" height="3.5" rx="1.5" fill="#95a2a8" />)}
+    <text x="137" y="204" style={{fontSize:7}}>GLOSTAD</text>
+    <text x="137" y="215" style={{fontSize:6.5}}>121 × 78 cm</text>
+    <path d="M168 235.5h9l-3 -3m3 3l-3 3" fill="none" stroke="#596a70" strokeWidth="1" />
+    <Ruler x={168} y={250} length={112} label="112 cm hasta mesa" />
+    <Ruler x={215} y={335} length={39} label="39 cm · cocina · estrecho" vertical />
   </g>;
 }
 
@@ -340,7 +342,7 @@ export function ApartmentFloorPlan() {
     const benchStored = layout.model === 'g3' && mode !== 'exercise';
     const bikeVisible = layout.model !== 'g3' || showBike;
     const bikeStored = bikeVisible && layout.model === 'g3' && mode === 'all-stored';
-    const chairVisible = layout.id === 'c' && benchStored && !bikeVisible;
+    const sofaVisible = layout.id === 'c' && benchStored && !bikeVisible;
     return <React.Fragment key={layout.id}>
     {index === 2 && <div className="af-mode-controls" data-part="storage-controls">
       <label htmlFor="apartment-bike-location">G3 · Bici</label>
@@ -362,8 +364,8 @@ export function ApartmentFloorPlan() {
     </div>}
     <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
     <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
-    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{chairVisible ? ' · *Sillón propuesto · TV ≈2,2 m' : ''}</p>}
-    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${chairVisible ? ', sillón individual frente a la tele' : ''}`}>
+    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{sofaVisible ? ' · GLOSTAD · TV ≈2,25 m · Cocina: 39 cm' : ''}</p>}
+    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${sofaVisible ? ', sofá GLOSTAD frente a la tele' : ''}`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
       <Kitchen />
@@ -372,7 +374,7 @@ export function ApartmentFloorPlan() {
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
       {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
-      {chairVisible && <Armchair />}
+      {sofaVisible && <Sofa />}
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
@@ -383,7 +385,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={chairVisible ? 167 : bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
+      <Ruler x={layout.floorX} y={sofaVisible ? 308 : bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.freeBarY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
     </svg>
