@@ -61,18 +61,30 @@ const KITCHEN = { passage: 115, sinkX: 297, sinkY: 247, sinkWidth: 53, sinkLengt
 const FRIDGE = { x: 275, y: 70, width: 70, depth: 70 };
 const TABLE = { width: 70 };
 const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
-/* Force USA G3 V1, official manual page6: https://force-manuals.nmg.io/F-G3-B.pdf
- * Assembled dimensions2030×1420×2195mm. User confirms203cm is the Smith-bar /
- * outer width and the main frame is≈122cm wide. Model the frame at122×142;
- * component locations are schematic because the manual gives no plan cotas.
- * Keep rear plate-storage silhouettes inside the frame; reserve≈15cm behind.
- * Front spotter arms project44cm per user. So the illustrated working length
- * is≈201cm (142+15+44), not a second manufacturer dimension. C/D move only
- * 11cm inward to fit the rear strip; bar and bench stay aligned with the rack.
- * The203cm Smith bar is drawn separately from the existing220cm free bar.
- * Hook compatibility and bench/operating clearance are not verified.
+/* Force USA G3 V1, official manual p.7 (printed p.6):
+ * https://force-manuals.nmg.io/F-G3-B.pdf
+ * Published maximum envelope: 203 W × 142 D × 219.5 H cm. Per the user's
+ * correction, 203 cm is the transverse Smith/outer span; the main frame is
+ * about 122 cm wide. 142 cm is the complete front-to-back envelope, including
+ * the front spotters. The user's separate 15 cm plate-loading gap sits behind
+ * that envelope and is not part of the equipment dimensions.
+ * The manual has elevation drawings, not plan coordinates. Plan positions are
+ * proportional estimates: ~33.5 cm rear storage-rod zone (long Ø50 rods from
+ * the parts list), ~64.5 cm between post planes, then the user's confirmed
+ * 44 cm front spotters. That partitions the 142 cm total without adding the
+ * spotters twice. Six Ø25 × 24.5 cm rods and two Ø50 × 33.5 cm rods are listed;
+ * their exact mount points and overlap in plan are schematic. The Smith's two
+ * guide rails sit on the front post plane; its 203 cm bar is shown transverse
+ * there. Main posts are 122 cm overall; their exact spacing is inferred.
+ * The existing 220 cm free bar and bench remain a separate study. J-hook,
+ * Smith/bench compatibility and operating clearance are not verified.
  */
-const G3 = { width: 122, depth: 142, postX: 55, postY: 54, smithWidth: 203, rearY: -71, frontY: 71, spotter: 44, rearGap: 15, barY: -28 };
+const G3 = {
+  width: 122, depth: 142, smithWidth: 203,
+  postX: 55, rearPostY: -37.5, frontPostY: 27,
+  rearY: -71, frontY: 71, spotter: 44, rearGap: 15,
+  rearRodShort: 24.5, rearRodLong: 33.5, barY: -28
+};
 const BENCH = { width: 57, length: 137, headOffset: 25 };
 // Cut plan from200×200: main200×145, bike135×55, offcut65×55.
 // A main(25,35)200×145; B/D(5,55)200×145; C(52.5,0)145×200.
@@ -170,26 +182,37 @@ function BenchAndBar({ barY, turn }: { barY: number; turn: number }) {
 
 function G3Rack({ turn }: { turn: number }) {
   const r = G3;
+  const frameLeft = -r.width/2;
+  const frameRight = r.width/2;
   return <g data-model="g3-v1">
-    <rect data-part="g3-envelope" x={-r.width/2} y={r.rearY} width={r.width} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".7" strokeDasharray="3 3" />
-    <rect data-part="rear-disc-clearance" x={-r.width/2} y={r.rearY-r.rearGap} width={r.width} height={r.rearGap} fill="#d8c8aa" fillOpacity=".28" stroke="#a48a60" strokeWidth=".7" strokeDasharray="2 2" />
-    <path d={`M${-r.postX} ${r.rearY+12}H${r.postX} M${-r.postX} ${r.frontY-12}H${r.postX}`} stroke="#40545b" strokeWidth="5" />
+    {/* Manufacturer max envelope; the Smith bar defines the wide axis. */}
+    <rect data-part="g3-envelope" x={-r.smithWidth/2} y={r.rearY} width={r.smithWidth} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".7" strokeDasharray="3 3" />
+    {/* Separate loading access, outside the 142 cm equipment envelope. */}
+    <rect data-part="rear-disc-clearance" x={-r.smithWidth/2} y={r.rearY-r.rearGap} width={r.smithWidth} height={r.rearGap} fill="#d8c8aa" fillOpacity=".22" stroke="#a48a60" strokeWidth=".7" strokeDasharray="2 2" />
+    {/* Approximate 122 cm rack frame, with rear and front post planes. */}
+    <path d={`M${frameLeft} ${r.rearPostY}H${frameRight} M${frameLeft} ${r.frontPostY}H${frameRight}`} stroke="#40545b" strokeWidth="4" />
     {[-1,1].map(side => <g key={side}>
-      <rect data-part="g3-post" className="af-rack" x={side*r.postX-3.5} y={-r.postY-3.5} width="7" height="7" />
-      <rect data-part="g3-post" className="af-rack" x={side*r.postX-3.5} y={r.postY-3.5} width="7" height="7" />
-      <path data-part="smith-guide" d={`M${side*(r.postX-7)} ${r.rearY+10}V${r.frontY-10}`} stroke="#718992" strokeWidth="2.5" />
-      <rect data-part="spotter-arm" x={side*r.postX-3} y={r.frontY} width="6" height={r.spotter} rx="1" fill="#84969a" stroke="#40545b" strokeWidth=".8" />
-      <path data-part="rear-plate-horn" d={`M${side*(r.postX-7)} ${r.rearY+12}V${r.rearY+28}`} stroke="#9c8060" strokeWidth="2.5" />
-      <ellipse data-part="stored-discs" cx={side*37} cy={r.rearY+17} rx="10" ry="5" fill="#bcb8ad" stroke="#827b6e" strokeWidth=".8" />
+      {[r.rearPostY, r.frontPostY].map(y => <rect key={y} data-part="g3-post" className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
+      {/* Smith guide uprights are vertical in elevation: points in plan. */}
+      <rect data-part="smith-guide" x={side*r.postX-2} y={r.frontPostY-5} width="4" height="10" rx="1" fill="#70909c" stroke="#344e57" strokeWidth=".7" />
+      {/* The 44 cm safety arms run from the front posts to the envelope edge. */}
+      <rect data-part="spotter-arm" x={side*r.postX-3} y={r.frontPostY} width="6" height={r.spotter} rx="1" fill="#84969a" stroke="#40545b" strokeWidth=".8" />
+      {/* Stow rods are stacked at different heights and overlap in plan. */}
+      {[0, 1, 2].map(i => <path key={`short-${i}`} data-part="rear-plate-horn" d={`M${side*(r.postX-2+i*2)} ${r.rearPostY}V${r.rearPostY-r.rearRodShort}`} stroke="#9c8060" strokeWidth="1.4" />)}
+      <path data-part="rear-plate-horn-long" d={`M${side*r.postX} ${r.rearPostY}V${r.rearY}`} stroke="#806344" strokeWidth="2.2" />
+      {/* Schematic stack edges; plan position is inferred, not a measured mount. */}
+      <rect data-part="stored-discs" x={side*r.postX-5} y={r.rearY+7} width="10" height="7" rx="1" fill="#bcb8ad" stroke="#827b6e" strokeWidth=".8" />
       <path data-part="j-hook" d={`M${side*r.postX-4} ${r.barY-5}v7h8v-3`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
     </g>)}
-    <path data-part="smith-bar" d={`M${-r.smithWidth/2} 0H${r.smithWidth/2}`} stroke="#617984" strokeWidth="3" strokeDasharray="4 2" />
+    {/* Full-width Smith bar belongs on the front guide/post plane, not mid-bay. */}
+    <path data-part="smith-bar" d={`M${-r.smithWidth/2} ${r.frontPostY}H${r.smithWidth/2}`} stroke="#617984" strokeWidth="3" />
     <BenchAndBar barY={r.barY} turn={turn} />
-    <Ruler x={-r.width/2} y={r.rearY-5} length={r.width} label="Bastidor ≈122 cm" />
-    <Ruler x={-r.smithWidth/2} y={-9} length={r.smithWidth} label="Smith ≈203 cm" at={.38} />
-    <Ruler x={r.width/2+15} y={r.frontY} length={r.depth} label="Equipo ≈142 cm" vertical flip={turn === 270} />
-    <Ruler x={-r.width/2-13} y={r.rearY} length={r.rearGap} label="≈15 cm atrás" vertical flip={turn === 270} />
-    <Ruler x={r.width/2+5} y={r.frontY+r.spotter} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.width/2} y={r.rearPostY-8} length={r.width} label="Bastidor ≈122 cm" />
+    <Ruler x={-r.smithWidth/2} y={r.rearY-12} length={r.smithWidth} label="Smith ≈203 cm" at={.4} />
+    <Ruler x={r.smithWidth/2+12} y={r.frontY} length={r.depth} label="Equipo 142 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.smithWidth/2-12} y={r.rearY} length={r.rearGap} label="15 cm carga" vertical flip={turn === 270} />
+    <Ruler x={r.width/2+8} y={r.rearPostY} length={r.rearRodLong} label="Portadiscos 33,5 cm" vertical flip={turn === 270} />
+    <Ruler x={r.width/2+18} y={r.frontY} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
   </g>;
 }
 
