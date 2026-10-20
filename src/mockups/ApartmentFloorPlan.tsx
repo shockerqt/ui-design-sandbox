@@ -61,76 +61,43 @@ const KITCHEN = { passage: 115, sinkX: 297, sinkY: 247, sinkWidth: 53, sinkLengt
 const FRIDGE = { x: 275, y: 70, width: 70, depth: 70 };
 const TABLE = { width: 70 };
 const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
-/* Force USA G3 V1, official manual p.7 (printed p.6):
- * https://force-manuals.nmg.io/F-G3-B.pdf
- * Published maximum envelope: 203 W × 142 D × 219.5 H cm. Per the user's
- * correction, 203 cm is the transverse Smith/outer span; the main frame is
- * about 122 cm wide. 142 cm is the complete front-to-back envelope, including
- * the front spotters. The user's separate 15 cm plate-loading gap sits behind
- * that envelope and is not part of the equipment dimensions.
- * The manual has elevation drawings, not plan coordinates. Plan positions are
- * proportional estimates from the side elevation: ~21 cm rear storage-rod
- * projection, ~77 cm between post planes, then the user's confirmed44 cm
- * front spotters. That partitions the142 cm total without adding the spotters
- * twice. The parts list names six Ø25×24.5 cm and two Ø50×33.5 cm rods; those
- * are component lengths, not evidence of their plan-axis projection. Their
- * exact mount points and overlap in plan are schematic. The Smith's two guide
- * rails sit on the front post plane; its203 cm bar is shown transverse there.
- * Main posts are122 cm overall; their exact spacing is inferred.
- * The existing 220 cm free bar and bench remain a separate study. J-hook,
- * Smith/bench compatibility and operating clearance are not verified.
+/* Force USA G3 V1: https://force-manuals.nmg.io/F-G3-B.pdf
+ * PDF p7: 203 W × 142 D × 219.5 H cm assembled. Main frame ≈122 W per user.
+ * PDF p17–19: Smith rollers23/24 run on ROUND guides38 behind the front
+ * cable-trolley uprights6. Intermediate posts7 carry cable plate loaders8.
+ * Parts97 (Ø50×33.5) are SMITH SLEEVES fitted to bar42, not rear storage!
+ * Rear storage: six rods15 (24.5) with sleeves51 (21), three heights per side.
+ * Side elevation scaled against142 D gives these rounded PLAN estimates:
+ * rear storage tip−71, rear post2−50, Smith guide38−9, intermediate7+7,
+ * front post6+27, front safety tip+71. Smith is≈36 behind front uprights.
+ * The 44cm front arms are user-confirmed and INCLUDED in142, not added to it.
+ * Two long ground rails, rear bent connecting member, overhead side beams and
+ * front pull-up member follow assembly topology. Dashed beams are overhead.
+ * Exact post/rail offsets, 8cm front J-hook seat and 15cm rear loading access
+ * are estimates. Draw Ø45 stored discs edge-on with an assumed12cm stack.
+ * Free bar220 sits on FRONT J-hooks at+35. Solid TT1001 bench137×57 uses
+ * head25 behind bar: local10..147. Dashed alternate bench under Smith−9:
+ * local−34..103. These are alternative positions for ONE bench, not two benches.
+ * C free bench room y96..233 (33 beyond mat); D x96..233 (28 beyond mat).
+ * Smith alternate C y52..189 / D x52..189 is within existing main rubber.
+ * This is horizontal placement only; bar-to-chest/head offset and clearances
+ * depend on the actual person, bench adjustment and equipment heights.
  */
 const G3 = {
-  width: 122, depth: 142, smithWidth: 203,
-  postX: 55, rearPostY: -50, frontPostY: 27,
-  rearY: -71, frontY: 71, spotter: 44, rearGap: 15,
-  rearProjection: 21, barY: -28
+  width: 122, depth: 142, smithWidth: 203, postX: 58.5,
+  rearPostY: -50, smithY: -9, intermediateY: 7, frontPostY: 27,
+  rearY: -71, frontY: 71, spotter: 44, rearGap: 15, freeBarY: 35
 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
-// Cut plan from200×200: main200×145, bike135×55, offcut65×55.
-// A main(25,35)200×145; B/D(5,55)200×145; C(52.5,0)145×200.
-// Main pieces cover drawn rack/bench ground supports. SID storage discs/horns
-// and220 bar may project outside; their whole silhouette is not a floor contact.
-// Bike piece(88,200)135×55 covers bike(90,201)131×53.5 with2cm end margins,
-// 1cm/0.5cm side margins. C main and bike piece touch at y200; no overlap.
-// Rack component positions remain photo estimates: cut dimensions are a study,
-// not a measured cutting template. No extra rubber area or glued joins added.
+// Original200×200 cut: main200×145, spare135×55, offcut65×55.
+// Bike removed by user; its spare mat is stored, not drawn or silently added
+// to the main piece. Existing main-piece dimensions/placements are unchanged.
 const LAYOUTS = [
   { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 25, floorY: 35, floorW: 200, floorH: 145, x: 125, y: 105, angle: 0, model: 'sid' },
   { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 75, y: 130, angle: 270, model: 'sid' },
   { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 52.5, floorY: 0, floorW: 145, floorH: 200, x: 125, y: 86, angle: 0, model: 'g3' },
   { id: 'd', title: 'D · Force USA G3 V1 · Espalda a la pared de la puerta', floorX: 5, floorY: 55, floorW: 200, floorH: 145, x: 86, y: 130, angle: 270, model: 'g3' }
 ];
-
-// Ultimate Fitness P900 Premium, product3386:
-// https://ultimatefitness.cl/producto/bicicleta-spinning-magnetica-p900-premium?id=3386
-// Published product dimensions131×53.5×1295 cm: final height appears mistyped;
-// use only131 length×53.5 width for plan; no height inferred/corrected here.
-// Shared trial: x90..221,y201..254.5, handlebar toward +x/right-wall TV.
-// Front-to-table gap59; counter gap80.5; partition-top gap67.5. These are
-// unoccupied footprint gaps, not measured mounting/pedalling clearances.
-// Bike centre y227.75 is34.25 below TV centre193.5; not exactly head-on.
-// Rear flywheel, frame, pedals, saddle/handlebar shapes schematic from listing.
-const BIKE = { x: 90, y: 201, length: 131, width: 53.5 };
-
-function Bike() {
-  const b = BIKE, middle = b.width/2;
-  return <g data-part="bike" transform={`translate(${b.x} ${b.y})`}>
-    <rect data-part="bike-envelope" width={b.length} height={b.width} rx="3" fill="#d6e4e8" fillOpacity=".45" stroke="#6c8997" strokeDasharray="3 2" />
-    {[8,121].map(x=><rect key={x} x={x} y="0" width="5" height={b.width} rx="2" fill="#536c79" />)}
-    <rect x="22" y={middle-3} width="22" height="6" rx="2" fill="#839ca8" stroke="#4a6471" />
-    <path d={`M10 ${middle}H124 M33 ${middle}L48 ${middle}L72 ${middle}H110`} fill="none" stroke="#647f8e" strokeWidth="6" strokeLinejoin="round" />
-    <path d={`M72 ${middle-18}V${middle+18}`} stroke="#a8b6be" strokeWidth="2" />
-    {[middle-20,middle+16].map(y=><rect key={y} x="65" y={y} width="14" height="4" rx="1" fill="#4a606c" />)}
-    <path d={`M39 ${middle-6}Q45 ${middle-12} 58 ${middle-6}L56 ${middle+6}Q45 ${middle+12} 39 ${middle+6}Z`} fill="#536573" />
-    <path d={`M102 7H114V${b.width-7}H102 M109 ${middle}H122`} fill="none" stroke="#405b6c" strokeWidth="3" strokeLinecap="round" />
-    <rect x="114" y={middle-6} width="9" height="12" rx="1" fill="#91a7b5" stroke="#405b6c" />
-    <text x="77" y={middle+5} style={{fontSize:6.5}}>P900</text>
-    <Ruler x={0} y={b.width+12} length={b.length} label="Bici 131 cm" />
-    <Ruler x={-9} y={b.width} length={b.width} label="53,5 cm" vertical />
-    <Ruler x={b.length} y={10} length={59} label="59 cm a mesa" />
-  </g>;
-}
 
 // Static dimension lines only; no editor state or measurement engine.
 function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }: { x: number; y: number; length: number; label: string; vertical?: boolean; at?: number; flip?: boolean }) {
@@ -183,36 +150,50 @@ function BenchAndBar({ barY, turn }: { barY: number; turn: number }) {
 
 function G3Rack({ turn }: { turn: number }) {
   const r = G3;
-  const frameLeft = -r.width/2;
-  const frameRight = r.width/2;
+  const smithHead = r.smithY - BENCH.headOffset;
+  const freeHead = r.freeBarY - BENCH.headOffset;
   return <g data-model="g3-v1">
-    {/* Manufacturer max envelope; the Smith bar defines the wide axis. */}
-    <rect data-part="g3-envelope" x={-r.smithWidth/2} y={r.rearY} width={r.smithWidth} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".7" strokeDasharray="3 3" />
-    {/* Separate loading access, outside the 142 cm equipment envelope. */}
-    <rect data-part="rear-disc-clearance" x={-r.smithWidth/2} y={r.rearY-r.rearGap} width={r.smithWidth} height={r.rearGap} fill="#d8c8aa" fillOpacity=".22" stroke="#a48a60" strokeWidth=".7" strokeDasharray="2 2" />
-    {/* Approximate 122 cm rack frame, with rear and front post planes. */}
-    <path d={`M${frameLeft} ${r.rearPostY}H${frameRight} M${frameLeft} ${r.frontPostY}H${frameRight}`} stroke="#40545b" strokeWidth="4" />
+    <rect data-part="g3-envelope" x={-r.smithWidth/2} y={r.rearY} width={r.smithWidth} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".6" strokeDasharray="3 3" />
+    <rect data-part="rear-disc-clearance" x="-81" y={r.rearY-r.rearGap} width="162" height={r.rearGap} fill="#d8c8aa" fillOpacity=".2" stroke="#a48a60" strokeWidth=".6" strokeDasharray="2 2" />
+    {/* Rear connecting frame only: no floor crossbar closing the front opening. */}
+    <path data-part="rear-crossmember" d={`M${-r.postX} ${r.rearPostY}l13 -6h${2*r.postX-26}l13 6`} fill="none" stroke="#485a60" strokeWidth="5" />
     {[-1,1].map(side => <g key={side}>
-      {[r.rearPostY, r.frontPostY].map(y => <rect key={y} data-part="g3-post" className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
-      {/* Smith guide uprights are vertical in elevation: points in plan. */}
-      <rect data-part="smith-guide" x={side*r.postX-2} y={r.frontPostY-5} width="4" height="10" rx="1" fill="#70909c" stroke="#344e57" strokeWidth=".7" />
-      {/* The 44 cm safety arms run from the front posts to the envelope edge. */}
+      <rect data-part="base-rail" className="af-rack" x={side*r.postX-3.5} y={r.rearY} width="7" height={r.depth-2} rx="2" />
+      {[r.rearY, r.frontY-7].map(y => <rect key={y} data-part="base-foot" x={side*r.postX-5} y={y} width="10" height="5" rx="1" fill="#53676e" />)}
+      <path data-part="overhead-side-frame" d={`M${side*r.postX} ${r.rearPostY}V${r.frontPostY}`} fill="none" stroke="#809397" strokeWidth="2" strokeDasharray="4 3" />
+      {[r.rearPostY, r.frontPostY].map(y => <rect key={y} data-part={y === r.rearPostY ? 'rear-post' : 'front-cable-post'} className="af-rack" x={side*r.postX-2.5} y={y-2.5} width="5" height="5" />)}
+      <rect data-part="intermediate-loader-post" x={side*r.postX-2.5} y={r.intermediateY-2.5} width="5" height="5" fill="#83939a" stroke="#40545b" strokeWidth=".7" />
+      <path data-part="cable-loader-horn" d={`M${side*r.postX} ${r.intermediateY}h${side*20}`} stroke="#84969c" strokeWidth="3" />
+      <rect data-part="smith-slider" x={side*r.postX-4} y={r.smithY-5} width="8" height="10" rx="1" fill="#a9c5cb" stroke="#316a77" strokeWidth="1" />
+      <circle data-part="smith-guide-38" cx={side*r.postX} cy={r.smithY} r="1.3" fill="#e4f3f4" stroke="#316a77" strokeWidth=".7" />
       <rect data-part="spotter-arm" x={side*r.postX-3} y={r.frontPostY} width="6" height={r.spotter} rx="1" fill="#84969a" stroke="#40545b" strokeWidth=".8" />
-      {/* Stow-rod levels are stacked vertically and collapse in plan view. */}
-      {[0, 1, 2].map(i => <path key={`storage-${i}`} data-part="rear-plate-horn" d={`M${side*(r.postX-2+i*2)} ${r.rearPostY}V${r.rearY}`} stroke="#9c8060" strokeWidth={i === 2 ? 2 : 1.4} />)}
-      {/* Schematic stack edges; plan position is inferred, not a measured mount. */}
-      <rect data-part="stored-discs" x={side*r.postX-5} y={r.rearY+7} width="10" height="7" rx="1" fill="#bcb8ad" stroke="#827b6e" strokeWidth=".8" />
-      <path data-part="j-hook" d={`M${side*r.postX-4} ${r.barY-5}v7h8v-3`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
+      <path data-part="rear-plate-horn" d={`M${side*r.postX} ${r.rearPostY}V${r.rearY}`} stroke="#9c8060" strokeWidth="2.5" />
+      <g data-part="stored-discs" fill="#bcb8ad" stroke="#827b6e" strokeWidth=".6">
+        <rect x={side*r.postX-22.5} y={r.rearY+4} width="45" height="12" rx="1" />
+        {[7,10,13].map(d => <path key={d} d={`M${side*r.postX-22.5} ${r.rearY+d}h45`} />)}
+      </g>
+      <path data-part="front-j-hook" d={`M${side*r.postX-4} ${r.frontPostY}v10h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" />
     </g>)}
-    {/* Full-width Smith bar belongs on the front guide/post plane, not mid-bay. */}
-    <path data-part="smith-bar" d={`M${-r.smithWidth/2} ${r.frontPostY}H${r.smithWidth/2}`} stroke="#617984" strokeWidth="3" />
-    <BenchAndBar barY={r.barY} turn={turn} />
-    <Ruler x={-r.width/2} y={r.rearPostY-8} length={r.width} label="Bastidor ≈122 cm" />
-    <Ruler x={-r.smithWidth/2} y={r.rearY-12} length={r.smithWidth} label="Smith ≈203 cm" at={.4} />
+    <path data-part="overhead-pullup-bar" d={`M${-r.postX} ${r.frontPostY}H${r.postX}`} stroke="#809397" strokeWidth="2" strokeDasharray="4 3" />
+    {/* One bench, two alternative placements: solid=free bar; dashed=Smith. */}
+    <g data-part="smith-bench-alternative" fill="none" stroke="#39818a" strokeWidth="1" strokeDasharray="4 3">
+      <rect x={-BENCH.width/2} y={smithHead} width={BENCH.width} height={BENCH.length} rx="3" />
+      <rect x="-15" y={smithHead+2} width="30" height="83" rx="5" />
+    </g>
+    <rect data-part="free-bench-envelope" x={-BENCH.width/2} y={freeHead} width={BENCH.width} height={BENCH.length} rx="3" fill="none" stroke="#b48073" strokeWidth=".6" />
+    <BenchAndBar barY={r.freeBarY} turn={turn} />
+    {/* Smith bar42 and its sleeves97 sit on guides38, behind the front posts6. */}
+    <g data-part="smith-bar" fill="#6698a4" stroke="#316a77" strokeWidth=".7">
+      <rect x={-r.smithWidth/2} y={r.smithY-1.4} width={r.smithWidth} height="2.8" />
+      <rect x={-r.smithWidth/2} y={r.smithY-2.5} width="33.5" height="5" />
+      <rect x="68" y={r.smithY-2.5} width="33.5" height="5" />
+    </g>
+    <Ruler x={-r.width/2} y={r.rearPostY+12} length={r.width} label="Bastidor ≈122 cm" />
+    <Ruler x={-r.smithWidth/2} y={r.smithY-8} length={r.smithWidth} label="Smith 203 cm" at={.17} />
     <Ruler x={r.smithWidth/2+12} y={r.frontY} length={r.depth} label="Equipo 142 cm" vertical flip={turn === 270} />
-    <Ruler x={-r.smithWidth/2-12} y={r.rearY} length={r.rearGap} label="15 cm carga" vertical flip={turn === 270} />
-    <Ruler x={r.width/2+8} y={r.rearPostY} length={r.rearProjection} label="Portadiscos ≈21 cm" vertical flip={turn === 270} />
-    <Ruler x={r.width/2+18} y={r.frontY} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
+    <Ruler x={-92} y={r.rearY} length={r.rearGap} label="15 cm carga" vertical flip={turn === 270} />
+    <Ruler x={r.width/2+8} y={r.frontY} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.width/2-8} y={r.frontPostY} length={r.frontPostY-r.smithY} label="Smith ≈36 cm atrás" vertical flip={turn === 270} />
   </g>;
 }
 
@@ -270,13 +251,11 @@ export function ApartmentFloorPlan() {
       <defs><pattern id={`rubber-${layout.id}`} width="25" height="25" patternUnits="userSpaceOnUse"><rect width="25" height="25" fill="#cad4cf" /><path d="M25 0H0V25" fill="none" stroke="#b4c3ba" strokeWidth=".5" /></pattern></defs>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <rect data-part="floor" x={layout.floorX} y={layout.floorY} width={layout.floorW} height={layout.floorH} fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
-      <rect data-part="bike-floor" x="88" y="200" width="135" height="55" fill={`url(#rubber-${layout.id})`} stroke="#6b8377" strokeWidth="1" />
       <Kitchen />
       <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
-      <Bike />
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
@@ -287,9 +266,9 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={280} length={layout.floorW} label={`Jaula ${layout.floorW} × ${layout.floorH} cm`} />
-      <Ruler x={88} y={294} length={135} label="Caucho bici 135 × 55 cm" />
-      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.barY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
+      <Ruler x={layout.floorX} y={280} length={layout.floorW} label={`Caucho ${layout.floorW} × ${layout.floorH} cm`} />
+      {layout.model === 'g3' && <text x="175" y="302" style={{fontSize:7}}>Banca sólida: barra libre · Contorno punteado: Smith</text>}
+      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.freeBarY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
     </svg>
   </section>)}</div>;

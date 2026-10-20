@@ -15,10 +15,10 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Cuatro planos a escala para comparar SID-SRHSRHD y Force USA MyRack Folding, con banca, barra, caucho y cotas.',
+    description: 'Cuatro planos a escala para comparar SID y Force USA G3 V1, con Smith, barra libre y posiciones de banca para press.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.11.0',
-    updatedAt: '2026-10-19',
+    version: 'v1.12.0',
+    updatedAt: '2026-10-20',
     component: ApartmentFloorPlan
   },
   {
