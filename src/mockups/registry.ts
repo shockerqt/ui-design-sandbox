@@ -8,8 +8,19 @@ import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
+import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-log-wireframes',
+    title: 'Balance · Wireframes multivista',
+    category: 'Dashboards',
+    description: 'Registro y análisis separados, lectura de alimentos en dos líneas, etiquetas por secciones y guardado de mediciones parciales siempre visible.',
+    tags: ['Balance', 'wireframes', 'mobile', 'measurements', 'charts', 'Base UI'],
+    version: 'v1.8.0',
+    updatedAt: '2026-10-19',
+    component: BalanceLogWireframes
+  },
   {
     id: 'base-ui-color-system',
     title: 'Base UI · Sistema de color',
