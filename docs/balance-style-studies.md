@@ -3,7 +3,8 @@
 UDS-012. `/m/balance-style-studies` compares Material, Instrumental, Editorial and
 Orgánico on one mounted prototype. Orgánico opens by default. Use the external
 Dirección visual controls and dark/light buttons; current records, page, forms,
-selection and analysis filters persist. Reload/reset retains the established
+selection and analysis filters persist. Organic also offers the external
+Paleta de color selector; Bosque remains the default. Reload/reset retains the established
 synthetic-data behavior. Food registration stays under this route.
 
 ## Shared structure
@@ -32,9 +33,25 @@ character. Their products, layouts and branding are not reproduced.
 ## User-requested gradients
 
 Orgánico uses static opaque gradients on the compact header and primary actions.
-The header moves forest -> blue gray -> plum in dark mode, and sage -> mint ->
-lilac in light mode. The + uses a related mint/lilac gradient in dark mode and
-a forest/teal/plum gradient in light mode. Repeated food rows, text fields,
+Bosque retains the original forest -> blue gray -> plum header in dark mode
+and sage -> mint -> lilac in light mode. Its + keeps the original mint/lilac
+dark-mode gradient and forest/teal/plum light-mode gradient. Additional palettes
+change the entire semantic role set, including portaled dialogs, without changing
+type, shapes or layout:
+
+| Palette | Character | Dark surface / primary | Light surface / primary |
+| --- | --- | --- | --- |
+| Bosque | Sage, mint, plum; original | `#1c2b25` / `#c9e5ae` | `#e9eee3` / `#42633a` |
+| Laguna | Teal, blue, mint | `#1a2e35` / `#a4dce0` | `#e0eeef` / `#146477` |
+| Lavanda | Lilac, blue, rose | `#2a2438` / `#d7bff2` | `#f0e8f5` / `#76518a` |
+| Durazno | Peach, coral, mauve | `#33262a` / `#f2bdad` | `#f6e7e2` / `#975155` |
+
+Palette buttons have visible names, decorative gradient swatches, pressed states
+and keyboard focus. They appear only for Organic and retain their selection when
+visiting another style. They update appearance state without remounting the
+prototype or resetting its records, drafts, selections or filters. Review controls
+remain outside the phone, so its compact header and list proportions stay fixed.
+Repeated food rows, text fields,
 dialog content and navigation use solid role-based surfaces. Gradients neither
 animate nor encode a numerical measurement.
 
@@ -49,7 +66,7 @@ React 19 / Base UI, scoped CSS and Google Fonts. The comparator adds no native
 Android dependency or simulated wallpaper color. Existing short disclosure/dialog
 transitions remain interruptible and respect reduced-motion preferences.
 
-Review all four directions in dark/light at 375/390px, with long fixture names,
+Review all four directions and Organic palettes in dark/light at 375/390px, with long fixture names,
 three-digit macros, selection, registration and analysis. Check mode-switch
 state continuity, portal classes, header/list proportions, gradient-stop
 contrast, keyboard focus and zoom. Actual evidence belongs in the UDS-012 run.

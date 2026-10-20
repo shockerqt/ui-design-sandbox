@@ -7,6 +7,15 @@
 .blw-study-swatch-instrumental { background: #264e53; border-radius: 3px; }
 .blw-study-swatch-editorial { background: #214c80; border-radius: 0; }
 .blw-study-swatch-organic { background: linear-gradient(135deg, #bedb9e, #9bd3c4 50%, #c6aedb); }
+.blw-palette-controls { margin-top: 24px; }
+.blw-palette-controls h2 { margin: 0; font-size: 13px; font-weight: 600; }
+.blw-palette-controls .blw-palette-picker { margin-top: 12px; }
+.blw-palette-controls p { margin: 12px 0 0; min-height: 42px; color: var(--md-muted); font-size: 12px; line-height: 1.6; }
+.blw-palette-picker .blw-study-swatch { width: 30px; border-radius: 10px 10px 4px 10px; }
+.blw-palette-swatch-forest { background: linear-gradient(135deg, #bddfa2, #a4d2bf 52%, #d6bbdf); }
+.blw-palette-swatch-lagoon { background: linear-gradient(135deg, #9dd8cf, #a9cee9 52%, #bbdce6); }
+.blw-palette-swatch-lavender { background: linear-gradient(135deg, #d5b6ef, #b9cef2 52%, #edbfd6); }
+.blw-palette-swatch-peach { background: linear-gradient(135deg, #f0bd9f, #edb3b9 52%, #d4bbe1); }
 .blw-visual-study .blw-intro h1 { font-size: 32px; letter-spacing: -.025em; line-height: 1.2; }
 .blw-visual-study .blw-intro p { min-height: 78px; }
 .blw-visual-study .blw-style-controls { margin-top: 18px; }
@@ -79,6 +88,55 @@
   --md-secondary: #dbeacb; --md-on-secondary: #2c4125; --md-amber: #83501e;
   --study-header-gradient: linear-gradient(115deg, #ddebcf 0%, #cce8e1 48%, #e9dcef 100%);
   --study-action-gradient: linear-gradient(135deg, #355a35 0%, #245e58 52%, #65475d 100%);
+}
+/* Palette modifiers share Organic's typography, geometry and solid data surfaces. */
+.blw-visual-study.blw-study-organic.blw-palette-lagoon {
+  --md-bg: #122026; --md-surface: #1a2e35; --md-container: #263e48;
+  --md-high: #34505a; --md-ink: #e8f4f5; --md-muted: #b4cdd3;
+  --md-outline: #86a5af; --md-primary: #a4dce0; --md-on-primary: #103a45;
+  --md-secondary: #284e59; --md-on-secondary: #daf3f4; --md-amber: #edbf89;
+  --study-header-gradient: linear-gradient(115deg, #1b3c40 0%, #253c53 48%, #343c4e 100%);
+  --study-action-gradient: linear-gradient(135deg, #9dd8cf 0%, #a9cee9 52%, #bbdce6 100%);
+}
+.blw-visual-study.blw-study-organic.blw-palette-lagoon.blw-android-light {
+  --md-bg: #eff7f7; --md-surface: #e0eeef; --md-container: #d0e4e8;
+  --md-high: #bdd8df; --md-ink: #183d46; --md-muted: #41626b;
+  --md-outline: #66838c; --md-primary: #146477; --md-on-primary: #ffffff;
+  --md-secondary: #c9e8e9; --md-on-secondary: #17444c; --md-amber: #83511c;
+  --study-header-gradient: linear-gradient(115deg, #cce8e4 0%, #cce1f2 48%, #d8e8f2 100%);
+  --study-action-gradient: linear-gradient(135deg, #165f68 0%, #275a83 52%, #3b6274 100%);
+}
+.blw-visual-study.blw-study-organic.blw-palette-lavender {
+  --md-bg: #201c2b; --md-surface: #2a2438; --md-container: #383047;
+  --md-high: #4b3e5b; --md-ink: #f3ecfa; --md-muted: #cdc0d8;
+  --md-outline: #a191b2; --md-primary: #d7bff2; --md-on-primary: #392349;
+  --md-secondary: #4c365d; --md-on-secondary: #f0defb; --md-amber: #edbc92;
+  --study-header-gradient: linear-gradient(115deg, #38304f 0%, #2e3a50 48%, #493346 100%);
+  --study-action-gradient: linear-gradient(135deg, #d5b6ef 0%, #b9cef2 52%, #edbfd6 100%);
+}
+.blw-visual-study.blw-study-organic.blw-palette-lavender.blw-android-light {
+  --md-bg: #f8f3fa; --md-surface: #f0e8f5; --md-container: #e6dcef;
+  --md-high: #d9cce6; --md-ink: #32263f; --md-muted: #685374;
+  --md-outline: #85718f; --md-primary: #76518a; --md-on-primary: #ffffff;
+  --md-secondary: #e8d7f2; --md-on-secondary: #4a2e5d; --md-amber: #88501c;
+  --study-header-gradient: linear-gradient(115deg, #eadcf4 0%, #d9e4f5 48%, #f2dce8 100%);
+  --study-action-gradient: linear-gradient(135deg, #6c4485 0%, #435b86 52%, #854c6d 100%);
+}
+.blw-visual-study.blw-study-organic.blw-palette-peach {
+  --md-bg: #261d20; --md-surface: #33262a; --md-container: #443339;
+  --md-high: #59434b; --md-ink: #fbeded; --md-muted: #dfc0c3;
+  --md-outline: #b3949a; --md-primary: #f2bdad; --md-on-primary: #49252d;
+  --md-secondary: #604047; --md-on-secondary: #ffe5df; --md-amber: #edc78b;
+  --study-header-gradient: linear-gradient(115deg, #493235 0%, #403348 48%, #513c37 100%);
+  --study-action-gradient: linear-gradient(135deg, #f0bd9f 0%, #edb3b9 52%, #d4bbe1 100%);
+}
+.blw-visual-study.blw-study-organic.blw-palette-peach.blw-android-light {
+  --md-bg: #fcf3ef; --md-surface: #f6e7e2; --md-container: #edd8d2;
+  --md-high: #e4c7bf; --md-ink: #4b2a31; --md-muted: #77545b;
+  --md-outline: #98747a; --md-primary: #975155; --md-on-primary: #ffffff;
+  --md-secondary: #f0d4cf; --md-on-secondary: #5e3039; --md-amber: #825319;
+  --study-header-gradient: linear-gradient(115deg, #f5dfc6 0%, #f2d5d8 48%, #e7dbed 100%);
+  --study-action-gradient: linear-gradient(135deg, #91503d 0%, #8c4557 52%, #73527c 100%);
 }
 .blw-study-organic :is(.blw-intro h1, .blw-group-identity strong, .blw-page-header h2, .blw-date-main strong, .blw-energy strong, .blw-dialog-heading h2) { font-family: Outfit, Inter, Arial, sans-serif; font-weight: 550; }
 .blw-study-organic .blx-log-header { background: var(--study-header-gradient); }

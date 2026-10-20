@@ -21,9 +21,17 @@ const STYLE_STUDIES = {
   material: { label: 'Material', description: 'La dirección Expressive compacta, como referencia para comparar.' },
   instrumental: { label: 'Instrumental', description: 'Grafito, acentos petróleo y datos alineados. Una herramienta de registro precisa.' },
   editorial: { label: 'Editorial', description: 'Tinta azul, títulos condensados y una estructura de lectura más tipográfica.' },
-  organic: { label: 'Orgánico', description: 'Bosque, salvia y ciruela. Degradados suaves en la cabecera y el +, con filas sobre superficies sólidas.' },
+  organic: { label: 'Orgánico', description: 'Degradados suaves en la cabecera y el +. Prueba distintas paletas con la misma distribución compacta.' },
 } as const;
 type StyleStudy = keyof typeof STYLE_STUDIES;
+
+const ORGANIC_PALETTES = {
+  forest: { label: 'Bosque', description: 'La paleta original: salvia, menta y un toque de ciruela.' },
+  lagoon: { label: 'Laguna', description: 'Turquesa, azul y menta. Una combinación más fresca.' },
+  lavender: { label: 'Lavanda', description: 'Lila, azul suave y rosa. Color delicado sobre fondos violetas.' },
+  peach: { label: 'Durazno', description: 'Durazno, coral y malva. Una alternativa más cálida.' },
+} as const;
+type OrganicPalette = keyof typeof ORGANIC_PALETTES;
 
 type View = 'day' | 'detail' | 'selection';
 type Sheet = { kind: 'edit'; food: Food } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'body' } | { kind: 'nutrition' } | null;
@@ -141,8 +149,9 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
   const styleStudy = appearance === 'studies';
   const expressive = appearance === 'expressive' || styleStudy;
   const [study, setStudy] = useState<StyleStudy>('organic');
+  const [organicPalette, setOrganicPalette] = useState<OrganicPalette>('forest');
   const [colorMode, setColorMode] = useState<'dark' | 'light'>('dark');
-  const themeClass = android ? `blw-android blw-android-${colorMode}${expressive ? ' blw-expressive' : ''}${styleStudy ? ` blw-visual-study blw-study-${study}` : ''}` : '';
+  const themeClass = android ? `blw-android blw-android-${colorMode}${expressive ? ' blw-expressive' : ''}${styleStudy ? ` blw-visual-study blw-study-${study}${study === 'organic' ? ` blw-palette-${organicPalette}` : ''}` : ''}` : '';
   const [location, navigate] = useLocation();
   const search = useSearch();
   const addingFood = location === `${basePath}/agregar-alimento`;
@@ -293,6 +302,13 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
     <section className="blw-review" aria-label="Controles del wireframe">
       <div className="blw-intro"><span className="blw-kicker">{styleStudy ? 'Balance / Comparador de estilos' : expressive ? 'Balance / Material Expressive · Estudio 02' : android ? 'Balance / Android · Estudio visual 01' : 'Balance / Propuesta multivista'}</span><h1>{styleStudy ? `Balance · ${STYLE_STUDIES[study].label}` : expressive ? 'Balance · Expressive' : android ? <>Balance.<br /> En Android.</> : 'Registrar. Después, explorar.'}</h1><p>{styleStudy ? STYLE_STUDIES[study].description : expressive ? 'Más intención en las acciones y las transiciones. La misma información, con otra jerarquía.' : android ? 'Material 3 Expressive. Color tonal, formas suaves y el mismo registro cotidiano.' : 'Alimentos y mediciones para registrar; Resumen para mirar la evolución. Solo estructura e interacción.'}</p></div>
       {styleStudy && <div className="blw-study-picker" role="group" aria-label="Dirección visual">{(Object.entries(STYLE_STUDIES) as [StyleStudy, typeof STYLE_STUDIES[StyleStudy]][]).map(([id, { label }]) => <button key={id} type="button" aria-pressed={study === id} onClick={() => setStudy(id)}><span className={`blw-study-swatch blw-study-swatch-${id}`} aria-hidden="true" /><span>{label}</span></button>)}</div>}
+      {styleStudy && study === 'organic' && <div className="blw-palette-controls">
+        <h2>Paleta de color</h2>
+        <div className="blw-study-picker blw-palette-picker" role="group" aria-label="Paleta de color">
+          {(Object.entries(ORGANIC_PALETTES) as [OrganicPalette, typeof ORGANIC_PALETTES[OrganicPalette]][]).map(([id, { label }]) => <button key={id} type="button" aria-pressed={organicPalette === id} onClick={() => setOrganicPalette(id)}><span className={`blw-study-swatch blw-palette-swatch-${id}`} aria-hidden="true" /><span>{label}</span></button>)}
+        </div>
+        <p>{ORGANIC_PALETTES[organicPalette].description}</p>
+      </div>}
       {android && <div className="blw-style-controls">
         <div role="group" aria-label="Apariencia"><button aria-pressed={colorMode === 'dark'} onClick={() => setColorMode('dark')}>Oscuro</button><button aria-pressed={colorMode === 'light'} onClick={() => setColorMode('light')}>Claro</button></div>
         {expressive && <a href="/m/balance-android-material">Comparar con Android inicial ↗</a>}

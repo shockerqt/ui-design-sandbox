@@ -18,9 +18,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-style-studies',
     title: 'Balance · Comparador de estilos',
     category: 'Dashboards',
-    description: 'Material, Instrumental, Editorial y Orgánico con degradados: cuatro direcciones sobre la misma distribución compacta y los mismos datos.',
+    description: 'Cuatro estilos sobre la misma distribución compacta. Orgánico incluye paletas Bosque, Laguna, Lavanda y Durazno con degradados y modos claro/oscuro.',
     tags: ['Balance', 'styles', 'gradients', 'mobile', 'comparison'],
-    version: 'v1.0.0',
+    version: 'v1.1.0',
     updatedAt: '2026-10-20',
     component: BalanceStyleStudies
   },
