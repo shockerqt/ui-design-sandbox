@@ -215,7 +215,7 @@ function BenchAndBar({ barY, turn, stored = false, raised = false }: { barY: num
     </g>
     <Ruler x={-110} y={barY-8} length={220} label={raised ? 'Barra 220 cm ↑' : 'Barra 220 cm'} at={0.16} />
     <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
-    <Ruler x={-BENCH.width/2} y={head+BENCH.length+10} length={BENCH.width} label="57 cm" />
+    <Ruler x={-BENCH.width/2} y={head+BENCH.length+(stored ? 3 : 10)} length={BENCH.width} label="57 cm" />
   </>;
 }
 
@@ -315,6 +315,24 @@ function Remodel() {
   </g>;
 }
 
+// Generic individual armchair, not a product measurement:80 wide along y,
+// 75 deep along x, facing +x. Bounds90..165,175..255 leave80 to kitchen335,
+// 115 to table280,90 from door wall and6 from stored bench tail169.
+// Assumed seated eye(120,215) to TV centre(341.5,193.5):~2.2m,~6° off-axis.
+function Armchair() {
+  return <g data-part="armchair">
+    <rect data-part="armchair-envelope" x="90" y="175" width="75" height="80" rx="5" fill="#dfc6af" stroke="#8d705e" strokeWidth="1" />
+    <rect x="103" y="185" width="54" height="60" rx="5" fill="#eddcc9" stroke="#ab8d75" strokeWidth=".7" />
+    <rect x="92" y="179" width="12" height="72" rx="4" fill="#c6a78d" />
+    {[177,246].map(y=><rect key={y} x="99" y={y} width="63" height="7" rx="3" fill="#c6a78d" />)}
+    <text x="131" y="212" style={{fontSize:7}}>Sillón*</text>
+    <text x="131" y="223" style={{fontSize:6.5}}>80 × 75 cm</text>
+    <path d="M165 215h9l-3 -3m3 3l-3 3" fill="none" stroke="#8d705e" strokeWidth="1" />
+    <Ruler x={165} y={238} length={115} label="115 cm hasta mesa" />
+    <Ruler x={190} y={335} length={80} label="80 cm libres · cocina" vertical />
+  </g>;
+}
+
 export function ApartmentFloorPlan() {
   const [mode, setMode] = React.useState<StorageMode>('bench-stored');
   const [showBike, setShowBike] = React.useState(false);
@@ -322,6 +340,7 @@ export function ApartmentFloorPlan() {
     const benchStored = layout.model === 'g3' && mode !== 'exercise';
     const bikeVisible = layout.model !== 'g3' || showBike;
     const bikeStored = bikeVisible && layout.model === 'g3' && mode === 'all-stored';
+    const chairVisible = layout.id === 'c' && benchStored && !bikeVisible;
     return <React.Fragment key={layout.id}>
     {index === 2 && <div className="af-mode-controls" data-part="storage-controls">
       <label htmlFor="apartment-bike-location">G3 · Bici</label>
@@ -343,8 +362,8 @@ export function ApartmentFloorPlan() {
     </div>}
     <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
     <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
-    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}</p>}
-    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
+    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{chairVisible ? ' · *Sillón propuesto · TV ≈2,2 m' : ''}</p>}
+    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${chairVisible ? ', sillón individual frente a la tele' : ''}`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
       <Kitchen />
@@ -353,6 +372,7 @@ export function ApartmentFloorPlan() {
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
       {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
+      {chairVisible && <Armchair />}
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
@@ -363,7 +383,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
+      <Ruler x={layout.floorX} y={chairVisible ? 167 : bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.freeBarY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
     </svg>
