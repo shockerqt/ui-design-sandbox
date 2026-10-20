@@ -357,7 +357,7 @@ function FridgeClearance({ rackX }: { rackX: number }) {
     <text x="242" y="151" style={{fontSize:6}}>90° · puerta ≈70*</text>
     <Ruler x={0} y={65} length={smithLeft} label={`${smithLeft} cm`} />
     <path d={`M${smithLeft} 65V77 M${smithRight} 65V77 M${FRIDGE.x} 65V77 M${freeRight} 121v12`} fill="none" stroke="#69818a" strokeWidth=".5" />
-    <Ruler x={smithRight} y={65} length={FRIDGE.x-smithRight} label="61,5 cm · Smith/refri" />
+    <Ruler x={smithRight} y={65} length={FRIDGE.x-smithRight} label={`${FRIDGE.x-smithRight} cm · Smith/refri`} />
     <Ruler x={freeRight} y={133} length={FRIDGE.x-freeRight} label="63,5 cm · barra/refri" />
   </g>;
 }
