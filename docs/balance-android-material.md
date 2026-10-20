@@ -71,3 +71,6 @@ by library version; select stable/beta explicitly during native implementation.
 The study adds no Android dependencies and does not imply beta APIs are stable.
 The [Material 3 in Compose guide](https://developer.android.com/develop/ui/compose/designsystems/material3)
 describes theming roles, typography, shapes and dynamic color.
+
+Study 02: [Material Expressive](balance-material-expressive.md) is available at
+`/m/balance-material-expressive` for comparison with this initial direction.

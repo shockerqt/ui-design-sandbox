@@ -1,0 +1,109 @@
+/* Study 02: semantic roles come from Android study 01; expression has a limited scope. */
+.blw-expressive {
+  --blx-motion-short: 160ms; --blx-motion-spatial: 240ms;
+  --blx-easing: cubic-bezier(.2, .8, .2, 1);
+}
+.blw-expressive .blw-intro h1 { font-size: 34px; line-height: 1.15; letter-spacing: -.035em; }
+.blw-expressive .blw-device { border-radius: 24px; box-shadow: none; }
+.blw-expressive .blw-app-brand { min-height: 54px; padding: 14px 20px 8px; }
+.blw-expressive .blw-app-brand > span { font-size: 20px; }
+.blw-expressive .blw-date { padding-bottom: 10px; }
+.blw-expressive .blw-date-main { gap: 24px; padding-bottom: 6px; }
+.blw-expressive .blw-date-main strong { font-size: 28px; font-weight: 550; }
+.blw-expressive .blw-week button { min-height: 60px; border-radius: 18px; }
+.blw-expressive .blw-week button[aria-pressed="true"] { border-radius: 18px 18px 8px 8px; }
+.blw-expressive .blw-summary { padding: 14px 16px 16px; margin-bottom: 8px; border-radius: 24px 24px 10px 10px; }
+.blx-energy-label { display: flex; align-items: center; justify-content: space-between; font-size: 12px; line-height: 1.4; margin-bottom: 3px; }
+.blw-expressive .blw-energy strong { font-size: 36px; font-weight: 550; line-height: 1.12; letter-spacing: -1px; }
+.blx-energy-target { font-size: 12px; }
+.blx-nutrients { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px; }
+.blx-nutrients > span { min-width: 0; display: grid; gap: 4px; }
+.blx-nutrient-label { font-size: 11px; line-height: 1.3; }
+.blx-nutrients strong { font-size: 15px; font-weight: 550; }
+.blx-nutrients small { font-size: 10px; white-space: nowrap; }
+.blx-nutrient-meter { height: 4px; display: block; position: relative; margin-top: 3px; background: var(--md-bg); border-radius: 3px; overflow: hidden; }
+.blx-nutrient-meter i { display: block; height: 100%; background: var(--md-primary); border-radius: inherit; }
+/* Homogeneous hour groups use alignment and disclosure instead of six repeated cards. */
+.blw-expressive .blw-groups { gap: 0; padding-inline: 16px; }
+.blw-expressive .blw-group { background: transparent; border-radius: 0; overflow: visible; }
+.blw-expressive .blw-group-top { background: transparent; }
+.blw-expressive .blw-group-trigger { min-height: 76px; padding: 12px 4px 12px 0; }
+.blw-expressive .blw-group-identity strong { font-size: 18px; font-weight: 600; }
+.blw-expressive .blw-group-identity small { font-size: 11px; }
+.blw-expressive .blw-group-trigger > .blw-macro-line { justify-self: start; font-size: 11px; }
+.blw-expressive .blw-group-energy svg { transition: transform var(--blx-motion-short) var(--blx-easing); }
+.blw-expressive .blw-group-add { margin-block: auto; height: 48px; border-radius: 16px; }
+.blw-expressive .blw-group-add:focus-visible { outline-offset: -3px; }
+.blw-expressive .blw-group-panel { height: var(--accordion-panel-height); overflow: hidden; border-radius: 16px; transition: height var(--blx-motion-short) var(--blx-easing); }
+.blw-expressive .blw-group-panel[data-starting-style],
+.blw-expressive .blw-group-panel[data-ending-style] { height: 0; }
+.blw-expressive .blw-food { min-height: 72px; padding-inline: 8px; }
+.blw-expressive .blw-food:focus-visible { outline-offset: -3px; }
+.blw-expressive .blw-image { background: transparent; width: 24px; border-radius: 0; }
+.blw-expressive .blw-food[data-selected] .blw-check { border-radius: 50%; }
+.blw-expressive .blw-nav-destination > svg { transition: border-radius var(--blx-motion-short) var(--blx-easing), background-color var(--blx-motion-short) linear; }
+.blw-expressive .blw-nav-destination[aria-current="page"] > svg { border-radius: 10px; }
+.blw-expressive .blw-nav-destination:active > svg { border-radius: 20px; }
+.blw-expressive .blw button.blw-nav-add {
+  display: flex; flex-direction: column; justify-content: center; gap: 2px;
+  width: 62px; height: 62px; border-radius: 22px; font-size: 10px; font-weight: 600;
+  transition: border-radius var(--blx-motion-short) var(--blx-easing), transform var(--blx-motion-short) var(--blx-easing);
+}
+.blw-expressive .blw button.blw-nav-add:active { border-radius: 50%; transform: scale(.94); }
+.blw-expressive .blw button.blw-nav-add[aria-expanded="true"] { border-radius: 50%; }
+.blw-expressive .blw-nav-add svg { transition: transform var(--blx-motion-spatial) var(--blx-easing); }
+.blw-expressive .blw-nav-add[aria-expanded="true"] svg { transform: rotate(45deg); }
+.blw-expressive .blw-bottom-nav { padding-bottom: max(14px, env(safe-area-inset-bottom)); }
+/* Connected peer controls change shape without moving their hit targets. */
+.blw-expressive .blw-segments { border: 0; border-radius: 0; padding: 0; gap: 3px; }
+.blw-expressive .blw-segments button { background: var(--md-container); border-radius: 5px; transition: border-radius var(--blx-motion-short) var(--blx-easing), background-color var(--blx-motion-short) linear; }
+.blw-expressive .blw-segments button:first-child { border-radius: 24px 5px 5px 24px; }
+.blw-expressive .blw-segments button:last-child { border-radius: 5px 24px 24px 5px; }
+.blw-expressive .blw-segments button[data-active] { background: var(--md-secondary); border-radius: 24px; font-weight: 650; text-decoration: underline; text-underline-offset: 5px; }
+.blw-expressive .blw-period-controls button { background: var(--md-container); border-radius: 8px; }
+.blw-expressive .blw-period-controls button[aria-pressed="true"] { background: var(--md-secondary); border-radius: 24px; text-decoration: underline; text-underline-offset: 4px; }
+.blw-expressive .blw-action { padding-inline: 16px; }
+.blw-expressive .blw-action > div { gap: 3px; }
+.blw-expressive .blw-action > div button { border-radius: 6px; background: transparent; color: var(--md-primary); }
+.blw-expressive .blw-action > div button:first-child { border-radius: 24px 6px 6px 24px; }
+.blw-expressive .blw-action > div button:nth-child(2) { background: var(--md-secondary); color: var(--md-on-secondary); }
+.blw-expressive .blw-action > div button:last-child { border-radius: 6px 24px 24px 6px; }
+.blw-expressive .blw-page-header h2 { font-size: 28px; font-weight: 550; }
+/* Peer chart regions have implicit containment; the charts keep their existing data. */
+.blw-expressive .blw-chart-section { background: transparent; border-radius: 0; }
+.blw-expressive .blw-chart-readout strong { font-size: 20px; font-weight: 550; }
+.blw-expressive .blw-profile-identity > span { border-radius: 18px 18px 6px 18px; }
+.blw-expressive .blw-add-confirm button { border-radius: 16px; transition: border-radius var(--blx-motion-short) var(--blx-easing); }
+.blw-expressive .blw-add-confirm button:active { border-radius: 26px; }
+/* Base UI owns focus, modality and presence. Its documented data states drive motion. */
+.blw-dialog.blw-expressive {
+  transition: opacity var(--blx-motion-short) linear, transform var(--blx-motion-spatial) var(--blx-easing);
+}
+.blw-dialog.blw-expressive[data-starting-style],
+.blw-dialog.blw-expressive[data-ending-style] { opacity: 0; transform: translate(-50%, -48%) scale(.98); }
+.blw-dialog.blw-expressive.blw-registration-sheet[data-starting-style],
+.blw-dialog.blw-expressive.blw-registration-sheet[data-ending-style] { transform: translate(-50%, 20px); }
+.blw-dialog.blw-expressive .blw-registration-options { gap: 0; }
+.blw-dialog.blw-expressive .blw-registration-options button { border: 0; min-height: 80px; padding: 12px 4px; border-radius: 12px; }
+.blw-dialog.blw-expressive .blw-registration-options button:focus-visible { outline-offset: -2px; }
+.blw-dialog.blw-expressive .blw-registration-options button > svg:first-child { box-sizing: content-box; padding: 12px; border-radius: 16px; background: var(--md-secondary); color: var(--md-on-secondary); }
+.blw-dialog.blw-expressive .blw-form-actions button { transition: border-radius var(--blx-motion-short) var(--blx-easing); }
+.blw-dialog.blw-expressive .blw-form-actions .blw-sheet-primary { border-radius: 16px; }
+.blw-dialog.blw-expressive .blw-form-actions .blw-sheet-primary:active { border-radius: 24px; }
+@media (hover: hover) {
+  .blw-expressive .blw button:not(:disabled):hover, .blw-dialog.blw-expressive button:hover { filter: none; }
+  .blw-expressive :is(.blw-food, .blw-library-food, .blw-group-add):hover,
+  .blw-dialog.blw-expressive .blw-registration-options button:hover { background: var(--md-high); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .blw-expressive, .blw-expressive * { transition: none !important; animation: none !important; }
+}
+@container blw-review (max-width: 800px) {
+  .blw-expressive .blw-intro h1 { font-size: 28px; }
+}
+@container blw-review (max-width: 420px) {
+  .blw-expressive .blw-device { border-radius: 0; }
+}
+/* Field outlines remain distinguishable against their surface in both schemes. */
+.blw-expressive { --md-outline: #7c8b9b; }
+.blw-expressive.blw-android-light { --md-outline: #68798d; }

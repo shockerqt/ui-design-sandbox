@@ -42,7 +42,7 @@ const NotFound: React.FC<{ id?: string }> = ({ id }) => (
 );
 
 const MockupRoute: React.FC<{ id: string; screen?: string }> = ({ id, screen }) => {
-  if (screen && !(['balance-log-wireframes', 'balance-android-material'].includes(id) && screen === 'agregar-alimento')) return <NotFound />;
+  if (screen && !(['balance-log-wireframes', 'balance-android-material', 'balance-material-expressive'].includes(id) && screen === 'agregar-alimento')) return <NotFound />;
   const mockup = mockupRegistry.find(m => m.id === id);
   return mockup ? <MockupViewer mockup={mockup} /> : <NotFound id={id} />;
 };

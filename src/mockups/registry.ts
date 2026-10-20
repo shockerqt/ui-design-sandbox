@@ -8,10 +8,21 @@ import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
+import { BalanceMaterialExpressive } from './BalanceMaterialExpressive';
 import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-material-expressive',
+    title: 'Balance · Material Expressive',
+    category: 'Dashboards',
+    description: 'Segunda dirección visual: jerarquía de nutrientes, acciones con forma reactiva, controles conectados y transiciones con movimiento reducido.',
+    tags: ['Balance', 'Material 3', 'Expressive', 'motion', 'Compose', 'mobile'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-20',
+    component: BalanceMaterialExpressive
+  },
   {
     id: 'balance-android-material',
     title: 'Balance · Android Material',

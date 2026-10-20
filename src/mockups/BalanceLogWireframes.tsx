@@ -14,6 +14,7 @@ import type { Food, PortionSnapshot, QuantityDraft } from './BalanceFoodModel';
 import { FoodQuantityFields } from './BalanceFoodQuantity';
 import './BalanceLogWireframes.css';
 import './BalanceAndroidMaterial.css';
+import './BalanceMaterialExpressive.css';
 
 type View = 'day' | 'detail' | 'selection';
 type Sheet = { kind: 'edit'; food: Food } | { kind: 'move' } | { kind: 'delete' } | { kind: 'register' } | { kind: 'weight' } | { kind: 'body' } | { kind: 'nutrition' } | null;
@@ -126,10 +127,11 @@ function FoodRow({ food, selectionMode, selected, onEdit, onSelect, onStartSelec
   </button>;
 }
 
-export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wireframe', basePath = BALANCE_WIREFRAME_PATH }: { initialPage?: AppPage; appearance?: 'wireframe' | 'android'; basePath?: string } = {}) {
-  const android = appearance === 'android';
+export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wireframe', basePath = BALANCE_WIREFRAME_PATH }: { initialPage?: AppPage; appearance?: 'wireframe' | 'android' | 'expressive'; basePath?: string } = {}) {
+  const android = appearance !== 'wireframe';
+  const expressive = appearance === 'expressive';
   const [colorMode, setColorMode] = useState<'dark' | 'light'>('dark');
-  const themeClass = android ? `blw-android blw-android-${colorMode}` : '';
+  const themeClass = android ? `blw-android blw-android-${colorMode}${expressive ? ' blw-expressive' : ''}` : '';
   const [location, navigate] = useLocation();
   const search = useSearch();
   const addingFood = location === `${basePath}/agregar-alimento`;
@@ -247,9 +249,11 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
 
   return <div className={`blw-root ${themeClass}`}><div className="blw">
     <section className="blw-review" aria-label="Controles del wireframe">
-      <div className="blw-intro"><span className="blw-kicker">{android ? 'Balance / Android · Estudio visual 01' : 'Balance / Propuesta multivista'}</span><h1>{android ? <>Balance.<br /> En Android.</> : 'Registrar. Después, explorar.'}</h1><p>{android ? 'Material 3 Expressive. Color tonal, formas suaves y el mismo registro cotidiano.' : 'Alimentos y mediciones para registrar; Resumen para mirar la evolución. Solo estructura e interacción.'}</p></div>
+      <div className="blw-intro"><span className="blw-kicker">{expressive ? 'Balance / Material Expressive · Estudio 02' : android ? 'Balance / Android · Estudio visual 01' : 'Balance / Propuesta multivista'}</span><h1>{expressive ? 'Balance · Expressive' : android ? <>Balance.<br /> En Android.</> : 'Registrar. Después, explorar.'}</h1><p>{expressive ? 'Más intención en las acciones y las transiciones. La misma información, con otra jerarquía.' : android ? 'Material 3 Expressive. Color tonal, formas suaves y el mismo registro cotidiano.' : 'Alimentos y mediciones para registrar; Resumen para mirar la evolución. Solo estructura e interacción.'}</p></div>
       {android && <div className="blw-style-controls">
         <div role="group" aria-label="Apariencia"><button aria-pressed={colorMode === 'dark'} onClick={() => setColorMode('dark')}>Oscuro</button><button aria-pressed={colorMode === 'light'} onClick={() => setColorMode('light')}>Claro</button></div>
+        {expressive && <a href="/m/balance-android-material">Comparar con Android inicial ↗</a>}
+        {appearance === 'android' && <a href="/m/balance-material-expressive">Comparar con Expressive ↗</a>}
         <a href={BALANCE_WIREFRAME_PATH}>Ver wireframe original ↗</a>
       </div>}
       <Tabs.Root value={page} onValueChange={(value) => changePage(value as AppPage)}>
@@ -264,7 +268,7 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
         {page === 'foods' && !addingFood && <label><input type="checkbox" checked={emptyDay} onChange={(event) => { let day = 0; if (event.target.checked) { day = 1; while (foodsByDay[day]?.length) day++; } setDate(day); setEmptyDay(event.target.checked); }} /> Día vacío</label>}
         <button onClick={() => { changeView('day'); setPage(page); }}>Restablecer ejemplo</button>
       </div>
-      {android && <div className="blw-material-notes"><div className="blw-swatches" aria-hidden="true"><i /><i /><i /><i /></div><p>Superficies minerales. Azul para actuar. Ámbar para el exceso de energía.</p><p>Explora las cuatro vistas, abre el + o cambia a Detalle para revisar los alimentos.</p><small>Prototipo web · referencia para Jetpack Compose<br />Datos ilustrativos · cambios solo en memoria</small></div>}
+      {android && <div className="blw-material-notes"><div className="blw-swatches" aria-hidden="true"><i /><i /><i /><i /></div><p>{expressive ? "El énfasis está en Registrar, la selección y las transiciones. Las filas conservan su densidad." : "Superficies minerales. Azul para actuar. Ámbar para el exceso de energía."}</p><p>Explora las cuatro vistas, abre el + o cambia a Detalle para revisar los alimentos.</p><small>Prototipo web · referencia para Jetpack Compose<br />Datos ilustrativos · cambios solo en memoria</small></div>}
       <div className="blw-review-notes"><p><strong>Datos ilustrativos.</strong> Día de referencia: 9 oct 2026. 22 alimentos en seis grupos; pesos frecuentes y medidas corporales más espaciadas. No son tus datos.</p><p><strong>Alimentos.</strong> Conserva los registros de dos líneas, macros por grupo y resumen consumido / meta. El aro sigue llenándose de ámbar sobre la meta. Pulsación larga para seleccionar.</p><p><strong>Mediciones.</strong> Calendario mensual y registro por fecha. Peso diario o zonas opcionales, con ambos lados juntos. Sin gráficos ni días pendientes.</p><p><strong>Resumen.</strong> Alimentación / Cuerpo y períodos de 7, 30 o 90 días. Toca un gráfico para explorar una fecha; su enlace abre los registros correspondientes.</p><p><strong>Agregar alimento.</strong> Ruta propia con Bibliotecas y Etiquetas. En Etiquetas, completa la información nutricional por porción o usa el ejemplo para registrar un alimento.</p><p><strong>Perfil.</strong> Primera anatomía de cuenta, unidades actuales y preferencias. Los recordatorios son controles de ejemplo; no envían notificaciones.</p><p>El + compartido queda al centro y permite registrar alimento, peso o medidas. Los cambios se conservan entre vistas hasta restablecer el ejemplo o recargar.</p></div>
     </section>
 
@@ -293,8 +297,17 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
           {offset !== 0 && <button className="blw-today" onClick={() => setDate(0)}>Volver a hoy</button>}
         </header>
         <button type="button" className="blw-summary" aria-label={`Totales del día: ${format(dailyCalories)} de ${format(CALORIE_TARGET)} kilocalorías. ${DAILY_NUTRIENTS.slice(0, 3).map(([, label, key, target]) => `${label}: ${sum(activeFoods, key)} de ${target} gramos`).join('. ')}. Ver detalle nutricional`} aria-haspopup="dialog" aria-expanded={sheet?.kind === 'nutrition'} onClick={() => openSheet({ kind: 'nutrition' })}>
+          {expressive ? <>
+            <span className="blx-energy-label">Energía registrada <ChevronRight size={18} aria-hidden="true" /></span>
+            <span className="blw-energy"><span><strong>{format(dailyCalories)}</strong><span className="blx-energy-target"> / {format(CALORIE_TARGET)} kcal</span></span></span>
+            <span className="blx-nutrients">{DAILY_NUTRIENTS.slice(0, 3).map(([, label, key, target]) => <span key={key}>
+              <span className="blx-nutrient-label">{label}</span><span><strong>{format(sum(activeFoods, key))}</strong><small> / {target} g</small></span>
+              <span className="blx-nutrient-meter" aria-hidden="true"><i style={{ width: `${Math.min(100, sum(activeFoods, key) / target * 100)}%` }} /></span>
+            </span>)}</span>
+          </> : <>
           <span className="blw-energy"><span><strong>{format(dailyCalories)}</strong> / {format(CALORIE_TARGET)} kcal</span><ChevronRight size={16} aria-hidden="true" /></span>
           <span className="blw-summary-macros">{DAILY_NUTRIENTS.slice(0, 3).map(([short, label, key, target]) => <span key={key} aria-label={`${label}: ${sum(activeFoods, key)} de ${target} gramos`}><abbr title={label}>{short}</abbr> <strong>{format(sum(activeFoods, key))}</strong><small> / {target} g</small></span>)}</span>
+          </>}
         </button>
         <div className="blw-feed" ref={scrollRef}>
           {!groups.length ? <div className="blw-empty"><Image size={32} strokeWidth={1} /><h2>No hay registros</h2><p>Agrega el primer alimento de este día.</p><button onClick={() => openAddFood('08:00')}>Registrar alimento</button></div> :
@@ -322,12 +335,12 @@ export function BalanceLogWireframes({ initialPage = 'foods', appearance = 'wire
         </div> : <nav className="blw-bottom-nav" aria-label="Navegación y registro">
           <button className="blw-nav-destination" aria-current={page === 'foods' ? 'page' : undefined} onClick={() => changePage('foods')}><Utensils size={18} aria-hidden="true" /><span>Alimentos</span></button>
           <button className="blw-nav-destination" aria-current={page === 'measurements' ? 'page' : undefined} onClick={() => changePage('measurements')}><MeasurementIcon size={18} aria-hidden="true" /><span>Mediciones</span></button>
-          <button className="blw-nav-add" aria-label="Registrar alimento, peso o medidas" aria-haspopup="dialog" aria-expanded={sheet?.kind === 'register' || sheet?.kind === 'weight' || sheet?.kind === 'body'} onClick={() => openSheet({ kind: 'register' })}><Plus size={22} aria-hidden="true" /></button>
+          <button className="blw-nav-add" aria-label="Registrar alimento, peso o medidas" aria-haspopup="dialog" aria-expanded={sheet?.kind === 'register' || sheet?.kind === 'weight' || sheet?.kind === 'body'} onClick={() => openSheet({ kind: 'register' })}><Plus size={22} aria-hidden="true" />{expressive && <span>Registrar</span>}</button>
           <button className="blw-nav-destination" aria-current={page === 'summary' ? 'page' : undefined} onClick={() => changePage('summary')}><ChartNoAxesCombined size={18} aria-hidden="true" /><span>Resumen</span></button>
           <button className="blw-nav-destination" aria-current={page === 'profile' ? 'page' : undefined} onClick={() => changePage('profile')}><UserRound size={18} aria-hidden="true" /><span>Perfil</span></button>
         </nav>}</>}
       </div>
-      <p className="blw-caption">{android ? "Material 3 / Exploración Android · 01" : "Alimentos · Mediciones · + · Resumen · Perfil / datos de ejemplo"}</p>
+      <p className="blw-caption">{android ? expressive ? "Material 3 Expressive / Exploración 02" : "Material 3 / Exploración Android · 01" : "Alimentos · Mediciones · + · Resumen · Perfil / datos de ejemplo"}</p>
     </section>
 
     <Dialog.Root open={sheet !== null} onOpenChange={(open) => { if (!open) setSheet(null); }}>
