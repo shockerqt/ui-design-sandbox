@@ -16,9 +16,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Planos SID/G3 con barra libre de 2 m en G3, banca guardada, sofá GLOSTAD y caucho de tres planchetas compartido.',
+    description: 'Planos SID/G3 con barra de 2 m, sofá GLOSTAD, caucho compartido y estudio de distancia y apertura del refrigerador en C.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.19.0',
+    version: 'v1.20.0',
     updatedAt: '2026-10-20',
     component: ApartmentFloorPlan
   },

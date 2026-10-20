@@ -118,7 +118,8 @@ const CUT_TILES = [
 const LAYOUTS = [
   { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 57.5, floorW: 140, x: 125, y: 105, angle: 0, model: 'sid' },
   { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorW: 150, x: 75, y: 130, angle: 270, model: 'sid' },
-  { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 57.5, floorW: 140, x: 125, y: 86, angle: 0, model: 'g3' },
+  // Static Smith-tip/wall gap10; this does not certify plate-loading access.
+  { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 44, floorW: 140, x: 111.5, y: 86, angle: 0, model: 'g3' },
   // Smith203 limits window approach:20+203/2=121.5,8.5 closer than before.
   { id: 'd', title: 'D · Force USA G3 V1 · Espalda a la pared de la puerta', floorX: 11, floorW: 150, x: 86, y: 121.5, angle: 270, model: 'g3' }
 ];
@@ -340,6 +341,27 @@ function Sofa() {
   </g>;
 }
 
+// Fridge front assumed atx275; confirmed right hinge when facing fridge maps
+// to lower-plan corner(275,140). Hypothetical70cm door reaches(205,140) at90°.
+// Real leaf width/hinge offset/handle and equipment heights are unknown.
+// Free-bar tip(211.5,121) lies inside this sector; Smith tip(213,77) does not.
+// The parked bike also enters the sector. Show geometry, not certified opening.
+function FridgeClearance({ rackX }: { rackX: number }) {
+  const smithLeft = rackX-G3.smithWidth/2, smithRight = rackX+G3.smithWidth/2;
+  const freeRight = rackX+G3_FREE_BAR/2;
+  const hingeY = FRIDGE.y+FRIDGE.depth;
+  return <g data-part="fridge-clearance">
+    <path data-part="fridge-door-sweep" d={`M${FRIDGE.x} ${hingeY}V${FRIDGE.y}A70 70 0 0 0 ${FRIDGE.x-70} ${hingeY}Z`} fill="#d4a86a" fillOpacity=".12" stroke="#b28a50" strokeWidth=".8" strokeDasharray="3 2" />
+    <path data-part="fridge-door-open" d={`M${FRIDGE.x} ${hingeY}h-70`} stroke="#a77c43" strokeWidth="2" />
+    <circle data-part="fridge-hinge" cx={FRIDGE.x} cy={hingeY} r="1.8" fill="#a77c43" />
+    <text x="242" y="151" style={{fontSize:6}}>90° · puerta ≈70*</text>
+    <Ruler x={0} y={65} length={smithLeft} label={`${smithLeft} cm`} />
+    <path d={`M${smithLeft} 65V77 M${smithRight} 65V77 M${FRIDGE.x} 65V77 M${freeRight} 121v12`} fill="none" stroke="#69818a" strokeWidth=".5" />
+    <Ruler x={smithRight} y={65} length={FRIDGE.x-smithRight} label="61,5 cm · Smith/refri" />
+    <Ruler x={freeRight} y={133} length={FRIDGE.x-freeRight} label="63,5 cm · barra/refri" />
+  </g>;
+}
+
 export function ApartmentFloorPlan() {
   const [mode, setMode] = React.useState<StorageMode>('bench-stored');
   const [showBike, setShowBike] = React.useState(false);
@@ -378,6 +400,7 @@ export function ApartmentFloorPlan() {
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
+      {layout.id === 'c' && <FridgeClearance rackX={layout.x} />}
       {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
       {sofaVisible && <Sofa />}
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
@@ -394,6 +417,7 @@ export function ApartmentFloorPlan() {
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.smithY : RACK.barY)+10} y={20} length={20} label={layout.model === 'g3' ? 'Smith: 20 cm' : '20 cm'} vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
     </svg>
+    {layout.id === 'c' && <p className="af-plan-caption">*Puerta de 70 cm aproximada · Bisagra derecha. El barrido cruza la barra libre{bikeStored ? ' y la bici' : ''}; comprobar alturas y modelo del refri.</p>}
   </section></React.Fragment>; })}<RubberCutPlan /></div>;
 }
 
