@@ -79,7 +79,7 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
  * head25 behind bar: local10..147. Dashed alternate bench under Smith−9:
  * local−34..103. These are alternative positions for ONE bench, not two benches.
  * Free bench local10..147 is covered by fixed mat−75..75 plus detachable
- * extension75..160. Its joint at75 is between feet25..32 and132..139.
+ * shared V1 extension75..175. Its joint at75 is between feet25..32 and132..139.
  * Smith alternate local−34..103 is an alternative placement, not a second bench.
  * This is horizontal placement only; bar-to-chest/head offset and clearances
  * depend on the actual person, bench adjustment and equipment heights.
@@ -90,47 +90,44 @@ const G3 = {
   rearY: -71, frontY: 71, spotter: 44, rearGap: 15, freeBarY: 35
 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
-// Four nominal100×100 tiles; no blade loss or puzzle-edge allowance assumed.
-// Base135×150 = R3/R4 top50 + R1/R2 lower100; seam is away from bench feet.
-// R1 100×100; R2 35×100; R3 100×50; R4 35×50; B65×85.
-// Bike V1 100×60 + V2 35×60 (cut60×35 then rotate). Used33875cm²,
-// scrap6125cm², total40000cm². Confirm actual feet and tile usable edges first.
-const RUBBER_COLOR = { rack: '#cad4cf', bench: '#e4cda6', bike: '#bdd9e1', offcut: '#eef1f1' };
+// Three nominal100×100 tiles; no blade loss or puzzle-edge allowance assumed.
+// Base140×150: R1 100×100, R2 40×100, R3 100×50, R4 40×50.
+// Keep the old left edge: widening R2/R4 adds5cm on the right only.
+// Entire P2 remainder V1=60×100; entire P3 remainder V2=60×50.
+// V1 alone extends bench60×100; rotated V1+V2 make bike150×60.
+// Each room configuration uses V1 once. Total30000cm², nominal scraps0.
+const RUBBER_COLOR = { rack: '#cad4cf', bike: '#bdd9e1' };
 const RACK_FLOOR_PARTS = [
   { id: 'R3', x: 0, y: 0, w: 100, h: 50 },
-  { id: 'R4', x: 100, y: 0, w: 35, h: 50 },
+  { id: 'R4', x: 100, y: 0, w: 40, h: 50 },
   { id: 'R1', x: 0, y: 50, w: 100, h: 100 },
-  { id: 'R2', x: 100, y: 50, w: 35, h: 100 }
+  { id: 'R2', x: 100, y: 50, w: 40, h: 100 }
 ];
 const CUT_TILES = [
   [{ id: 'R1', use: 'rack', x: 0, y: 0, w: 100, h: 100 }],
-  [{ id: 'R2', use: 'rack', x: 0, y: 0, w: 35, h: 100 },
-   { id: 'B', use: 'bench', x: 35, y: 0, w: 65, h: 85 },
-   { id: 'S2', use: 'offcut', x: 35, y: 85, w: 65, h: 15 }],
+  [{ id: 'R2', use: 'rack', x: 0, y: 0, w: 40, h: 100 },
+   { id: 'V1', use: 'bike', x: 40, y: 0, w: 60, h: 100 }],
   [{ id: 'R3', use: 'rack', x: 0, y: 0, w: 100, h: 50 },
-   { id: 'R4', use: 'rack', x: 0, y: 50, w: 35, h: 50 },
-   { id: 'V2', use: 'bike', x: 35, y: 50, w: 60, h: 35 },
-   { id: 'S3a', use: 'offcut', x: 95, y: 50, w: 5, h: 50 },
-   { id: 'S3b', use: 'offcut', x: 35, y: 85, w: 60, h: 15 }],
-  [{ id: 'V1', use: 'bike', x: 0, y: 0, w: 100, h: 60 },
-   { id: 'S4', use: 'offcut', x: 0, y: 60, w: 100, h: 40 }]
+   { id: 'R4', use: 'rack', x: 0, y: 50, w: 40, h: 50 },
+   { id: 'V2', use: 'bike', x: 40, y: 50, w: 60, h: 50 }]
 ] as const;
 const LAYOUTS = [
-  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 57.5, floorW: 135, x: 125, y: 105, angle: 0, model: 'sid' },
+  { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 57.5, floorW: 140, x: 125, y: 105, angle: 0, model: 'sid' },
   { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorW: 150, x: 75, y: 130, angle: 270, model: 'sid' },
-  { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 57.5, floorW: 135, x: 125, y: 86, angle: 0, model: 'g3' },
+  { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 57.5, floorW: 140, x: 125, y: 86, angle: 0, model: 'g3' },
   { id: 'd', title: 'D · Force USA G3 V1 · Espalda a la pared de la puerta', floorX: 11, floorW: 150, x: 86, y: 130, angle: 270, model: 'g3' }
 ];
 // P900 footprint131×53.5 from the provided Ultimate Fitness listing.
-// Restore at x90,y257.25, facing +x. Mat x88,y254 is135×60, with2cm end
-// and3.25cm side margins. Bench extension C ends y246:8cm to bike mat.
+// Ordinary bike body x90,y272.25; mat x88,y269 is150×60.
+// Bench V1 extension C ends y261:8cm to bike-mat location. Mat ends329,
+// 6cm before kitchen335. V1 is under bench OR bike, never both at once.
 // Only footprint fit is shown; occupied mounting/pedalling access is unmeasured.
-const BIKE = { x: 90, y: 257.25, length: 131, width: 53.5 };
+const BIKE = { x: 90, y: 272.25, length: 131, width: 53.5 };
 type StorageMode = 'exercise' | 'bench-stored' | 'all-stored';
 // G3 storage is a plan study, not a folding/vertical-storage claim. Bench stays
 // 137×57, horizontal, head−54..tail83; feet−39..−32 and68..75 stay on fixed mat.
 // Rear brace/bench vertical clearance must be checked on the real equipment.
-// Bike C rotates90° at(263.5,40): body x210..263.5,y40..171; its mat is60×135.
+// Bike C rotates90° at(263.5,40): body x210..263.5,y40..171; its mat is60×150.
 // Bike D parks at(90,215): body x90..221,y215..268.5, beyond door's assumed80.
 // Bodies clear fixed rails, loader horns, stored discs and fridge in plan.
 // Both bars stay203/220 wide at the same plan axes, dashed when elevated.
@@ -140,23 +137,27 @@ const STORED_BENCH_HEAD = -54;
 
 function ModularFloor({ extension, turn }: { extension: boolean; turn: number }) {
   return <g data-part="modular-floor">
-    <rect data-part="floor" x="-67.5" y="-75" width="135" height="150" fill={RUBBER_COLOR.rack} stroke="#6b8377" strokeWidth="1" />
-    <path data-part="rack-floor-seams" d="M32.5 -75V75 M-67.5 -25H67.5" fill="none" stroke="#9eafa4" strokeWidth=".7" />
+    <rect data-part="floor" x="-67.5" y="-75" width="140" height="150" fill={RUBBER_COLOR.rack} stroke="#6b8377" strokeWidth="1" />
+    <path data-part="rack-floor-seams" d="M32.5 -75V75 M-67.5 -25H72.5" fill="none" stroke="#9eafa4" strokeWidth=".7" />
     {extension && <>
-      <rect data-part="bench-floor" x="-32.5" y="75" width="65" height="85" fill={RUBBER_COLOR.bench} fillOpacity=".75" stroke="#a17f49" strokeWidth="1" strokeDasharray="4 2" />
-      <text x="-38.5" y="117.5" transform={`rotate(${turn === 270 ? 90 : -90} -38.5 117.5)`} style={{fontSize:6.5}}>B · 65 × 85</text>
+      <rect data-part="bench-floor" data-piece="V1" x="-30" y="75" width="60" height="100" fill={RUBBER_COLOR.bike} fillOpacity=".75" stroke="#a17f49" strokeWidth="1" strokeDasharray="4 2" />
+      <text x="-36" y="125" transform={`rotate(${turn === 270 ? 90 : -90} -36 125)`} style={{fontSize:6.5}}>V1 · 60 × 100</text>
     </>}
   </g>;
 }
 
-function Bike({ parking }: { parking?: number } = {}) {
+function Bike({ parking, mat = true }: { parking?: number; mat?: boolean } = {}) {
   const b = BIKE, middle = b.width/2;
   const pose = parking === 0 ? { x: 263.5, y: 40, angle: 90 }
     : parking === 270 ? { x: 90, y: 215, angle: 0 }
     : { x: b.x, y: b.y, angle: 0 };
   return <g data-part="bike-zone" data-parking={parking === undefined ? 'use' : 'stored'} transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle})`}>
-    <rect data-part="bike-floor" x="-2" y="-3.25" width="135" height="60" fill={RUBBER_COLOR.bike} fillOpacity=".7" stroke="#648b99" strokeWidth="1" strokeDasharray="4 2" />
+    {mat && <g data-part="bike-rubber">
+    <rect data-part="bike-floor" x="-2" y="-3.25" width="150" height="60" fill={RUBBER_COLOR.bike} fillOpacity=".7" stroke="#648b99" strokeWidth="1" strokeDasharray="4 2" />
     <path data-part="bike-floor-seam" d="M98 -3.25v60" stroke="#7ba0ac" strokeWidth=".8" />
+    <Ruler x={-2} y={62.75} length={150} label="V1 + V2 · 150 × 60" />
+    <Ruler x={155} y={56.75} length={60} label="60 cm" vertical />
+    </g>}
     <g data-part="bike">
       <rect data-part="bike-envelope" width={b.length} height={b.width} rx="3" fill="none" stroke="#6c8997" strokeWidth=".7" strokeDasharray="3 2" />
       {[8,121].map(x=><rect key={x} data-part="bike-foot" x={x} y="0" width="5" height={b.width} rx="2" fill="#536c79" />)}
@@ -166,8 +167,7 @@ function Bike({ parking }: { parking?: number } = {}) {
       <path d={`M103 7h12v${b.width-14}h-12`} fill="none" stroke="#405b6c" strokeWidth="3" />
       <text x="78" y="10" style={{fontSize:6}}>P900 · 131 × 53,5</text>
     </g>
-    <Ruler x={-2} y={62.75} length={135} label="V · 135 × 60 · desmontable" />
-    <Ruler x={142} y={56.75} length={60} label="60 cm" vertical />
+
   </g>;
 }
 
@@ -344,7 +344,7 @@ export function ApartmentFloorPlan() {
     </div>}
     <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
     <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
-    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · B: caucho desmontable'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}</p>}
+    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}</p>}
     <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
@@ -353,7 +353,7 @@ export function ApartmentFloorPlan() {
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
-      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} />}
+      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
@@ -364,7 +364,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 135 × 150 cm" />
+      <Ruler x={layout.floorX} y={bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.freeBarY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
     </svg>
@@ -372,48 +372,51 @@ export function ApartmentFloorPlan() {
 }
 
 function RubberCutPlan() {
-  return <section className="af-cut-plan" aria-label="Plan de cortes de cuatro planchetas">
-    <h2>Cortes · 4 planchetas de 100 × 100 cm</h2>
-    <p className="af-cut-note">R: base fija · B: extensión de banca · V: bici · Gris claro: retazos. V2 se gira 90° para armar la bici.</p>
+  return <section className="af-cut-plan" aria-label="Plan de cortes de tres planchetas">
+    <h2>Cortes · 3 planchetas de 100 × 100 cm</h2>
+    <p className="af-cut-note">R: base fija · V1: banca o bici · V2: completa la bici. V1 se mueve entre ambas configuraciones.</p>
     <div className="af-cut-grid">
-      <svg data-part="source-tiles" viewBox="-15 -22 245 285" role="img" aria-label="Cortes y medidas de cada plancheta de un metro cuadrado">
+      <svg data-part="source-tiles" viewBox="-15 -22 245 285" role="img" aria-label="Cortes y medidas de tres planchetas de un metro cuadrado">
         {CUT_TILES.map((pieces,i)=><g key={i} data-part="cut-tile" data-tile={i+1} transform={`translate(${(i%2)*115} ${Math.floor(i/2)*130})`}>
           <text x="50" y="-8" style={{fontSize:7}}>Plancheta {i+1} · 100 × 100</text>
           {pieces.map(piece=><g key={piece.id}>
             <rect data-part="cut-piece" data-piece={piece.id} data-use={piece.use} x={piece.x} y={piece.y} width={piece.w} height={piece.h} fill={RUBBER_COLOR[piece.use]} stroke="#6b8377" strokeWidth=".6" />
-            {piece.use !== 'offcut' && <text x={piece.x+piece.w/2} y={piece.y+piece.h/2-2} style={{fontSize:6.5}}>
+            <text x={piece.x+piece.w/2} y={piece.y+piece.h/2-2} style={{fontSize:6.5}}>
               <tspan x={piece.x+piece.w/2}>{piece.id}</tspan>
               <tspan x={piece.x+piece.w/2} dy="9">{piece.w} × {piece.h}</tspan>
-            </text>}
-            {piece.use === 'offcut' && piece.w > 20 && <text x={piece.x+piece.w/2} y={piece.y+piece.h/2+2} style={{fontSize:5.5}}>Retazo {piece.w} × {piece.h}</text>}
+            </text>
           </g>)}
           <rect width="100" height="100" fill="none" stroke="#405b62" strokeWidth="1" />
         </g>)}
-        <text x="107.5" y="250" style={{fontSize:7}}>Usado: 3,3875 m² · Retazos: 0,6125 m²</text>
+        <text x="165" y="175" style={{fontSize:7}}>Base: 2,1 m²</text>
+        <text x="165" y="188" style={{fontSize:7}}>V1 + V2: 0,9 m²</text>
+        <text x="107.5" y="250" style={{fontSize:7}}>Total nominal: 3 m² · Sin retazos</text>
       </svg>
-      <svg data-part="assembled-modules" viewBox="-10 -22 245 285" role="img" aria-label="Armado de base del rack con extensión de banca y módulo desmontable de bici">
-        <Ruler x={0} y={-3} length={135} label="R · 135 cm" />
+      <svg data-part="assembled-modules" viewBox="-10 -22 285 315" role="img" aria-label="Alternativas: V1 como extensión de banca o V1 más V2 para bici">
+        <Ruler x={0} y={-3} length={140} label="R · 140 cm" />
         {RACK_FLOOR_PARTS.map(piece=><g key={piece.id}>
           <rect data-part="assembled-rack-piece" data-piece={piece.id} x={piece.x} y={piece.y} width={piece.w} height={piece.h} fill={RUBBER_COLOR.rack} stroke="#6b8377" strokeWidth=".6" />
           <text x={piece.x+piece.w/2} y={piece.y+piece.h/2} style={{fontSize:7}}>{piece.id}</text>
         </g>)}
-        <rect data-part="assembled-bench-piece" data-piece="B" x="35" y="150" width="65" height="85" fill={RUBBER_COLOR.bench} stroke="#a17f49" strokeWidth="1" strokeDasharray="3 2" />
+        <rect data-part="assembled-bench-piece" data-piece="V1" x="37.5" y="150" width="60" height="100" fill={RUBBER_COLOR.bike} stroke="#648b99" strokeWidth="1" strokeDasharray="3 2" />
         <g data-part="cut-rack-supports" fill="#53676e">
           {[9,126].map(x=><g key={x}><rect x={x-3.5} y="4" width="7" height="140" rx="1" /><rect x={x-5} y="4" width="10" height="5" /><rect x={x-5} y="139" width="10" height="5" /></g>)}
         </g>
         <rect x="39" y="85" width="57" height="137" rx="3" fill="none" stroke="#a77165" strokeWidth=".9" strokeDasharray="3 2" />
         {[100,207].map(y=><rect key={y} x="39" y={y} width="57" height="7" fill="#aa8175" fillOpacity=".7" />)}
-        <text x="67.5" y="188" style={{fontSize:7}}>B · 65 × 85</text>
-        <Ruler x={145} y={150} length={150} label="150 cm" vertical />
-        <Ruler x={35} y={245} length={65} label="65 cm" />
-        <text x="190" y="90" style={{fontSize:7}}>V · Bici 135 × 60</text>
-        <rect data-part="assembled-bike-piece" data-piece="V1" x="160" y="100" width="60" height="100" fill={RUBBER_COLOR.bike} stroke="#648b99" strokeWidth=".6" />
-        <rect data-part="assembled-bike-piece" data-piece="V2" x="160" y="200" width="60" height="35" fill={RUBBER_COLOR.bike} stroke="#648b99" strokeWidth=".6" />
-        <rect x="163.25" y="102" width="53.5" height="131" rx="2" fill="none" stroke="#536c79" strokeWidth=".7" strokeDasharray="3 2" />
-        {[110,223].map(y=><rect key={y} x="163.25" y={y} width="53.5" height="5" fill="#536c79" />)}
-        <text x="190" y="150">V1</text><text x="190" y="218">V2</text>
-        <Ruler x={228} y={235} length={135} label="135 cm" vertical />
-        <Ruler x={160} y={245} length={60} label="60 cm" />
+        <text x="67.5" y="237" style={{fontSize:7}}>V1 · 60 × 100</text>
+        <Ruler x={150} y={150} length={150} label="150 cm" vertical />
+        <Ruler x={37.5} y={260} length={60} label="60 cm" />
+        <text x="67.5" y="280" style={{fontSize:7}}>Banca · V2 guardado</text>
+        <text x="215" y="55" style={{fontSize:7}}>Alternativa: bici</text>
+        <text x="215" y="67" style={{fontSize:7}}>Misma V1 + V2</text>
+        <rect data-part="assembled-bike-piece" data-piece="V1" x="185" y="90" width="60" height="100" fill={RUBBER_COLOR.bike} stroke="#648b99" strokeWidth=".6" />
+        <rect data-part="assembled-bike-piece" data-piece="V2" x="185" y="190" width="60" height="50" fill={RUBBER_COLOR.bike} stroke="#648b99" strokeWidth=".6" />
+        <rect x="188.25" y="92" width="53.5" height="131" rx="2" fill="none" stroke="#536c79" strokeWidth=".7" strokeDasharray="3 2" />
+        {[100,213].map(y=><rect key={y} x="188.25" y={y} width="53.5" height="5" fill="#536c79" />)}
+        <text x="215" y="140">V1</text><text x="215" y="220">V2</text>
+        <Ruler x={257} y={240} length={150} label="150 cm" vertical />
+        <Ruler x={185} y={260} length={60} label="60 cm" />
       </svg>
     </div>
     <p className="af-cut-note">Medidas nominales en cm. Confirmar lado útil, encastres y bases reales del rack antes de cortar.</p>

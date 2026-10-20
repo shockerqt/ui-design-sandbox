@@ -16,9 +16,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Planos SID/G3 con variantes con o sin bici, banca en uso o guardada, caucho modular y cortes de cuatro planchetas.',
+    description: 'Planos SID/G3 con variantes con o sin bici, banca en uso o guardada, caucho de tres planchetas con V1 compartido entre banca y bici.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.15.0',
+    version: 'v1.16.0',
     updatedAt: '2026-10-20',
     component: ApartmentFloorPlan
   },
