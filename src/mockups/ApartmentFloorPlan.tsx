@@ -90,6 +90,10 @@ const G3 = {
   rearY: -71, frontY: 71, spotter: 44, rearGap: 15, freeBarY: 35
 };
 const BENCH = { width: 57, length: 137, headOffset: 25 };
+// User's200cm free-bar trial applies only to G3; Smith stays203 and SID220.
+// Total length alone does not establish rackability: exact between-sleeve
+// span is unknown. Shaft/sleeve partition below remains a schematic138cm.
+const G3_FREE_BAR = 200;
 // Three nominal100×100 tiles; no blade loss or puzzle-edge allowance assumed.
 // Base140×150: R1 100×100, R2 40×100, R3 100×50, R4 40×50.
 // Keep the old left edge: widening R2/R4 adds5cm on the right only.
@@ -115,7 +119,8 @@ const LAYOUTS = [
   { id: 'a', title: 'A · SID · Espalda al ventanal · Banca dentro*', floorX: 57.5, floorW: 140, x: 125, y: 105, angle: 0, model: 'sid' },
   { id: 'b', title: 'B · SID · Espalda a la pared de la puerta · Banca dentro*', floorX: 0, floorW: 150, x: 75, y: 130, angle: 270, model: 'sid' },
   { id: 'c', title: 'C · Force USA G3 V1 · Espalda al ventanal', floorX: 57.5, floorW: 140, x: 125, y: 86, angle: 0, model: 'g3' },
-  { id: 'd', title: 'D · Force USA G3 V1 · Espalda a la pared de la puerta', floorX: 11, floorW: 150, x: 86, y: 130, angle: 270, model: 'g3' }
+  // Smith203 limits window approach:20+203/2=121.5,8.5 closer than before.
+  { id: 'd', title: 'D · Force USA G3 V1 · Espalda a la pared de la puerta', floorX: 11, floorW: 150, x: 86, y: 121.5, angle: 270, model: 'g3' }
 ];
 // P900 footprint131×53.5 from the provided Ultimate Fitness listing.
 // Ordinary bike body x90,y272.25; mat x88,y269 is150×60.
@@ -130,7 +135,7 @@ type StorageMode = 'exercise' | 'bench-stored' | 'all-stored';
 // Bike C rotates90° at(263.5,40): body x210..263.5,y40..171; its mat is60×150.
 // Bike D parks at(90,215): body x90..221,y215..268.5, beyond door's assumed80.
 // Bodies clear fixed rails, loader horns, stored discs and fridge in plan.
-// Both bars stay203/220 wide at the same plan axes, dashed when elevated.
+// G3 bars stay203/200 wide at the same local axes, dashed when elevated.
 // P900 listing still says height1295cm (apparent typo): no height clearance is
 // derived. Confirm raised bars clear saddle/handlebar and any mounted tablet.
 const STORED_BENCH_HEAD = -54;
@@ -200,7 +205,7 @@ function Rack({ turn }: { turn: number }) {
   </>;
 }
 
-function BenchAndBar({ barY, turn, stored = false, raised = false }: { barY: number; turn: number; stored?: boolean; raised?: boolean }) {
+function BenchAndBar({ barY, turn, stored = false, raised = false, barLength = 220 }: { barY: number; turn: number; stored?: boolean; raised?: boolean; barLength?: number }) {
   const head = stored ? STORED_BENCH_HEAD : barY - BENCH.headOffset;
   return <>
     <g data-part="bench" data-stored={stored}>
@@ -210,10 +215,10 @@ function BenchAndBar({ barY, turn, stored = false, raised = false }: { barY: num
       <rect x="-14" y={head+89} width="28" height="29" rx="4" fill="#bc8f83" stroke="#714f49" />
     </g>
     <g data-part="bar" data-elevated={raised} className={raised ? 'af-raised-bar' : undefined} fill="#bdcbd0" stroke="#38505a" strokeWidth=".7">
-      <rect x="-110" y={barY-1.4} width="220" height="2.8" />
-      <rect x="-110" y={barY-2.5} width="41" height="5" /><rect x="69" y={barY-2.5} width="41" height="5" />
+      <rect x={-barLength/2} y={barY-1.4} width={barLength} height="2.8" />
+      <rect x={-barLength/2} y={barY-2.5} width={(barLength-138)/2} height="5" /><rect x="69" y={barY-2.5} width={(barLength-138)/2} height="5" />
     </g>
-    <Ruler x={-110} y={barY-8} length={220} label={raised ? 'Barra 220 cm ↑' : 'Barra 220 cm'} at={0.16} />
+    <Ruler x={-barLength/2} y={barY-8} length={barLength} label={`Barra ${barLength} cm${raised ? ' ↑' : ''}`} at={0.16} />
     <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
     <Ruler x={-BENCH.width/2} y={head+BENCH.length+(stored ? 3 : 10)} length={BENCH.width} label="57 cm" />
   </>;
@@ -252,7 +257,7 @@ function G3Rack({ turn, benchStored = false, bikeStored = false }: { turn: numbe
       <rect x="-15" y={smithHead+2} width="30" height="83" rx="5" />
     </g>}
     <rect data-part="free-bench-envelope" x={-BENCH.width/2} y={freeHead} width={BENCH.width} height={BENCH.length} rx="3" fill="none" stroke="#b48073" strokeWidth=".6" />
-    <BenchAndBar barY={r.freeBarY} turn={turn} stored={benchStored} raised={bikeStored} />
+    <BenchAndBar barY={r.freeBarY} turn={turn} stored={benchStored} raised={bikeStored} barLength={G3_FREE_BAR} />
     {/* Smith bar42 and its sleeves97 sit on guides38, behind the front posts6. */}
     <g data-part="smith-bar" data-elevated={bikeStored} className={bikeStored ? 'af-raised-bar' : undefined} fill="#6698a4" stroke="#316a77" strokeWidth=".7">
       <rect x={-r.smithWidth/2} y={r.smithY-1.4} width={r.smithWidth} height="2.8" />
@@ -364,7 +369,7 @@ export function ApartmentFloorPlan() {
     </div>}
     <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
     <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
-    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{sofaVisible ? ' · GLOSTAD · TV ≈2,25 m · Cocina: 39 cm' : ''}</p>}
+    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{' · Barra libre 2 m · Apoyos por confirmar'}{layout.id === 'd' ? ' · 8,5 cm hacia ventanal' : ''}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{sofaVisible ? ' · GLOSTAD · TV ≈2,25 m · Cocina: 39 cm' : ''}</p>}
     <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${sofaVisible ? ', sofá GLOSTAD frente a la tele' : ''}`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
       <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
@@ -386,7 +391,7 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
       <Ruler x={layout.floorX} y={sofaVisible ? 308 : bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
-      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.freeBarY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
+      {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.smithY : RACK.barY)+10} y={20} length={20} label={layout.model === 'g3' ? 'Smith: 20 cm' : '20 cm'} vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
     </svg>
   </section></React.Fragment>; })}<RubberCutPlan /></div>;
