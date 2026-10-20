@@ -16,9 +16,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
-    description: 'Planos SID/G3 con caucho modular para rack, banca y P900, más esquema de cortes de cuatro planchetas.',
+    description: 'Planos SID/G3 con selector de uso y guardado, banca y P900, caucho modular y cortes de cuatro planchetas.',
     tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.13.0',
+    version: 'v1.14.0',
     updatedAt: '2026-10-20',
     component: ApartmentFloorPlan
   },

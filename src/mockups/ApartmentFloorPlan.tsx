@@ -126,6 +126,17 @@ const LAYOUTS = [
 // and3.25cm side margins. Bench extension C ends y246:8cm to bike mat.
 // Only footprint fit is shown; occupied mounting/pedalling access is unmeasured.
 const BIKE = { x: 90, y: 257.25, length: 131, width: 53.5 };
+type StorageMode = 'exercise' | 'bench-stored' | 'all-stored';
+// G3 storage is a plan study, not a folding/vertical-storage claim. Bench stays
+// 137×57, horizontal, head−54..tail83; feet−39..−32 and68..75 stay on fixed mat.
+// Rear brace/bench vertical clearance must be checked on the real equipment.
+// Bike C rotates90° at(263.5,40): body x210..263.5,y40..171; its mat is60×135.
+// Bike D parks at(90,215): body x90..221,y215..268.5, beyond door's assumed80.
+// Bodies clear fixed rails, loader horns, stored discs and fridge in plan.
+// Both bars stay203/220 wide at the same plan axes, dashed when elevated.
+// P900 listing still says height1295cm (apparent typo): no height clearance is
+// derived. Confirm raised bars clear saddle/handlebar and any mounted tablet.
+const STORED_BENCH_HEAD = -54;
 
 function ModularFloor({ extension, turn }: { extension: boolean; turn: number }) {
   return <g data-part="modular-floor">
@@ -138,12 +149,15 @@ function ModularFloor({ extension, turn }: { extension: boolean; turn: number })
   </g>;
 }
 
-function Bike() {
+function Bike({ parking }: { parking?: number } = {}) {
   const b = BIKE, middle = b.width/2;
-  return <g data-part="bike-zone">
-    <rect data-part="bike-floor" x="88" y="254" width="135" height="60" fill={RUBBER_COLOR.bike} fillOpacity=".7" stroke="#648b99" strokeWidth="1" strokeDasharray="4 2" />
-    <path data-part="bike-floor-seam" d="M188 254v60" stroke="#7ba0ac" strokeWidth=".8" />
-    <g data-part="bike" transform={`translate(${b.x} ${b.y})`}>
+  const pose = parking === 0 ? { x: 263.5, y: 40, angle: 90 }
+    : parking === 270 ? { x: 90, y: 215, angle: 0 }
+    : { x: b.x, y: b.y, angle: 0 };
+  return <g data-part="bike-zone" data-parking={parking === undefined ? 'use' : 'stored'} transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle})`}>
+    <rect data-part="bike-floor" x="-2" y="-3.25" width="135" height="60" fill={RUBBER_COLOR.bike} fillOpacity=".7" stroke="#648b99" strokeWidth="1" strokeDasharray="4 2" />
+    <path data-part="bike-floor-seam" d="M98 -3.25v60" stroke="#7ba0ac" strokeWidth=".8" />
+    <g data-part="bike">
       <rect data-part="bike-envelope" width={b.length} height={b.width} rx="3" fill="none" stroke="#6c8997" strokeWidth=".7" strokeDasharray="3 2" />
       {[8,121].map(x=><rect key={x} data-part="bike-foot" x={x} y="0" width="5" height={b.width} rx="2" fill="#536c79" />)}
       <path d={`M10 ${middle}H124 M72 ${middle-17}V${middle+17}`} fill="none" stroke="#647f8e" strokeWidth="4" />
@@ -152,8 +166,8 @@ function Bike() {
       <path d={`M103 7h12v${b.width-14}h-12`} fill="none" stroke="#405b6c" strokeWidth="3" />
       <text x="78" y="10" style={{fontSize:6}}>P900 · 131 × 53,5</text>
     </g>
-    <Ruler x={88} y={320} length={135} label="V · 135 × 60 · desmontable" />
-    <Ruler x={232} y={314} length={60} label="60 cm" vertical />
+    <Ruler x={-2} y={62.75} length={135} label="V · 135 × 60 · desmontable" />
+    <Ruler x={142} y={56.75} length={60} label="60 cm" vertical />
   </g>;
 }
 
@@ -187,29 +201,29 @@ function Rack({ turn }: { turn: number }) {
   </>;
 }
 
-function BenchAndBar({ barY, turn }: { barY: number; turn: number }) {
-  const head = barY - BENCH.headOffset;
+function BenchAndBar({ barY, turn, stored = false, raised = false }: { barY: number; turn: number; stored?: boolean; raised?: boolean }) {
+  const head = stored ? STORED_BENCH_HEAD : barY - BENCH.headOffset;
   return <>
-    <g data-part="bench">
+    <g data-part="bench" data-stored={stored}>
       {[head+15, head+122].map(y => <rect key={y} x={-BENCH.width/2} y={y} width={BENCH.width} height="7" rx="1" fill="#786260" />)}
       <rect x="-3" y={head+15} width="6" height="114" fill="#786260" />
       <rect x="-15" y={head+2} width="30" height="83" rx="5" fill="#b48073" stroke="#714f49" />
       <rect x="-14" y={head+89} width="28" height="29" rx="4" fill="#bc8f83" stroke="#714f49" />
     </g>
-    <g data-part="bar" fill="#bdcbd0" stroke="#38505a" strokeWidth=".7">
+    <g data-part="bar" data-elevated={raised} className={raised ? 'af-raised-bar' : undefined} fill="#bdcbd0" stroke="#38505a" strokeWidth=".7">
       <rect x="-110" y={barY-1.4} width="220" height="2.8" />
       <rect x="-110" y={barY-2.5} width="41" height="5" /><rect x="69" y={barY-2.5} width="41" height="5" />
     </g>
-    <Ruler x={-110} y={barY-8} length={220} label="Barra 220 cm" at={0.16} />
+    <Ruler x={-110} y={barY-8} length={220} label={raised ? 'Barra 220 cm ↑' : 'Barra 220 cm'} at={0.16} />
     <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
     <Ruler x={-BENCH.width/2} y={head+BENCH.length+10} length={BENCH.width} label="57 cm" />
   </>;
 }
 
-function G3Rack({ turn }: { turn: number }) {
+function G3Rack({ turn, benchStored = false, bikeStored = false }: { turn: number; benchStored?: boolean; bikeStored?: boolean }) {
   const r = G3;
   const smithHead = r.smithY - BENCH.headOffset;
-  const freeHead = r.freeBarY - BENCH.headOffset;
+  const freeHead = benchStored ? STORED_BENCH_HEAD : r.freeBarY - BENCH.headOffset;
   return <g data-model="g3-v1">
     <rect data-part="g3-envelope" x={-r.smithWidth/2} y={r.rearY} width={r.smithWidth} height={r.depth} fill="none" stroke="#78939f" strokeWidth=".6" strokeDasharray="3 3" />
     <rect data-part="rear-disc-clearance" x="-81" y={r.rearY-r.rearGap} width="162" height={r.rearGap} fill="#d8c8aa" fillOpacity=".2" stroke="#a48a60" strokeWidth=".6" strokeDasharray="2 2" />
@@ -234,21 +248,21 @@ function G3Rack({ turn }: { turn: number }) {
     </g>)}
     <path data-part="overhead-pullup-bar" d={`M${-r.postX} ${r.frontPostY}H${r.postX}`} stroke="#809397" strokeWidth="2" strokeDasharray="4 3" />
     {/* One bench, two alternative placements: solid=free bar; dashed=Smith. */}
-    <g data-part="smith-bench-alternative" fill="none" stroke="#39818a" strokeWidth="1" strokeDasharray="4 3">
+    {!benchStored && <g data-part="smith-bench-alternative" fill="none" stroke="#39818a" strokeWidth="1" strokeDasharray="4 3">
       <rect x={-BENCH.width/2} y={smithHead} width={BENCH.width} height={BENCH.length} rx="3" />
       <rect x="-15" y={smithHead+2} width="30" height="83" rx="5" />
-    </g>
+    </g>}
     <rect data-part="free-bench-envelope" x={-BENCH.width/2} y={freeHead} width={BENCH.width} height={BENCH.length} rx="3" fill="none" stroke="#b48073" strokeWidth=".6" />
-    <BenchAndBar barY={r.freeBarY} turn={turn} />
+    <BenchAndBar barY={r.freeBarY} turn={turn} stored={benchStored} raised={bikeStored} />
     {/* Smith bar42 and its sleeves97 sit on guides38, behind the front posts6. */}
-    <g data-part="smith-bar" fill="#6698a4" stroke="#316a77" strokeWidth=".7">
+    <g data-part="smith-bar" data-elevated={bikeStored} className={bikeStored ? 'af-raised-bar' : undefined} fill="#6698a4" stroke="#316a77" strokeWidth=".7">
       <rect x={-r.smithWidth/2} y={r.smithY-1.4} width={r.smithWidth} height="2.8" />
       <rect x={-r.smithWidth/2} y={r.smithY-2.5} width="33.5" height="5" />
       <rect x="68" y={r.smithY-2.5} width="33.5" height="5" />
     </g>
     <Ruler x={-r.width/2} y={r.rearPostY+12} length={r.width} label="Bastidor ≈122 cm" />
-    <Ruler x={-r.smithWidth/2} y={r.smithY-8} length={r.smithWidth} label="Smith 203 cm" at={.17} />
-    <Ruler x={r.smithWidth/2+12} y={r.frontY} length={r.depth} label="Equipo 142 cm" vertical flip={turn === 270} />
+    <Ruler x={-r.smithWidth/2} y={r.smithY-8} length={r.smithWidth} label={bikeStored ? 'Smith 203 cm ↑' : 'Smith 203 cm'} at={.17} />
+    <Ruler x={bikeStored && turn === 0 ? -r.smithWidth/2-12 : r.smithWidth/2+12} y={r.frontY} length={r.depth} label="Equipo 142 cm" vertical flip={turn === 270} />
     <Ruler x={-92} y={r.rearY} length={r.rearGap} label="15 cm carga" vertical flip={turn === 270} />
     <Ruler x={r.width/2+8} y={r.frontY} length={r.spotter} label="Spotter 44 cm" vertical flip={turn === 270} />
     <Ruler x={-r.width/2-8} y={r.frontPostY} length={r.frontPostY-r.smithY} label="Smith ≈36 cm atrás" vertical flip={turn === 270} />
@@ -303,18 +317,32 @@ function Remodel() {
 }
 
 export function ApartmentFloorPlan() {
-  return <div className="af-simple">{LAYOUTS.map(layout => <section key={layout.id} aria-label={layout.title}>
-    <h2>{layout.title}</h2>
-    {layout.model === 'g3' && <p className="af-plan-caption">Banca sólida: barra libre · Contorno: Smith · B: caucho desmontable</p>}
+  const [mode, setMode] = React.useState<StorageMode>('all-stored');
+  return <div className="af-simple">{LAYOUTS.map((layout,index) => {
+    const benchStored = layout.model === 'g3' && mode !== 'exercise';
+    const bikeStored = layout.model === 'g3' && mode === 'all-stored';
+    return <React.Fragment key={layout.id}>
+    {index === 2 && <div className="af-mode-controls" data-part="storage-controls">
+      <label htmlFor="apartment-storage-mode">G3 · Distribución</label>
+      <select id="apartment-storage-mode" value={mode} onChange={event=>setMode(event.target.value as StorageMode)}>
+        <option value="exercise">En uso</option>
+        <option value="bench-stored">Banca guardada</option>
+        <option value="all-stored">Banca y bici guardadas · barras arriba</option>
+      </select>
+      {mode !== 'exercise' && <p>Guardado horizontal aproximado: comprobar travesaño trasero{bikeStored ? ' y altura de barras sobre la bici' : ''}.</p>}
+    </div>}
+    <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} aria-label={layout.title}>
+    <h2>{layout.title}{benchStored ? ' · Guardado' : ''}</h2>
+    {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · B: caucho desmontable'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}</p>}
     <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
-      <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3'} turn={layout.angle} /></g>
+      <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
       <Kitchen />
       <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
-      <Bike />
+      <Bike parking={bikeStored ? layout.angle : undefined} />
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
@@ -325,11 +353,11 @@ export function ApartmentFloorPlan() {
       <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
       <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
       <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
-      <Ruler x={layout.floorX} y={252} length={layout.floorW} label="R · Caucho fijo 135 × 150 cm" />
+      <Ruler x={layout.floorX} y={bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 135 × 150 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.freeBarY : RACK.barY)+10} y={20} length={20} label="20 cm" vertical />}
-      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} /> : <Rack turn={layout.angle} />}</g>
+      <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
     </svg>
-  </section>)}<RubberCutPlan /></div>;
+  </section></React.Fragment>; })}<RubberCutPlan /></div>;
 }
 
 function RubberCutPlan() {
