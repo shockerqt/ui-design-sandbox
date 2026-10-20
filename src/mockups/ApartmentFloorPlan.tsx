@@ -317,22 +317,33 @@ function Remodel() {
 }
 
 export function ApartmentFloorPlan() {
-  const [mode, setMode] = React.useState<StorageMode>('all-stored');
+  const [mode, setMode] = React.useState<StorageMode>('bench-stored');
+  const [showBike, setShowBike] = React.useState(false);
   return <div className="af-simple">{LAYOUTS.map((layout,index) => {
     const benchStored = layout.model === 'g3' && mode !== 'exercise';
-    const bikeStored = layout.model === 'g3' && mode === 'all-stored';
+    const bikeVisible = layout.model !== 'g3' || showBike;
+    const bikeStored = bikeVisible && layout.model === 'g3' && mode === 'all-stored';
     return <React.Fragment key={layout.id}>
     {index === 2 && <div className="af-mode-controls" data-part="storage-controls">
+      <label htmlFor="apartment-bike-location">G3 · Bici</label>
+      <select id="apartment-bike-location" value={showBike ? 'living' : 'bedroom'} onChange={event=>{
+        const visible = event.target.value === 'living';
+        setShowBike(visible);
+        if (!visible && mode === 'all-stored') setMode('bench-stored');
+      }}>
+        <option value="bedroom">Sin bici · en la pieza</option>
+        <option value="living">Con bici en el living</option>
+      </select>
       <label htmlFor="apartment-storage-mode">G3 · Distribución</label>
       <select id="apartment-storage-mode" value={mode} onChange={event=>setMode(event.target.value as StorageMode)}>
         <option value="exercise">En uso</option>
         <option value="bench-stored">Banca guardada</option>
-        <option value="all-stored">Banca y bici guardadas · barras arriba</option>
+        <option value="all-stored" disabled={!showBike}>Banca y bici guardadas · barras arriba</option>
       </select>
       {mode !== 'exercise' && <p>Guardado horizontal aproximado: comprobar travesaño trasero{bikeStored ? ' y altura de barras sobre la bici' : ''}.</p>}
     </div>}
-    <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} aria-label={layout.title}>
-    <h2>{layout.title}{benchStored ? ' · Guardado' : ''}</h2>
+    <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
+    <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
     {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · B: caucho desmontable'}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}</p>}
     <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L`}>
       <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
@@ -342,7 +353,7 @@ export function ApartmentFloorPlan() {
       <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
       <text x={ROOM.width/2} y="-10">Ventanal</text>
       <Remodel />
-      <Bike parking={bikeStored ? layout.angle : undefined} />
+      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} />}
       <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
       <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
       <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
