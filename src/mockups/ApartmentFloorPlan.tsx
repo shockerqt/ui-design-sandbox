@@ -5,7 +5,7 @@ import './ApartmentFloorPlan.css';
  * All SVG coordinates are centimetres; origin is the window's left corner.
  * User measurements: original main-area sketch 350 × ~300; left door y=210 (width 80
  * provisional). Island x=210, y=190, 140 × 57. Fridge 70 × 70, right gap 5;
- * window-to-fridge gap ≈70 (user estimate); island removed for remodel. Rubber floor: 200 × 200.
+ * window-to-fridge gap ≈70 (user estimate); island removed for remodel. Rubber: three100×100 tiles; current cuts below.
  *
  * Rack: https://sdmed.cl/productos/jaula-rack-ws-barbell-stack-rowing-sid-srhsrhd/
  * Photos: https://sdmed.cl/wp-content/uploads/2023/02/1-8.jpg
@@ -167,7 +167,6 @@ function Bike({ parking, mat = true }: { parking?: number; mat?: boolean } = {})
       <path d={`M103 7h12v${b.width-14}h-12`} fill="none" stroke="#405b6c" strokeWidth="3" />
       <text x="78" y="10" style={{fontSize:6}}>P900 · 131 × 53,5</text>
     </g>
-
   </g>;
 }
 
