@@ -3,7 +3,7 @@ import { BENCH, RACK, Rack, Ruler } from './ApartmentFloorPlan';
 import './BedroomFloorPlan.css';
 
 // cm; user: room280×350, beds200×110/200×90, pillar60×60, door70.
-// TV42in,7cm protrusion,95cm from window;95 assumed to near edge.
+// Right-wall TV42in,7cm protrusion,95cm from window;95 assumed to near edge.
 // Approx93cm panel width from16:9; actual frame/height pending.
 // Origin: window's left corner, +y towards opposite wall. Door hinge assumed
 // at pillar's upper-right corner; exact swing remains schematic.
@@ -25,7 +25,7 @@ const BENCH_END = BENCH_HEAD + BENCH.length;
 const cm = (value: number) => Number(value.toFixed(2)).toLocaleString('es-CL', { maximumFractionDigits: 1 });
 
 export function BedroomFloorPlan() {
-  const [leftShift, setLeftShift] = useState(3);
+  const [leftShift, setLeftShift] = useState(10);
 
   return <div className="af-simple bedroom-plan">
     <header className="bedroom-header">
@@ -54,7 +54,9 @@ export function BedroomFloorPlan() {
       const barGap = left ? y-layout.y-110 : null;
       const rearGap = (left ? layout.x : layout.y) + RACK.rearY - 22.5;
       const barLeft = layout.x-BAR_LENGTH/2;
-      const tvGap = barLeft-TV.depth;
+      const barRight = layout.x+BAR_LENGTH/2;
+      const tvFront = ROOM.width-TV.depth;
+      const tvGap = tvFront-barRight;
 
       return <section key={`${layout.id}-${bed.id}`} data-bedroom={bed.id} data-rack-position={layout.id} data-orientation="across">
         <h2>{layout.title} · Cama 200 × {bed.width}</h2>
@@ -77,13 +79,12 @@ export function BedroomFloorPlan() {
           <path d={`M0 0V350H280V${DOOR.hingeY} M280 ${DOOR.hingeY-DOOR.width}V0`} fill="none" stroke="#263f48" strokeWidth="4" />
           <path d="M0 0H280" stroke="#73a8b8" strokeWidth="5" />
           <g data-part="bedroom-tv">
-            <rect data-part="tv-envelope" x="0" y={TV.y} width={TV.depth} height={TV.length} fill="#667b87" stroke="#3c5563" strokeWidth=".8" />
-            <text x="-8" y={TV.y+TV.length/2} style={{fontSize:6.5}} transform={`rotate(-90 -8 ${TV.y+TV.length/2})`}>TV 42″ · sale 7 cm</text>
+            <rect data-part="tv-envelope" x={tvFront} y={TV.y} width={TV.depth} height={TV.length} fill="#667b87" stroke="#3c5563" strokeWidth=".8" />
+            <text x="267" y={TV.y+TV.length/2} style={{fontSize:6.5}} transform={`rotate(-90 267 ${TV.y+TV.length/2})`}>TV 42″ · sale 7 cm</text>
           </g>
           {!left && <>
-            {tvGap > 0
-              ? <Ruler x={TV.depth} y={layout.y+RACK.barY-12} length={tvGap} label={`${cm(tvGap)} cm`} />
-              : <rect data-part="tv-bar-overlap" x={Math.max(0,barLeft)} y={layout.y+RACK.barY-3} width={Math.max(.5,TV.depth-Math.max(0,barLeft))} height="6" fill="#b85646" />}
+            <Ruler x={barRight} y={layout.y+RACK.barY-12} length={tvGap} label={`${cm(tvGap)} cm`} />
+            <Ruler x={0} y={layout.y+RACK.barY-12} length={barLeft} label={`${cm(barLeft)} cm`} />
           </>}
           <g data-part="bedroom-pillar">
             <rect x={PILLAR.x} y={PILLAR.y} width={PILLAR.size} height={PILLAR.size} fill="#8d9b9e" stroke="#53676e" strokeWidth="1" />
@@ -105,7 +106,8 @@ export function BedroomFloorPlan() {
           <Ruler x={302} y={350} length={depth} label={`${depth} cm`} vertical />
           {gap >= 0 && <Ruler x={205} y={y} length={gap} label={`${gap} cm`} vertical />}
         </svg>
-        {!left && <p data-part="tv-bar-gap" data-gap={tvGap} className={`af-plan-caption${tvGap <= 0 ? ' bedroom-overlap' : ''}`}>{tvGap > 0 ? `${cm(tvGap)} cm entre punta de barra y TV` : tvGap === 0 ? 'La punta de la barra toca la proyección de la TV' : `Solape barra/TV: ${cm(-tvGap)} cm`}. Separación en planta; comprobar altura y maniobra con discos.</p>}
+        {!left && <p data-part="tv-bar-gap" data-gap={tvGap} className="af-plan-caption">{cm(tvGap)} cm entre punta derecha de barra y TV. Separación en planta; comprobar altura y maniobra con discos.</p>}
+        {!left && barLeft < 20 && <p data-part="left-wall-warning" className="af-plan-caption bedroom-overlap">La punta izquierda queda a solo {cm(barLeft)} cm del muro.</p>}
         <p className="af-plan-caption">Barra 220 cm · {left ? '10 cm al ventanal' : `Punta izquierda a ${cm(barLeft)} cm del muro · Punta derecha a ${cm(ROOM.width-layout.x-BAR_LENGTH/2)} cm del muro · Discos a ≈${cm(rearGap)} cm del ventanal`}{left && barGap !== null ? barGap >= 0 ? ` · ${cm(barGap)} cm hasta cama` : ' · Su proyección cruza la cama: comprobar alturas' : ''}.</p>
         <>
           <p className={`af-plan-caption${benchGap < 0 ? ' bedroom-overlap' : ''}`} data-part="bench-bed-gap">Press en ganchos delanteros · Banca 137 × 57 · {benchGap >= 0 ? `≈${cm(benchGap)} cm hasta cama` : `Solape con cama: ≈${cm(-benchGap)} cm`}.</p>
@@ -113,6 +115,6 @@ export function BedroomFloorPlan() {
         </>
       </section>;
     }))}
-    <p className="bedroom-notes">Camas atravesadas desplazadas a la izquierda: 20 cm hasta pilar y 10 cm hasta el barrido supuesto de la puerta. Bisagra dibujada junto al pilar; confirmar giro real. Medidas de cama usadas como envolvente exterior. TV dibujada desde 95 cm del ventanal (borde cercano supuesto), ancho ≈93 cm para 42″; marco y altura pendientes. Clóset pendiente.</p>
+    <p className="bedroom-notes">Camas atravesadas desplazadas a la izquierda: 20 cm hasta pilar y 10 cm hasta el barrido supuesto de la puerta. Bisagra dibujada junto al pilar; confirmar giro real. Medidas de cama usadas como envolvente exterior. TV en pared derecha, desde 95 cm del ventanal (borde cercano supuesto), ancho ≈93 cm para 42″; marco y altura pendientes. Clóset pendiente.</p>
   </div>;
 }

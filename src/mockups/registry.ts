@@ -22,7 +22,7 @@ export const mockupRegistry: MockupItem[] = [
     category: 'Espacios',
     description: 'SID al ventanal o pared izquierda con press en ganchos delanteros, caucho entero de 200 × 200 y dos camas; pilar de 60 × 60 y puerta de 70 cm.',
     tags: ['plano', 'pieza', 'SID', 'cama', 'caucho'],
-    version: 'v1.4.0',
+    version: 'v1.4.1',
     updatedAt: '2026-10-22',
     component: BedroomFloorPlan
   },
