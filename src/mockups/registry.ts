@@ -1,5 +1,6 @@
 import { MockupItem } from '../types';
 import { ApartmentFloorPlan } from './ApartmentFloorPlan';
+import { BedroomFloorPlan } from './BedroomFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
@@ -15,6 +16,16 @@ import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'bedroom-floor-plan',
+    title: 'Pieza · SID y cama',
+    category: 'Espacios',
+    description: 'Pieza de 280 × 350 cm con SID, caucho de 200 × 200 sin cortar y comparación de camas de 200 × 110 y 200 × 90 cm.',
+    tags: ['plano', 'pieza', 'SID', 'cama', 'caucho'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-22',
+    component: BedroomFloorPlan
+  },
   {
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',

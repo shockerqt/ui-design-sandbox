@@ -62,7 +62,7 @@ const KITCHEN = { passage: 115, sinkX: 297, sinkY: 247, sinkWidth: 53, sinkLengt
 // Its mounting height and cat-platform heights are not measured in this plan.
 const FRIDGE = { x: 275, y: 70, width: 70, depth: 70 };
 const TABLE = { width: 70 };
-const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
+export const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 14.45, barY: 28.45 };
 /* Force USA G3 V1: https://force-manuals.nmg.io/F-G3-B.pdf
  * PDF p7: 203 W × 142 D × 219.5 H cm assembled. Main frame ≈122 W per user.
  * PDF p17–19: Smith rollers23/24 run on ROUND guides38 behind the front
@@ -179,14 +179,14 @@ function Bike({ parking, mat = true }: { parking?: number; mat?: boolean } = {})
 }
 
 // Static dimension lines only; no editor state or measurement engine.
-function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }: { x: number; y: number; length: number; label: string; vertical?: boolean; at?: number; flip?: boolean }) {
+export function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = false }: { x: number; y: number; length: number; label: string; vertical?: boolean; at?: number; flip?: boolean }) {
   return <g className="af-ruler" transform={`translate(${x} ${y})${vertical ? ' rotate(-90)' : ''}`}>
     <path d={`M0 0h${length} M0 -3v6 M${length} -3v6`} />
     <text x={length*at} y="-4" transform={flip ? `rotate(180 ${length*at} -4)` : undefined}>{label}</text>
   </g>;
 }
 
-function Rack({ turn }: { turn: number }) {
+export function Rack({ turn, showBench = true, widthRulerY }: { turn: number; showBench?: boolean; widthRulerY?: number }) {
   const r = RACK;
   const insideBarY = r.rearY + 14;
   return <>
@@ -200,30 +200,32 @@ function Rack({ turn }: { turn: number }) {
       {[r.rearY, r.frontY].map(y => <rect key={y} className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
       <path data-part="proposed-rear-hook" d={`M${side*r.postX-4} ${r.rearY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" strokeDasharray="3 1" />
     </g>)}
-    <BenchAndBar barY={insideBarY} turn={turn} />
-    <text x="0" y={r.depth/2+34} style={{fontSize:6.5}} transform={turn === 270 ? `rotate(90 0 ${r.depth/2+34})` : undefined}>*Montaje interior por confirmar</text>
+    <BenchAndBar barY={insideBarY} turn={turn} showBench={showBench} />
+    {showBench && <text x="0" y={r.depth/2+34} style={{fontSize:6.5}} transform={turn === 270 ? `rotate(90 0 ${r.depth/2+34})` : undefined}>*Montaje interior por confirmar</text>}
     <Ruler x={-r.postX+13} y={r.rearY} length={18} label="≈18 cm" vertical flip={turn === 270} />
-    <Ruler x={-r.width/2} y={turn === 270 ? -r.depth/2+12 : -r.depth/2-18} length={r.width} label="Rack ≈165,8 cm" />
+    <Ruler x={-r.width/2} y={widthRulerY ?? (turn === 270 ? -r.depth/2+12 : -r.depth/2-18)} length={r.width} label="Rack ≈165,8 cm" />
     <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
   </>;
 }
 
-function BenchAndBar({ barY, turn, stored = false, raised = false, barLength = 220 }: { barY: number; turn: number; stored?: boolean; raised?: boolean; barLength?: number }) {
+function BenchAndBar({ barY, turn, stored = false, raised = false, barLength = 220, showBench = true }: { barY: number; turn: number; stored?: boolean; raised?: boolean; barLength?: number; showBench?: boolean }) {
   const head = stored ? STORED_BENCH_HEAD : barY - BENCH.headOffset;
   return <>
-    <g data-part="bench" data-stored={stored}>
+    {showBench && <g data-part="bench" data-stored={stored}>
       {[head+15, head+122].map(y => <rect key={y} x={-BENCH.width/2} y={y} width={BENCH.width} height="7" rx="1" fill="#786260" />)}
       <rect x="-3" y={head+15} width="6" height="114" fill="#786260" />
       <rect x="-15" y={head+2} width="30" height="83" rx="5" fill="#b48073" stroke="#714f49" />
       <rect x="-14" y={head+89} width="28" height="29" rx="4" fill="#bc8f83" stroke="#714f49" />
-    </g>
+    </g>}
     <g data-part="bar" data-elevated={raised} className={raised ? 'af-raised-bar' : undefined} fill="#bdcbd0" stroke="#38505a" strokeWidth=".7">
       <rect x={-barLength/2} y={barY-1.4} width={barLength} height="2.8" />
       <rect x={-barLength/2} y={barY-2.5} width={(barLength-138)/2} height="5" /><rect x="69" y={barY-2.5} width={(barLength-138)/2} height="5" />
     </g>
     <Ruler x={-barLength/2} y={barY-8} length={barLength} label={`Barra ${barLength} cm${raised ? ' ↑' : ''}`} at={0.16} />
-    <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
-    <Ruler x={-BENCH.width/2} y={head+BENCH.length+(stored ? 3 : 10)} length={BENCH.width} label="57 cm" />
+    {showBench && <>
+      <Ruler x={BENCH.width/2+8} y={head+BENCH.length} length={BENCH.length} label="Banca 137 cm" vertical flip={turn === 270} />
+      <Ruler x={-BENCH.width/2} y={head+BENCH.length+(stored ? 3 : 10)} length={BENCH.width} label="57 cm" />
+    </>}
   </>;
 }
 
