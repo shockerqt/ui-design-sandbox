@@ -19,9 +19,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'dining-room-base',
     title: 'Comedor · Bici, sofá y escritorio',
     category: 'Espacios',
-    description: 'Tres distribuciones con bici P900, sofá GLOSTAD y escritorio; compara mover mesa, refri, arenero y TV, con pasos y una opción preferida.',
+    description: 'Distribución elegida y base vacía: refri a la izquierda, juegos sobre arenero, sofá al ventanal, mesa y escritorio a la derecha y bici hacia la TV.',
     tags: ['plano', 'comedor', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.1.0',
+    version: 'v1.2.0',
     updatedAt: '2026-10-22',
     component: DiningRoomBase
   },
