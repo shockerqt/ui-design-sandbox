@@ -11,7 +11,8 @@ const ROOM = { width: 280, depth: 350 };
 const PILLAR = { x: 220, y: 290, size: 60 };
 const DOOR = { x: 280, hingeY: 290, width: 70 };
 const LAYOUTS = [
-  { id: 'window', title: 'Espalda al ventanal', x: 140, y: 95, angle: 0, matX: 40, matY: 0 },
+  // Rear stored discs:83.95-51.45-22.5=10cm to window (visual estimate).
+  { id: 'window', title: 'Espalda al ventanal', x: 140, y: 83.95, angle: 0, matX: 40, matY: 0 },
   { id: 'left', title: 'Espalda a pared izquierda', x: 95, y: 120, angle: 270, matX: 0, matY: 20 }
 ];
 const BEDS = [{ id: 'wide', width: 110 }, { id: 'narrow', width: 90 }];
@@ -49,6 +50,7 @@ export function BedroomFloorPlan() {
       const benchOverhang = left ? bench.x+bench.w-layout.matX-200 : bench.y+bench.h-matEnd;
       const overlapX = Math.max(x,layout.matX), overlapRight = Math.min(x+width,layout.matX+200);
       const barGap = left ? y-layout.y-110 : null;
+      const rearGap = (left ? layout.x : layout.y) + RACK.rearY - 22.5;
 
       return <section key={`${layout.id}-${bed.id}`} data-bedroom={bed.id} data-rack-position={layout.id} data-orientation={lengthwise ? 'lengthwise' : 'across'}>
         <h2>{layout.title} · Cama 200 × {bed.width}</h2>
@@ -86,13 +88,14 @@ export function BedroomFloorPlan() {
           <text x="140" y="-10">Ventanal · 280 cm</text>
           <Ruler x={0} y={-28} length={ROOM.width} label="280 cm" />
           <Ruler x={-24} y={ROOM.depth} length={ROOM.depth} label="350 cm" vertical />
+          {!left && <Ruler x={24} y={rearGap} length={rearGap} label={`≈${cm(rearGap)} cm detrás`} vertical />}
           <Ruler x={layout.matX} y={matEnd+11} length={200} label="Caucho · 200 cm" />
           <Ruler x={302} y={matEnd} length={200} label="200 cm" vertical />
           <Ruler x={x} y={366} length={width} label={`${width} cm`} />
           <Ruler x={302} y={350} length={depth} label={`${depth} cm`} vertical />
           {gap >= 0 && <Ruler x={205} y={y} length={gap} label={`${gap} cm`} vertical />}
         </svg>
-        <p className="af-plan-caption">Barra 220 cm · {left ? '10 cm al ventanal' : '30 cm a cada pared lateral'}{left && barGap !== null ? barGap >= 0 ? ` · ${cm(barGap)} cm hasta cama` : ' · Su proyección cruza la cama: comprobar alturas' : ''}.</p>
+        <p className="af-plan-caption">Barra 220 cm · {left ? '10 cm al ventanal' : `30 cm a cada pared lateral · Barra a ${cm(layout.y+RACK.barY)} cm del ventanal · Discos traseros a ≈${cm(rearGap)} cm`}{left && barGap !== null ? barGap >= 0 ? ` · ${cm(barGap)} cm hasta cama` : ' · Su proyección cruza la cama: comprobar alturas' : ''}.</p>
         {showBench && <>
           <p className={`af-plan-caption${benchGap < 0 ? ' bedroom-overlap' : ''}`} data-part="bench-bed-gap">Press en ganchos delanteros · Banca 137 × 57 · {benchGap >= 0 ? `≈${cm(benchGap)} cm hasta cama` : `Solape con cama: ≈${cm(-benchGap)} cm`}.</p>
           <p className="af-plan-caption bedroom-overlap">Banca ≈{cm(benchOverhang)} cm fuera del caucho; apoyo delantero fuera. Ajustar altura de barra y seguros.</p>

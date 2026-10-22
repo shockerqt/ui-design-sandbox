@@ -26,15 +26,15 @@ Cada una se compara con ambas camas, a igual escala.
 
 | Orientación | Centro / giro | Caucho en la pieza | Banca en la pieza |
 | --- | --- | --- | --- |
-| Espalda al ventanal | **(140;95),0°** | `x=40..240`, `y=0..200` | `x=111,5..168,5`, `y=98,45..235,45` |
+| Espalda al ventanal | **(140;83,95),0°** | `x=40..240`, `y=0..200` | `x=111,5..168,5`, `y=87,4..224,4` |
 | Espalda a pared izquierda | **(95;120),270°** | `x=0..200`, `y=20..220` | `x=98,45..235,45`, `y=91,5..148,5` |
 
-En ambos casos, discos traseros supuestos dejan≈21,05 a la pared trasera correspondiente; no certifica acceso de carga. Se conservan diámetro supuesto45 y geometría SID previa.
+En ventanal, los discos traseros supuestos dejan**10 hasta el vidrio**, tras acercar rack/barra/banca11,05 respecto de la posición anterior. En pared izquierda, siguen dejando≈21,05 a esa pared. No certifica acceso de carga ni despeje real de cortinas/ventanal. Se conservan diámetro supuesto45 y geometría SID previa.
 
-- Ventanal: barra en`y=123,45`, extremos`x=30..250`: **30 hasta cada pared lateral**.
+- Ventanal: barra en**`y=112,4`**, extremos`x=30..250`: **30 hasta cada pared lateral**; paralela al vidrio a112,4.
 - Pared izquierda: barra en`x=123,45`, extremos`y=10..230`: **10 hasta ventanal**. El caucho se apega a pared izquierda y empieza20 después del ventanal.
 
-La banca sale**35,45 del caucho** en ambas orientaciones: hacia abajo en ventanal; hacia derecha en pared izquierda. Sus apoyos delanteros dibujados quedan totalmente fuera del caucho: ventanal`y=220,45..227,45`; izquierda`x=220,45..227,45`. Se marca esa zona; no se supone que los apoyos queden nivelados.
+La banca sale**24,4 del caucho** hacia abajo en ventanal, y**35,45** hacia derecha en pared izquierda. Sus apoyos delanteros dibujados quedan totalmente fuera del caucho: ventanal**`y=209,4..216,4`**; izquierda`x=220,45..227,45`. Se marca esa zona; no se supone que los apoyos queden nivelados.
 
 ## Camas atravesadas, estado inicial
 
@@ -42,8 +42,8 @@ Se proponen con el lado largo200 contra pared opuesta al ventanal y **desplazada
 
 | Cama | Intervalo y | Rack | Hasta caucho | Hasta banca | Hasta punta de barra |
 | --- | --- | --- | --- | --- | --- |
-| 200 × 110 | `240..350` | Ventanal | **40** | **4,55** | Eje de barra lejos de cama |
-| 200 × 90 | `260..350` | Ventanal | **60** | **24,55** | Eje de barra lejos de cama |
+| 200 × 110 | `240..350` | Ventanal | **40** | **15,6** | Eje de barra lejos de cama |
+| 200 × 90 | `260..350` | Ventanal | **60** | **35,6** | Eje de barra lejos de cama |
 | 200 × 110 | `240..350` | Izquierda | **20** | **91,5** | **10** |
 | 200 × 90 | `260..350` | Izquierda | **40** | **111,5** | **30** |
 
@@ -51,7 +51,7 @@ Se proponen con el lado largo200 contra pared opuesta al ventanal y **desplazada
 
 Selector común: cabecera en pared inferior, largo200 hacia ventanal. Cama110 en`x=85..195`, cama90 en`x=95..185`; ambas`y=150..350`. No invaden pilar ni el barrido supuesto de puerta.
 
-- Rack al ventanal: **50 de solape cama/caucho**, **85,45 de solape con envolvente de banca**.
+- Rack al ventanal: **50 de solape cama/caucho**, **74,4 de solape con envolvente de banca**.
 - Rack a izquierda: **70 de solape cama/caucho**, banca termina`y=148,5`, dejando**1,5 hasta cama**. La proyección de la barra larga cruza ambas camas: comprobar alturas, sin asumir compatibilidad por el hueco de banca.
 
 El selector de banca puede ocultarla; barra y ganchos delanteros se conservan. Los solapes se representan sin cortar ni encoger el caucho. Los intervalos de envolvente no prueban por sí solos choques de miembros concretos.
