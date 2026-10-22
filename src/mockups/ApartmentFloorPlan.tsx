@@ -91,7 +91,7 @@ const G3 = {
   rearPostY: -50, smithY: -9, intermediateY: 7, frontPostY: 27,
   rearY: -71, frontY: 71, spotter: 44, rearGap: 15, freeBarY: 35
 };
-const BENCH = { width: 57, length: 137, headOffset: 25 };
+export const BENCH = { width: 57, length: 137, headOffset: 25 };
 // User's200cm free-bar trial applies only to G3; Smith stays203 and SID220.
 // Total length alone does not establish rackability: exact between-sleeve
 // span is unknown. Shaft/sleeve partition below remains a schematic138cm.
@@ -186,9 +186,9 @@ export function Ruler({ x, y, length, label, vertical = false, at = 0.5, flip = 
   </g>;
 }
 
-export function Rack({ turn, showBench = true, widthRulerY }: { turn: number; showBench?: boolean; widthRulerY?: number }) {
+export function Rack({ turn, showBench = true, widthRulerY, hookPosition = 'rear' }: { turn: number; showBench?: boolean; widthRulerY?: number; hookPosition?: 'rear' | 'front' }) {
   const r = RACK;
-  const insideBarY = r.rearY + 14;
+  const barY = hookPosition === 'front' ? r.barY : r.rearY + 14;
   return <>
     <path d={`M${-r.postX} ${r.rearY}H${r.postX}`} stroke="#40545b" strokeWidth="5" />
     {[-1, 1].map(side => <g key={side}>
@@ -198,10 +198,10 @@ export function Rack({ turn, showBench = true, widthRulerY }: { turn: number; sh
       {[0, 1, 2].map(i => <rect key={i} x={side < 0 ? -r.width/2+3+i*6.5 : r.postX+4+i*6.5} y={r.rearY-22.5} width="6" height="45" rx="1" fill="#68716d" stroke="#dce4df" strokeWidth=".8" />)}
       <rect x={side*r.postX-3.5} y={r.frontY} width="7" height="48" fill="#819397" stroke="#344e57" strokeWidth="1" />
       {[r.rearY, r.frontY].map(y => <rect key={y} className="af-rack" x={side*r.postX-3.5} y={y-3.5} width="7" height="7" />)}
-      <path data-part="proposed-rear-hook" d={`M${side*r.postX-4} ${r.rearY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" strokeDasharray="3 1" />
+      <path data-part={hookPosition === 'front' ? 'front-j-hook' : 'proposed-rear-hook'} d={`M${side*r.postX-4} ${hookPosition === 'front' ? r.frontY : r.rearY}v16h8v-4`} fill="none" stroke="#a7713d" strokeWidth="2.5" strokeDasharray={hookPosition === 'rear' ? '3 1' : undefined} />
     </g>)}
-    <BenchAndBar barY={insideBarY} turn={turn} showBench={showBench} />
-    {showBench && <text x="0" y={r.depth/2+34} style={{fontSize:6.5}} transform={turn === 270 ? `rotate(90 0 ${r.depth/2+34})` : undefined}>*Montaje interior por confirmar</text>}
+    <BenchAndBar barY={barY} turn={turn} showBench={showBench} />
+    {showBench && hookPosition === 'rear' && <text x="0" y={r.depth/2+34} style={{fontSize:6.5}} transform={turn === 270 ? `rotate(90 0 ${r.depth/2+34})` : undefined}>*Montaje interior por confirmar</text>}
     <Ruler x={-r.postX+13} y={r.rearY} length={18} label="≈18 cm" vertical flip={turn === 270} />
     <Ruler x={-r.width/2} y={widthRulerY ?? (turn === 270 ? -r.depth/2+12 : -r.depth/2-18)} length={r.width} label="Rack ≈165,8 cm" />
     <Ruler x={r.width/2+12} y={r.depth/2} length={r.depth} label="≈138,9 cm" vertical flip={turn === 270} />
@@ -211,7 +211,7 @@ export function Rack({ turn, showBench = true, widthRulerY }: { turn: number; sh
 function BenchAndBar({ barY, turn, stored = false, raised = false, barLength = 220, showBench = true }: { barY: number; turn: number; stored?: boolean; raised?: boolean; barLength?: number; showBench?: boolean }) {
   const head = stored ? STORED_BENCH_HEAD : barY - BENCH.headOffset;
   return <>
-    {showBench && <g data-part="bench" data-stored={stored}>
+    {showBench && <g data-part="bench" data-stored={stored} data-head={head} data-tail={head+BENCH.length}>
       {[head+15, head+122].map(y => <rect key={y} x={-BENCH.width/2} y={y} width={BENCH.width} height="7" rx="1" fill="#786260" />)}
       <rect x="-3" y={head+15} width="6" height="114" fill="#786260" />
       <rect x="-15" y={head+2} width="30" height="83" rx="5" fill="#b48073" stroke="#714f49" />

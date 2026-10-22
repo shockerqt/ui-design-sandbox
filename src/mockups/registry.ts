@@ -20,9 +20,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'bedroom-floor-plan',
     title: 'Pieza · SID y cama',
     category: 'Espacios',
-    description: 'Pieza de 280 × 350 cm con SID, caucho de 200 × 200 sin cortar y comparación de camas de 200 × 110 y 200 × 90 cm.',
+    description: 'SID con banca para press en ganchos delanteros, caucho de 200 × 200 sin cortar y camas de 200 × 110 y 200 × 90 cm en una pieza de 280 × 350 cm.',
     tags: ['plano', 'pieza', 'SID', 'cama', 'caucho'],
-    version: 'v1.0.0',
+    version: 'v1.1.0',
     updatedAt: '2026-10-22',
     component: BedroomFloorPlan
   },

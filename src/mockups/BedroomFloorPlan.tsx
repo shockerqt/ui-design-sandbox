@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Switch } from '@base-ui/react/switch';
-import { RACK, Rack, Ruler } from './ApartmentFloorPlan';
+import { BENCH, RACK, Rack, Ruler } from './ApartmentFloorPlan';
 import './BedroomFloorPlan.css';
 
 // cm; origin at window's left corner, +y towards opposite wall.
@@ -11,11 +11,15 @@ const MAT = { x: 40, y: 0, size: 200 };
 const SID = { x: 140, y: 95 }; // Existing geometry; rear discs end at21.05.
 const BEDS = [{ id: 'wide', width: 110 }, { id: 'narrow', width: 90 }];
 const BED_LENGTH = 200;
+// Front-hook bar at room y123.45; bench98.45..235.45, front feet220.45..227.45.
+// The front feet fall outside the uncut mat ending at200; do not imply support.
+const BENCH_HEAD = SID.y + RACK.barY - BENCH.headOffset;
+const BENCH_END = BENCH_HEAD + BENCH.length;
 const cm = (value: number) => value.toLocaleString('es-CL', { maximumFractionDigits: 1 });
 
 export function BedroomFloorPlan() {
   const [lengthwise, setLengthwise] = useState(false);
-  const [showBench, setShowBench] = useState(false);
+  const [showBench, setShowBench] = useState(true);
 
   return <div className="af-simple bedroom-plan">
     <header className="bedroom-header">
@@ -34,7 +38,7 @@ export function BedroomFloorPlan() {
       const y = ROOM.depth - depth;
       const gap = y - (MAT.y + MAT.size);
       const rackEnd = SID.y + RACK.depth / 2;
-      const benchEnd = SID.y + RACK.rearY + 14 - 25 + 137;
+      const benchGap = y - BENCH_END;
 
       return <section key={bed.id} data-bedroom={bed.id} data-orientation={lengthwise ? 'lengthwise' : 'across'}>
         <h2>Cama 200 × {bed.width} cm</h2>
@@ -53,11 +57,12 @@ export function BedroomFloorPlan() {
               : <><rect x={x+37} y={y+5} width={width-43} height={depth-10} rx="2" /><rect x={x+7} y={y+10} width="23" height={depth-20} rx="4" /></>}
           </g>
           <text x="140" y={y+depth/2} style={{fontSize:9}}>Cama · 200 × {bed.width}</text>
+          {showBench && <rect data-part="bench-off-rubber" x={SID.x-BENCH.width/2} y={MAT.y+MAT.size} width={BENCH.width} height={BENCH_END-MAT.y-MAT.size} fill="#bd9463" fillOpacity=".15" stroke="#aa8053" strokeWidth=".7" strokeDasharray="3 2" />}
           {gap < 0 && <g data-part="mat-bed-overlap">
             <rect x={Math.max(x,MAT.x)} y={y} width={Math.min(x+width,MAT.x+MAT.size)-Math.max(x,MAT.x)} height={-gap} fill="#bc6754" fillOpacity=".2" stroke="#a75d4c" strokeDasharray="3 2" />
             <text x="140" y="179" style={{fontSize:7,fill:'#984c3e'}}>50 cm sobre el caucho</text>
           </g>}
-          <g data-part="bedroom-sid" transform={`translate(${SID.x} ${SID.y})`}><Rack turn={0} showBench={showBench} widthRulerY={35} /></g>
+          <g data-part="bedroom-sid" transform={`translate(${SID.x} ${SID.y})`}><Rack turn={0} showBench={showBench} widthRulerY={35} hookPosition="front" /></g>
           <path d="M0 0V350H280V0" fill="none" stroke="#263f48" strokeWidth="4" />
           <path d="M0 0H280" stroke="#73a8b8" strokeWidth="5" />
           <text x="140" y="-10">Ventanal · 280 cm</text>
@@ -72,8 +77,11 @@ export function BedroomFloorPlan() {
           <Ruler x={250} y={73} length={30} label="30 cm" />
         </svg>
         <p className="af-plan-caption">Barra libre 220 cm · 30 cm hasta cada pared. Discos traseros a ≈21 cm del ventanal.</p>
-        {gap < 0 && <p className="af-plan-caption bedroom-overlap">La cama entra ≈{cm(rackEnd-y)} cm en la envolvente frontal del rack{showBench ? ` y ≈${cm(benchEnd-y)} cm en la de la banca` : ''}. Revisar apoyos y alturas.</p>}
-        {showBench && <p className="af-plan-caption">Banca interior 137 × 57 cm · Montaje y protección en postes traseros por confirmar.</p>}
+        {gap < 0 && <p className="af-plan-caption bedroom-overlap">La cama entra ≈{cm(rackEnd-y)} cm en la envolvente frontal del rack{showBench ? ` y ≈${cm(-benchGap)} cm en la de la banca` : ''}. Revisar apoyos y alturas.</p>}
+        {showBench && <>
+          <p className={`af-plan-caption${benchGap < 0 ? ' bedroom-overlap' : ''}`} data-part="bench-bed-gap">Press en ganchos delanteros · Banca 137 × 57 cm · {benchGap >= 0 ? `≈${cm(benchGap)} cm hasta cama` : `Solape con cama: ≈${cm(-benchGap)} cm`}.</p>
+          <p className="af-plan-caption bedroom-overlap">La banca sale ≈{cm(BENCH_END-MAT.y-MAT.size)} cm del caucho; apoyo delantero fuera. Ajustar altura de barra y seguros.</p>
+        </>}
       </section>;
     })}
     <p className="bedroom-notes">Camas centradas. Medidas dadas usadas como envolvente exterior; confirmar estructura. Puerta y clóset pendientes de ubicar. Los pasos indicados son distancias en planta.</p>
