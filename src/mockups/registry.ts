@@ -9,6 +9,9 @@ import { BalanceComponentGallery } from './BalanceComponentGallery';
 import { BalanceVimLogWithHelp } from './BalanceVimLogWithHelp';
 import { BalanceVimLogStudio } from './BalanceVimLogStudio';
 import { BaseUIColorSystem } from './BaseUIColorSystem';
+import { BalanceStyleStudies } from './BalanceStyleStudies';
+import { BalanceMaterialExpressive } from './BalanceMaterialExpressive';
+import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
@@ -21,6 +24,36 @@ export const mockupRegistry: MockupItem[] = [
     version: 'v1.20.0',
     updatedAt: '2026-10-20',
     component: ApartmentFloorPlan
+  },
+  {
+    id: 'balance-style-studies',
+    title: 'Balance · Comparador de estilos',
+    category: 'Dashboards',
+    description: 'Cuatro estilos sobre la misma distribución compacta. Orgánico incluye paletas Bosque, Laguna, Lavanda y Durazno con degradados y modos claro/oscuro.',
+    tags: ['Balance', 'styles', 'gradients', 'mobile', 'comparison'],
+    version: 'v1.1.0',
+    updatedAt: '2026-10-20',
+    component: BalanceStyleStudies
+  },
+  {
+    id: 'balance-material-expressive',
+    title: 'Balance · Material Expressive',
+    category: 'Dashboards',
+    description: 'Cabecera compacta con fecha, totales y semana; más espacio para alimentos, + sin texto y transiciones con movimiento reducido.',
+    tags: ['Balance', 'Material 3', 'Expressive', 'motion', 'Compose', 'mobile'],
+    version: 'v1.2.0',
+    updatedAt: '2026-10-20',
+    component: BalanceMaterialExpressive
+  },
+  {
+    id: 'balance-android-material',
+    title: 'Balance · Android Material',
+    category: 'Dashboards',
+    description: 'Exploración Material 3 Expressive sobre los flujos de Balance: superficies tonales, formas suaves y modos oscuro y claro.',
+    tags: ['Balance', 'Android', 'Material 3', 'Compose', 'mobile'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-20',
+    component: BalanceAndroidMaterial
   },
   {
     id: 'balance-log-wireframes',
