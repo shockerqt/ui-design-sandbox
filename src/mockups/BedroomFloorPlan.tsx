@@ -15,7 +15,7 @@ const BED_LENGTH = 200;
 // The front feet fall outside the uncut mat ending at200; do not imply support.
 const BENCH_HEAD = SID.y + RACK.barY - BENCH.headOffset;
 const BENCH_END = BENCH_HEAD + BENCH.length;
-const cm = (value: number) => value.toLocaleString('es-CL', { maximumFractionDigits: 1 });
+const cm = (value: number) => Number(value.toFixed(2)).toLocaleString('es-CL', { maximumFractionDigits: 1 });
 
 export function BedroomFloorPlan() {
   const [lengthwise, setLengthwise] = useState(false);
@@ -62,7 +62,7 @@ export function BedroomFloorPlan() {
             <rect x={Math.max(x,MAT.x)} y={y} width={Math.min(x+width,MAT.x+MAT.size)-Math.max(x,MAT.x)} height={-gap} fill="#bc6754" fillOpacity=".2" stroke="#a75d4c" strokeDasharray="3 2" />
             <text x="140" y="179" style={{fontSize:7,fill:'#984c3e'}}>50 cm sobre el caucho</text>
           </g>}
-          <g data-part="bedroom-sid" transform={`translate(${SID.x} ${SID.y})`}><Rack turn={0} showBench={showBench} widthRulerY={35} hookPosition="front" /></g>
+          <g data-part="bedroom-sid" transform={`translate(${SID.x} ${SID.y})`}><Rack turn={0} showBench={showBench} widthRulerY={-12} hookPosition="front" /></g>
           <path d="M0 0V350H280V0" fill="none" stroke="#263f48" strokeWidth="4" />
           <path d="M0 0H280" stroke="#73a8b8" strokeWidth="5" />
           <text x="140" y="-10">Ventanal · 280 cm</text>
