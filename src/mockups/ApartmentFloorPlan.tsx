@@ -2,6 +2,8 @@ import React from 'react';
 import './ApartmentFloorPlan.css';
 
 /*
+ * Current dimensions, sources, layout modes, cuts and pending measurements:
+ * docs/apartment-floor-plan.md (update it when changing these figures).
  * All SVG coordinates are centimetres; origin is the window's left corner.
  * User measurements: original main-area sketch 350 × ~300; left door y=210 (width 80
  * provisional). Island x=210, y=190, 140 × 57. Fridge 70 × 70, right gap 5;
@@ -26,9 +28,9 @@ import './ApartmentFloorPlan.css';
  *
  * Bench: https://sdmed.cl/productos/banco-doble-regulacion-y-soporte-serie-tts-tt1001/
  * Published 137 × 57; flat position not dimensioned. Pad/feet are illustrative.
- * Head end is 25 behind bar; bar length is 220. No ergonomic fit is inferred.
+ * Head end is 25 behind bar; SID bar length is 220. No ergonomic fit is inferred.
  * Rack placements preserved: A (125,105), 0°; B (75,130), 270°.
- * Rubber subsequently split into main/bike pieces (see LAYOUTS).
+ * Current rubber: fixed140×150, shared V1 and V2 (see CUT_TILES).
  * B bar tips: y=20..240 (20 cm to window).
  * B assumed rear discs leave 75 - 51.45 - 22.5 ≈1.05 cm to left wall.
  * SID rear-post bench study (user request): J-hook seat assumed 14 cm
@@ -75,7 +77,7 @@ const RACK = { width: 165.8, depth: 138.9, postX: 54.4, rearY: -51.45, frontY: 1
  * front pull-up member follow assembly topology. Dashed beams are overhead.
  * Exact post/rail offsets, 8cm front J-hook seat and 15cm rear loading access
  * are estimates. Draw Ø45 stored discs edge-on with an assumed12cm stack.
- * Free bar220 sits on FRONT J-hooks at+35. Solid TT1001 bench137×57 uses
+ * Free bar200 sits on FRONT J-hooks at+35. Solid TT1001 bench137×57 uses
  * head25 behind bar: local10..147. Dashed alternate bench under Smith−9:
  * local−34..103. These are alternative positions for ONE bench, not two benches.
  * Free bench local10..147 is covered by fixed mat−75..75 plus detachable
