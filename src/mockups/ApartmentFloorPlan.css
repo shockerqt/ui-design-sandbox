@@ -10,3 +10,5 @@
 .af-plan-caption{font-size:11px;line-height:1.4;margin:-6px 0 10px;color:#42606b}
 
 .af-mode-controls{grid-column:1/-1;display:flex;align-items:center;flex-wrap:wrap;gap:12px;padding:16px 0;border-top:1px solid #b8c8cd}.af-mode-controls label{font-size:14px;font-weight:500}.af-mode-controls select{max-width:100%;padding:9px 12px;border:1px solid #80979e;border-radius:4px;background:#fbfdfd;color:#263f48;font:13px var(--font-ui,sans-serif)}.af-mode-controls select:focus-visible{outline:2px solid #316a77;outline-offset:3px}.af-mode-controls p{flex-basis:100%;font-size:12px;line-height:1.5;margin:0;color:#42606b}.af-simple .af-raised-bar rect{fill-opacity:.12;stroke-width:1;stroke-dasharray:4 3}.af-simple .af-raised-bar{opacity:.7}
+
+.af-simple.af-dining-base{grid-template-columns:minmax(0,600px);justify-content:center}

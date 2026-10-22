@@ -1,5 +1,5 @@
 import { MockupItem } from '../types';
-import { ApartmentFloorPlan } from './ApartmentFloorPlan';
+import { ApartmentFloorPlan, DiningRoomBase } from './ApartmentFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
@@ -15,6 +15,16 @@ import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'dining-room-base',
+    title: 'Comedor · Plano base',
+    category: 'Espacios',
+    description: 'Base del comedor sin rack, banca ni equipamiento de gimnasio; conserva cocina, mesa, refrigerador, TV y zona de gatos para nuevas distribuciones.',
+    tags: ['plano', 'comedor', 'distribución', 'medidas', 'SVG'],
+    version: 'v1.0.0',
+    updatedAt: '2026-10-22',
+    component: DiningRoomBase
+  },
   {
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',

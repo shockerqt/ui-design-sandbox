@@ -205,3 +205,9 @@ La partición nominal consume los 3 m² sin retazos. Las alternativas del diagra
 9. Confirmar altura y acceso operativo de P900 y barras elevadas; medir dimensiones útiles de las planchetas antes de cortar.
 
 Para iterar rápido, editar las constantes `ROOM`, `KITCHEN`, `FRIDGE`, `TABLE`, `RACK`, `G3`, `BENCH`, `G3_FREE_BAR`, `BIKE`, `LAYOUTS`, `CUT_TILES` y `RACK_FLOOR_PARTS`; las siluetas de cocina, gatos, TV, sofá y apertura se definen en sus funciones. Mantener este archivo sincronizado y evitar convertir una estimación en medida confirmada al copiarla.
+
+## Base del comedor para nuevas distribuciones
+
+`/m/dining-room-base` presenta una sola planta sin rack, banca, barras, bici, caucho, cortes ni sofá de prueba. Conserva la geometría vigente de muros, ventanal, puerta, cocina, refri, mesa propuesta, TV y zona de gatos, con sus mismas cotas y supuestos. La mesa sigue siendo la propuesta de remodelación; esta base no reconstruye la antigua isla ni afirma que la remodelación ya exista físicamente.
+
+La base y las comparaciones originales de `/m/apartment-floor-plan` componen el mismo `ApartmentRoom` en `ApartmentFloorPlan.tsx`, con las constantes `ROOM`, `KITCHEN`, `FRIDGE` y `TABLE` y las figuras `Kitchen`, `Remodel` y `Ruler`. Para nuevas pruebas, añadir las piezas al interior de `ApartmentRoom` desde `DiningRoomBase`; mantener las medidas compartidas en su implementación propietaria. No contiene controles de edición. Trabajo registrado en UDS-016.

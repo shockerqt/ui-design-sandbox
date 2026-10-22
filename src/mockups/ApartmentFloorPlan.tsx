@@ -364,6 +364,41 @@ function FridgeClearance({ rackX }: { rackX: number }) {
   </g>;
 }
 
+// Shared apartment shell: coordinates and uncertainty stay owned by this plan.
+// Gym layers are supplied by the comparison; the dining base leaves them empty.
+function ApartmentRoom({ label, floor, children, equipment }: { label: string; floor?: React.ReactNode; children?: React.ReactNode; equipment?: React.ReactNode }) {
+  return <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={label}>
+      <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
+      {floor}
+      <Kitchen />
+      <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
+      <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
+      <text x={ROOM.width/2} y="-10">Ventanal</text>
+      <Remodel />
+      {children}
+      <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
+      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
+      <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
+      <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
+      <Ruler x={0} y={358} length={KITCHEN.passage} label="Paso 115 cm" />
+      <Ruler x={KITCHEN.passage+13} y={KITCHEN.y} length={13} label="13 cm" vertical />
+      <Ruler x={KITCHEN.sinkX} y={KITCHEN.y-13} length={KITCHEN.sinkWidth} label="53 cm" />
+      <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
+      <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
+      <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
+      {equipment}
+  </svg>;
+}
+
+export function DiningRoomBase() {
+  return <div className="af-simple af-dining-base">
+    <section aria-label="Base del comedor">
+      <h2>Comedor · Plano base</h2>
+      <ApartmentRoom label="Plano base del comedor sin rack ni banca, con cocina, mesa, refrigerador, ventanal y puerta" />
+    </section>
+  </div>;
+}
+
 export function ApartmentFloorPlan() {
   const [mode, setMode] = React.useState<StorageMode>('bench-stored');
   const [showBike, setShowBike] = React.useState(false);
@@ -394,31 +429,17 @@ export function ApartmentFloorPlan() {
     <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
     <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
     {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{' · Barra libre 2 m · Apoyos por confirmar'}{layout.id === 'd' ? ' · 8,5 cm hacia ventanal' : ''}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{sofaVisible ? ' · GLOSTAD · TV ≈2,25 m · Cocina: 39 cm' : ''}</p>}
-    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${sofaVisible ? ', sofá GLOSTAD frente a la tele' : ''}`}>
-      <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
-      <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
-      <Kitchen />
-      <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
-      <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
-      <text x={ROOM.width/2} y="-10">Ventanal</text>
-      <Remodel />
-      {layout.id === 'c' && <FridgeClearance rackX={layout.x} />}
-      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
-      {sofaVisible && <Sofa />}
-      <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
-      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
-      <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
-      <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
-      <Ruler x={0} y={358} length={KITCHEN.passage} label="Paso 115 cm" />
-      <Ruler x={KITCHEN.passage+13} y={KITCHEN.y} length={13} label="13 cm" vertical />
-      <Ruler x={KITCHEN.sinkX} y={KITCHEN.y-13} length={KITCHEN.sinkWidth} label="53 cm" />
-      <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
-      <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
-      <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
+    <ApartmentRoom label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${sofaVisible ? ', sofá GLOSTAD frente a la tele' : ''}`}
+      floor={<g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>}
+      equipment={<>
       <Ruler x={layout.floorX} y={sofaVisible ? 308 : bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.smithY : RACK.barY)+10} y={20} length={20} label={layout.model === 'g3' ? 'Smith: 20 cm' : '20 cm'} vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
-    </svg>
+      </>}>
+      {layout.id === 'c' && <FridgeClearance rackX={layout.x} />}
+      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
+      {sofaVisible && <Sofa />}
+    </ApartmentRoom>
     {layout.id === 'c' && <p className="af-plan-caption">*Puerta de 70 cm aproximada · Bisagra derecha. El barrido cruza la barra libre{bikeStored ? ' y la bici' : ''}; comprobar alturas y modelo del refri.</p>}
   </section></React.Fragment>; })}<RubberCutPlan /></div>;
 }
