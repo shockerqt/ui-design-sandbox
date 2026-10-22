@@ -14,9 +14,10 @@ Todas las cotas en cm. Origen en esquina izquierda del ventanal, `x` derecha, `y
 | Giro de puerta | Usuario indica hacia pilar; bisagra supuesta `(280;290)`, extremo abierto a90° `(210;290)`. Confirmar sentido exacto/offset; no se asume grosor ni manilla. |
 | Camas alternativas | **200 × 110** y **200 × 90**, usadas como envolventes exteriores; confirmar si las medidas corresponden solo al colchón |
 | Caucho | **200 × 200**: cuatro planchetas100×100 enteras, sin cortes |
+| TV izquierda | **42″**, saliente **7**, a **95** del ventanal según usuario;95 se interpreta hasta borde cercano. Panel16:9 aproximado93 de ancho: `x=0..7`, `y=95..188`. Marco y altura pendientes. |
 | SID | Interpretación provisional165,8 ancho ×138,9 fondo ×221,8 alto; ejes comerciales ambiguos y anatomía interna estimada |
 | Barra libre | **220**; eje local28,45 sobre ganchos delanteros, ≈14 delante de postes locales14,45 |
-| Banca TT1001 | **137 × 57**, visible inicialmente, cabeza25 detrás del eje de barra; local`y=3,45..140,45` |
+| Banca TT1001 | **137 × 57**, siempre visible, cabeza25 detrás del eje de barra; local`y=3,45..140,45` |
 
 No se suministró clóset ni altura de recinto/equipos. La altura de J-hooks, seguros y alineación real de press están por comprobar. No se hizo una auditoría nueva de fichas comerciales.
 
@@ -26,17 +27,17 @@ Cada una se compara con ambas camas, a igual escala.
 
 | Orientación | Centro / giro | Caucho en la pieza | Banca en la pieza |
 | --- | --- | --- | --- |
-| Espalda al ventanal | **(140;83,95),0°** | `x=40..240`, `y=0..200` | `x=111,5..168,5`, `y=87,4..224,4` |
+| Espalda al ventanal, desplazamiento inicial3 | **(137;83,95),0°** | `x=37..237`, `y=0..200` | `x=108,5..165,5`, `y=87,4..224,4` |
 | Espalda a pared izquierda | **(95;120),270°** | `x=0..200`, `y=20..220` | `x=98,45..235,45`, `y=91,5..148,5` |
 
 En ventanal, los discos traseros supuestos dejan**10 hasta el vidrio**, tras acercar rack/barra/banca11,05 respecto de la posición anterior. En pared izquierda, siguen dejando≈21,05 a esa pared. No certifica acceso de carga ni despeje real de cortinas/ventanal. Se conservan diámetro supuesto45 y geometría SID previa.
 
-- Ventanal: barra en**`y=112,4`**, extremos`x=30..250`: **30 hasta cada pared lateral**; paralela al vidrio a112,4.
+- Ventanal: barra en**`y=112,4`**, extremos iniciales**`x=27..247`**: **27 hasta pared izquierda,33 hasta derecha,20 hasta TV**; paralela al vidrio a112,4.
 - Pared izquierda: barra en`x=123,45`, extremos`y=10..230`: **10 hasta ventanal**. El caucho se apega a pared izquierda y empieza20 después del ventanal.
 
 La banca sale**24,4 del caucho** hacia abajo en ventanal, y**35,45** hacia derecha en pared izquierda. Sus apoyos delanteros dibujados quedan totalmente fuera del caucho: ventanal**`y=209,4..216,4`**; izquierda`x=220,45..227,45`. Se marca esa zona; no se supone que los apoyos queden nivelados.
 
-## Camas atravesadas, estado inicial
+## Camas atravesadas, orientación fija
 
 Se proponen con el lado largo200 contra pared opuesta al ventanal y **desplazadas a izquierda**, en`x=0..200`, para evitar el pilar. Ya no están centradas. Hay20 horizontales hasta el pilar y10 hasta el límite izquierdo del barrido supuesto de puerta. Son separaciones geométricas, sin certificar acceso operativo.
 
@@ -47,15 +48,21 @@ Se proponen con el lado largo200 contra pared opuesta al ventanal y **desplazada
 | 200 × 110 | `240..350` | Izquierda | **20** | **91,5** | **10** |
 | 200 × 90 | `260..350` | Izquierda | **40** | **111,5** | **30** |
 
-## Giro de camas90°
+## Control único: desplazamiento lateral del rack al ventanal
 
-Selector común: cabecera en pared inferior, largo200 hacia ventanal. Cama110 en`x=85..195`, cama90 en`x=95..185`; ambas`y=150..350`. No invaden pilar ni el barrido supuesto de puerta.
+El usuario retiró los controles de giro de cama y visibilidad de banca. Las camas quedan siempre atravesadas y la banca siempre visible en ganchos delanteros.
 
-- Rack al ventanal: **50 de solape cama/caucho**, **74,4 de solape con envolvente de banca**.
-- Rack a izquierda: **70 de solape cama/caucho**, banca termina`y=148,5`, dejando**1,5 hasta cama**. La proyección de la barra larga cruza ambas camas: comprobar alturas, sin asumir compatibilidad por el hueco de banca.
+Un rango de **0..25cm hacia izquierda** mueve solo rack, banca, barra y caucho entero de los dos planos al ventanal; conserva intactos los dos planos de espalda a pared izquierda. Valor inicial**3cm**, para comparar con20 de separación en planta hasta TV. El valor0 recupera rack centrado.
 
-El selector de banca puede ocultarla; barra y ganchos delanteros se conservan. Los solapes se representan sin cortar ni encoger el caucho. Los intervalos de envolvente no prueban por sí solos choques de miembros concretos.
+Para desplazamiento`d`:
+
+- Centro rack`x=140−d`, caucho`x=40−d..240−d`.
+- Punta izquierda de barra`x=30−d`; TV sobresale hasta`x=7`.
+- **Separación TV/barra=23−d**. A0 deja23; a3 deja20; a10 deja13; a23 toca proyección; a25 se superpone2.
+- Barra sigue en`y=112,4`, dentro del tramo supuesto de TV95..188.
+
+Se muestran cota y separación; contacto/solape se señala en rojo. Son proyecciones estáticas, **no una distancia certificada para maniobrar o cargar discos**: faltan altura de TV/barra, movimiento de barra, discos, manos y marco real. El ancho aproximado93 proviene de42×2,54×16/√(16²+9²), sin asegurar dimensiones exteriores de un modelo específico.
 
 ## Pendientes
 
-Confirmar giro y bisagra real de puerta, tamaño exterior de camas, clóset, cortinas/ventanal, altura de recinto/rack, espacio para cargar discos, pies reales de banca, nivel de ambos apoyos, altura de barra y seguros. El living conserva sus diagramas y su plan de cortes de tres planchetas; esta simulación usa **cuatro enteras**.
+Confirmar si95cm se mide al borde cercano de TV, sus dimensiones exteriores y altura, giro y bisagra real de puerta, tamaño exterior de camas, clóset, cortinas/ventanal, altura de recinto/rack, espacio para cargar discos, pies reales de banca, nivel de ambos apoyos, altura de barra y seguros. El living conserva sus diagramas y su plan de cortes de tres planchetas; esta simulación usa **cuatro enteras**.
