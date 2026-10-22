@@ -310,10 +310,10 @@ function Television({ pose }: { pose?: FurniturePose } = {}) {
     </g></Placed>;
 }
 
-function CatPlatforms({ pose, showPath = true }: { pose?: FurniturePose; showPath?: boolean } = {}) {
+function CatPlatforms({ pose, showPath = true, span }: { pose?: FurniturePose; showPath?: boolean; span?: number } = {}) {
   return <Placed pose={pose} x={310} y={34.5}><g data-part="cat-platforms" fill="#c4b0da" fillOpacity=".35" stroke="#9474b2" strokeDasharray="3 2">
-        <rect x="275" y="4" width="30" height="25" rx="2" />
-        <rect x="310" y="40" width="30" height="25" rx="2" />
+        <rect x="275" y={span === undefined ? 4 : 0} width="30" height="25" rx="2" />
+        <rect x="310" y={span === undefined ? 40 : span-25} width="30" height="25" rx="2" />
         {showPath && <path d="M290 16L325 52L325 85" fill="none" />}
       </g></Placed>;
 }
@@ -409,15 +409,17 @@ function ApartmentRoom({ label, floor, children, equipment, furniture }: { label
 }
 
 // User-selected study. Preserve actual furniture sizes; only poses change.
-// Fridge matches former B. Sofa back meets y0; desk/table meet x350.
+// Fridge stays on the left with the user-confirmed113cm window gap.
+// Sofa back meets y0; desk/table meet x350.
 // Bike direction aims from its centre at TV centre, rather than merely +x.
+const SELECTED_FRIDGE_GAP = 113;
 const SELECTED_LIVING_LAYOUT = {
   sofa: { x: 150.5, y: 39, angle: 90 },
   desk: { x: 320, y: 70, angle: 90 },
   bike: { x: 145, y: 225, angle: Math.atan2(193.5-225, 341.5-145)*180/Math.PI },
-  furniture: { fridge: { x: 40, y: 170, angle: 180 }, cat: { x: 35, y: 102.5 } } as RoomFurniture,
+  furniture: { fridge: { x: 40, y: SELECTED_FRIDGE_GAP+35, angle: 180 }, cat: { x: 35, y: 82.5 } } as RoomFurniture,
   // Dashed shelf projections are ABOVE the litter box, not floor obstacles.
-  games: { x: 40, y: 100.5 },
+  games: { x: 40, y: 34.5 },
 };
 
 function Desk({ pose }: { pose: FurniturePose }) {
@@ -470,11 +472,13 @@ export function DiningRoomBase() {
         </g>
         <path data-part="bike-tv-direction" d={`M${layout.bike.x} ${layout.bike.y}L341.5 193.5`} fill="none" stroke="#648b99" strokeWidth=".7" strokeDasharray="3 3" />
         <g data-part="cat-games-over-litter" data-elevation="above-litter-box">
-          <CatPlatforms pose={layout.games} showPath={false} />
-          <text x="40" y="63" style={{fontSize:6}}>Juegos arriba*</text>
+          <rect data-part="cat-game-run" x="5" y="0" width="70" height={SELECTED_FRIDGE_GAP} fill="#c4b0da" fillOpacity=".08" stroke="#9474b2" strokeWidth=".7" strokeDasharray="3 2" />
+          <CatPlatforms pose={layout.games} showPath={false} span={SELECTED_FRIDGE_GAP} />
+          <text x="40" y="39" style={{fontSize:6}}>Juegos arriba*</text>
         </g>
+        <Ruler x={82} y={SELECTED_FRIDGE_GAP} length={SELECTED_FRIDGE_GAP} label="113 cm · ventanal/refri" vertical />
       </ApartmentRoom>
-      <p className="af-study-note">Refri junto a entrada · Juegos en altura sobre el arenero, a la izquierda · Mesa y escritorio contra pared derecha · Sofá al ventanal · Bici hacia la TV sobre la mesa.</p>
+      <p className="af-study-note">Refri a 113 cm del ventanal · Juegos en altura de ventanal a refri, sobre el arenero · Mesa y escritorio contra pared derecha · Sofá al ventanal · Bici hacia la TV sobre la mesa.</p>
     </section>
     <section data-living-layout="base">
       <h2>Variante vacía</h2>

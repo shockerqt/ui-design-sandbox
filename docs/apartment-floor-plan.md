@@ -218,9 +218,9 @@ Las medidas aceptadas para esta simulación siguen siendo P900131×53,5, GLOSTAD
 
 | Elemento | Posición en planta | Orientación / límite |
 | --- | --- | --- |
-| Refri | `x=5..75; y=135..205` | Exactamente como la antigua B; frente hacia +x. Acaba5 antes del borde supuesto de puerta en210. |
-| Arenero | `x=5..65; y=80..125` | En el sector entre refri y ventanal; conserva silueta estimada60×45. |
-| Juegos de gatos | Proyecciones `x=5..35;y=70..95` y `x=40..70;y=106..131` | **En altura encima del arenero**, según aclaración del usuario. No son obstáculos adicionales de suelo; alturas y montaje pendientes. |
+| Refri | `x=5..75; y=113..183` | Borde más cercano al ventanal a **113cm**, confirmado por usuario. Frente +x; quedan27 hasta el borde supuesto de puerta en210. |
+| Arenero | `x=5..65; y=60..105` | En el sector entre refri y ventanal; conserva silueta estimada60×45. |
+| Juegos de gatos | Zona `x=5..75;y=0..113`; plataformas esquemáticas `x=5..35;y=0..25` y `x=40..70;y=88..113` | **En altura encima del arenero, ocupando todo el tramo ventanal–refri de113cm**, según aclaración del usuario. Ancho70 esquemático, no medido; plataformas conservan30×25. No son obstáculos adicionales de suelo; alturas y montaje pendientes. |
 | Sofá | `x=90..211; y=0..78` | Respaldo contra el ventanal; frente hacia +y. GLOSTAD girado90°, sin cambiar121×78. |
 | Escritorio | `x=290..350; y=10..130` | Contra pared derecha, frente +x; silla hacia el centro. |
 | Zona de silla escritorio | `x=220..290; y=10..130` |70 de fondo de uso provisional; silla45×45. |
@@ -231,3 +231,5 @@ Las medidas aceptadas para esta simulación siguen siendo P900131×53,5, GLOSTAD
 | Subida a bici | Rectángulo local `x=−50..25; y=26,75..61,75` respecto de su centro, con el mismo giro | Franja propuesta75×35 por el lado inferior de la bici. |
 
 La bici queda aproximadamente en `x=76,1..213,9; y=188,2..261,8` de envolvente alineada con el recinto; esa caja incluye espacios vacíos por su rotación. La comparación de aperturas debe usar el cuerpo girado, no solo esa caja. El barrido de refri sigue siendo la hoja hipotética70cm girada junto con el refri. No se certifica la apertura real, ventilación, enchufes, acceso del ventanal ni ergonomía. Confirmar alturas/montajes de juegos encima del arenero y de TV encima de mesa. La mesa sigue siendo la propuesta de remodelación previa.
+
+La corrección113cm sustituye los135cm de la propuesta B. El arenero se adelanta20cm hacia el ventanal para permanecer dentro de ese tramo, acabando8cm antes del refri. Los juegos no se escalan como producto: se representa la zona completa y se reparten las dos plataformas esquemáticas entre sus extremos, sin alturas de montaje inferidas.

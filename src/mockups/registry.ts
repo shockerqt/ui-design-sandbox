@@ -21,7 +21,7 @@ export const mockupRegistry: MockupItem[] = [
     category: 'Espacios',
     description: 'Distribución elegida y base vacía: refri a la izquierda, juegos sobre arenero, sofá al ventanal, mesa y escritorio a la derecha y bici hacia la TV.',
     tags: ['plano', 'comedor', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.2.0',
+    version: 'v1.2.1',
     updatedAt: '2026-10-22',
     component: DiningRoomBase
   },
