@@ -208,6 +208,33 @@ Para iterar rápido, editar las constantes `ROOM`, `KITCHEN`, `FRIDGE`, `TABLE`,
 
 ## Base del comedor para nuevas distribuciones
 
-`/m/dining-room-base` presenta una sola planta sin rack, banca, barras, bici, caucho, cortes ni sofá de prueba. Conserva la geometría vigente de muros, ventanal, puerta, cocina, refri, mesa propuesta, TV y zona de gatos, con sus mismas cotas y supuestos. La mesa sigue siendo la propuesta de remodelación; esta base no reconstruye la antigua isla ni afirma que la remodelación ya exista físicamente.
+`/m/dining-room-base` compara tres distribuciones y conserva la planta limpia como cuarta referencia. No añade rack, banca, barras, caucho ni cortes. Mantiene muros, ventana, puerta, cocina y lavaplatos; permite proponer otras posiciones de refri, mesa, TV y arenero mediante las mismas figuras propietarias. La mesa sigue siendo la propuesta de remodelación: no implica que ya exista físicamente.
 
-La base y las comparaciones originales de `/m/apartment-floor-plan` componen el mismo `ApartmentRoom` en `ApartmentFloorPlan.tsx`, con las constantes `ROOM`, `KITCHEN`, `FRIDGE` y `TABLE` y las figuras `Kitchen`, `Remodel` y `Ruler`. Para nuevas pruebas, añadir las piezas al interior de `ApartmentRoom` desde `DiningRoomBase`; mantener las medidas compartidas en su implementación propietaria. No contiene controles de edición. Trabajo registrado en UDS-016.
+La base y las comparaciones de `/m/apartment-floor-plan` componen el mismo `ApartmentRoom` en `ApartmentFloorPlan.tsx`. `Placed` transforma las figuras existentes desde sus centros; `Remodel` acepta poses opcionales y conserva sus valores anteriores para el plano de gimnasio y la base limpia. Los dibujos P900 y GLOSTAD se reutilizan sin cambiar dimensiones. No hay editor ni motor de colisiones.
+
+### Comparación de bici, sofá y escritorio — UDS-016
+
+El usuario acepta para esta simulación P900 **131 × 53,5**, GLOSTAD **121 × 78** y escritorio provisional **120 × 60**. La silla de trabajo se dibuja45×45; su zona de uso tiene70 de fondo. La mesa retiene70×107 y una silla45×45 con zona55×45. Las zonas discontinuas de silla y subida a la bici son supuestos de exploración, no recomendaciones normativas ni espacio de ejercicio certificado. Las plataformas de gatos se ocultan en los estudios móviles porque su montaje depende de dónde quede el refri; siguen en la referencia original.
+
+Posiciones dadas por envolventes `(x inicial..final; y inicial..final)`, en cm:
+
+| Elemento | A · Trabajo lateral | B · Mesa al ventanal | C · Pared de TV |
+| --- | --- | --- | --- |
+| Sofá, frente +x | `90..168; 134..255` | `115..193; 5..126` | `5..83; 85..206` |
+| Escritorio | `0..60; 5..125`, frente a pared izquierda | `290..350; 55..175`, frente a pared derecha | `290..350; 125..245`, frente a pared derecha |
+| Zona silla escritorio | `60..130; 5..125` | `220..290; 55..175` | `220..290; 125..245` |
+| Bici | `140..271; 10..63,5`, frente +x | `145..276; 195..248,5`, frente +x | `145..198,5; 5..136`, frente +y |
+| Subida propuesta a bici | `135..210; 63,5..98,5` | `150..220; 160..195` | `110..145; 30..110` |
+| Refri | Original `275..345; 70..140`, frente −x | `5..75; 135..205`, frente +x | `275..345; 10..80`, frente −x |
+| Mesa | Original `280..350; 140..247` | `5..112; 5..75`, frente de silla +y | `110..217; 175..245`, frente de silla +y |
+| Zona silla mesa | `225..280; 171..216` | `36..81; 75..130` | `141..186; 245..300` |
+| Arenero | Original `280..340; 12..57` | `200..260; 5..50` | `5..65; 5..50` |
+| TV, centro | Original `(341,5; 193,5)`, sobre mesa | `(346;115)`, propuesta sobre escritorio | `(346;185)`, propuesta sobre escritorio |
+
+**Preferencia A:** conserva90cm entre pared y costado del sofá en la entrada,80cm desde su cola a cocina, y frente del sofá casi alineado con TV. Hay112cm entre sofá y mesa, pero solo57 hasta la zona de uso de la silla: no presentar los112 como paso libre con asiento ocupado. Trabajo y bici quedan en el sector del ventanal sin mover el refri ni la mesa. La silla del escritorio y subida lateral a bici se muestran sin invadir otros cuerpos del modelo.
+
+**B:** alternativa viable con mesa junto al ventanal, refri a la izquierda, sofá en el sector superior, escritorio y TV a la derecha. La bici se instala transversal en el centro, con subida desde el norte, dejando86,5cm hasta cocina. Refri termina5cm antes del borde supuesto de puerta; el sofá y mesa quedan separados3cm por sus costados. A diferencia de A obliga a trasladar casi todos los muebles y la TV queda oblicua al sofá (≈15° desde el ojo supuesto). No hay cuerpos ni zonas de uso invadiendo otros muebles o el barrido supuesto del refri. La variante anterior con escritorio bajo ventana se rechazó al comprobar que bici y silla de mesa se solapaban; no se muestra como distribución válida.
+
+**C:** explora mover refri y arenero hacia el ventanal, mesa al centro y TV sobre escritorio. Queda27cm entre sofá y mesa; la zona de silla central termina en300 dejando35cm a cocina. Esos dos estrechamientos hacen preferible descartarla tal como está. El escritorio acaba2cm antes del lavaplatos, una separación ajustada que requiere revisar terminaciones.
+
+El barrido de puerta de refri sigue siendo la misma hoja hipotética70cm con bisagra derecha; al girar el refri se gira también el sector. Ningún cuerpo de las tres propuestas invade ese sector, pero su tamaño real, manilla y ventilación no están medidos. La TV puede superponerse en planta al escritorio porque se propone por encima; sus alturas y relación con monitor están pendientes. Confirmar enchufes y espacio de ventilación antes de trasladar refri, apertura y altura útil del ventanal ante escritorio/bici, y dimensiones/uso real de sillas y arenero. No se certifica accesibilidad ni ergonomía.
