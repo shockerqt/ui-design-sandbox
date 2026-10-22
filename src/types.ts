@@ -2,6 +2,7 @@ import React from 'react';
 
 export type Category =
   | 'All'
+  | 'Espacios'
   | 'Base UI Primitives'
   | 'Dashboards'
   | 'SaaS & Pricing'

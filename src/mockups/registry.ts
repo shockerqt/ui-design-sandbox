@@ -1,4 +1,5 @@
 import { MockupItem } from '../types';
+import { ApartmentFloorPlan } from './ApartmentFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
@@ -14,6 +15,16 @@ import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'apartment-floor-plan',
+    title: 'Departamento · Plano de distribución',
+    category: 'Espacios',
+    description: 'Planos SID/G3 con barra de 2 m, sofá GLOSTAD, caucho compartido y estudio de distancia y apertura del refrigerador en C.',
+    tags: ['plano', 'departamento', 'distribución', 'medidas', 'SVG'],
+    version: 'v1.20.0',
+    updatedAt: '2026-10-20',
+    component: ApartmentFloorPlan
+  },
   {
     id: 'balance-style-studies',
     title: 'Balance · Comparador de estilos',
