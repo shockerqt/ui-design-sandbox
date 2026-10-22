@@ -19,9 +19,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'dining-room-base',
     title: 'Comedor · Bici, sofá y escritorio',
     category: 'Espacios',
-    description: 'Distribución elegida y base vacía: refri a la izquierda, juegos sobre arenero, sofá al ventanal, mesa y escritorio a la derecha y bici hacia la TV.',
+    description: 'Distribución elegida y base vacía: refri a la izquierda, juegos sobre arenero, sofá al ventanal, mesa y escritorio a la derecha y bici horizontal al centro.',
     tags: ['plano', 'comedor', 'distribución', 'medidas', 'SVG'],
-    version: 'v1.2.1',
+    version: 'v1.2.2',
     updatedAt: '2026-10-22',
     component: DiningRoomBase
   },

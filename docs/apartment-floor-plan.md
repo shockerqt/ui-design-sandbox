@@ -227,9 +227,9 @@ Las medidas aceptadas para esta simulación siguen siendo P900131×53,5, GLOSTAD
 | Mesa | `x=280..350; y=140..247` | Contra pared derecha, ubicación original junto a lavaplatos; separación10 con escritorio. |
 | Silla mesa | Uso `x=225..280; y=171..216` | Propuesta45×45, zona de uso55×45. |
 | TV | Centro `(341,5;193,5)` | Sobre mesa comedor, conservando el panel32″ original. |
-| Bici | Centro `(145;225)`; giro≈−9,1° | Eje longitudinal apunta exactamente al centro de TV mediante `atan2`; envolvente131×53,5 sin alterar. |
+| Bici | Centro `(145;225)`; giro **0°** | Horizontal, frente general hacia la derecha. El usuario aclara que mirar a la TV no es literal; se elimina la alineación exacta y su línea. Envolvente131×53,5 sin alterar. |
 | Subida a bici | Rectángulo local `x=−50..25; y=26,75..61,75` respecto de su centro, con el mismo giro | Franja propuesta75×35 por el lado inferior de la bici. |
 
-La bici queda aproximadamente en `x=76,1..213,9; y=188,2..261,8` de envolvente alineada con el recinto; esa caja incluye espacios vacíos por su rotación. La comparación de aperturas debe usar el cuerpo girado, no solo esa caja. El barrido de refri sigue siendo la hoja hipotética70cm girada junto con el refri. No se certifica la apertura real, ventilación, enchufes, acceso del ventanal ni ergonomía. Confirmar alturas/montajes de juegos encima del arenero y de TV encima de mesa. La mesa sigue siendo la propuesta de remodelación previa.
+La bici horizontal ocupa `x=79,5..210,5; y=198,25..251,75`, manteniendo el mismo centro. Su zona de subida queda `x=95..170; y=251,75..286,75`. El barrido de refri sigue siendo la hoja hipotética70cm girada junto con el refri. No se certifica la apertura real, ventilación, enchufes, acceso del ventanal ni ergonomía. Confirmar alturas/montajes de juegos encima del arenero y de TV encima de mesa. La mesa sigue siendo la propuesta de remodelación previa.
 
 La corrección113cm sustituye los135cm de la propuesta B. El arenero se adelanta20cm hacia el ventanal para permanecer dentro de ese tramo, acabando8cm antes del refri. Los juegos no se escalan como producto: se representa la zona completa y se reparten las dos plataformas esquemáticas entre sus extremos, sin alturas de montaje inferidas.
