@@ -1,0 +1,14 @@
+.bedroom-plan{gap:24px 36px}
+.bedroom-plan .bedroom-header,.bedroom-plan .bedroom-notes{grid-column:1/-1}
+.bedroom-header h1{font-size:20px;font-weight:500;margin:0 0 8px}
+.bedroom-header p{font-size:13px;line-height:1.5;margin:0;color:#42606b}
+.bedroom-controls{display:flex;align-items:center;flex-wrap:wrap;gap:10px 16px;margin-top:18px}
+.bedroom-controls label{flex-basis:100%;font-size:13px}
+.bedroom-controls input{width:min(260px,70%);accent-color:#316a77;cursor:pointer}
+.bedroom-controls input:focus-visible{outline:2px solid #316a77;outline-offset:3px}
+.bedroom-controls output{font:12px var(--font-mono,monospace)}
+.bedroom-plan section h2{min-height:0;margin-bottom:6px}
+.bedroom-gap{font-size:13px;line-height:1.5;margin:0 0 16px;color:#426b5b}
+.bedroom-plan .bedroom-overlap{color:#984c3e}
+.bedroom-plan section svg{max-width:600px;margin:0 auto 14px}
+.bedroom-notes{font-size:12px;line-height:1.5;margin:0;padding-top:16px;border-top:1px solid #b8c8cd;color:#42606b}
