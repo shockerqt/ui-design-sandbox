@@ -415,7 +415,7 @@ function ApartmentRoom({ label, floor, children, equipment, furniture }: { label
 const SELECTED_FRIDGE_GAP = 113;
 const SELECTED_LIVING_LAYOUT = {
   sofa: { x: 150.5, y: 39, angle: 90 },
-  desk: { x: 320, y: 70, angle: 90 },
+  desk: { x: 295, y: 30, angle: 0 },
   bike: { x: 145, y: 225, angle: 0 },
   furniture: { fridge: { x: 40, y: SELECTED_FRIDGE_GAP+35, angle: 180 }, cat: { x: 35, y: 82.5 } } as RoomFurniture,
   // Dashed shelf projections are ABOVE the litter box, not floor obstacles.
@@ -424,14 +424,14 @@ const SELECTED_LIVING_LAYOUT = {
 
 function Desk({ pose }: { pose: FurniturePose }) {
   return <g data-part="desk-zone" transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle ?? 0})`}>
-    <rect data-part="desk-use" x="-60" y="30" width="120" height="70" className="af-use-zone" />
-    <rect data-part="desk-envelope" x="-60" y="-30" width="120" height="60" rx="2" fill="#d8d1bd" stroke="#897c5c" />
+    <rect data-part="desk-use" x="-55" y="30" width="110" height="70" className="af-use-zone" />
+    <rect data-part="desk-envelope" x="-55" y="-30" width="110" height="60" rx="2" fill="#d8d1bd" stroke="#897c5c" />
     <rect x="-21" y="-19" width="42" height="4" rx="1" fill="#647381" />
     <path d="M0 -15v8m-9 0h18" stroke="#647381" fill="none" />
     <rect x="-15" y="2" width="30" height="10" rx="1" fill="#ede8dd" stroke="#b0a58d" strokeWidth=".5" />
     <rect data-part="desk-chair" x="-22.5" y="42.5" width="45" height="45" rx="9" fill="#c5d7cf" stroke="#648272" />
     <path d="M-17 80h34" stroke="#648272" strokeWidth="3" />
-    <text y="24" style={{fontSize:6.5}}>Escritorio · 120 × 60*</text>
+    <text y="24" style={{fontSize:6.5}}>Escritorio · 110 × 60*</text>
   </g>;
 }
 
@@ -461,7 +461,7 @@ export function DiningRoomBase() {
   return <div className="af-simple af-living-study">
     <section data-living-layout="selected">
       <h2>Comedor · Distribución elegida</h2>
-      <ApartmentRoom label="Comedor con refri a la izquierda, juegos sobre el arenero, sofá al ventanal, mesa y escritorio a la derecha y bici horizontal en el centro" furniture={layout.furniture}>
+      <ApartmentRoom label="Comedor con refri a la izquierda, juegos sobre el arenero, sofá al ventanal, mesa a la derecha, escritorio hacia el ventanal con70cm para silla y bici horizontal en el centro" furniture={layout.furniture}>
         <StudyFridgeDoor pose={layout.furniture.fridge} />
         <Placed pose={layout.sofa} x={129} y={235.5}><Sofa rulers={false} /></Placed>
         <Desk pose={layout.desk} />
@@ -475,16 +475,18 @@ export function DiningRoomBase() {
           <CatPlatforms pose={layout.games} showPath={false} span={SELECTED_FRIDGE_GAP} />
           <text x="40" y="39" style={{fontSize:6}}>Juegos arriba*</text>
         </g>
+        <Ruler x={90} y={90} length={150} label="150 cm · máx. sillón desde aquí" />
+        <Ruler x={363} y={130} length={70} label="70 cm · silla" vertical />
         <Ruler x={82} y={SELECTED_FRIDGE_GAP} length={SELECTED_FRIDGE_GAP} label="113 cm · ventanal/refri" vertical />
       </ApartmentRoom>
-      <p className="af-study-note">Refri a 113 cm del ventanal · Juegos en altura de ventanal a refri, sobre el arenero · Mesa y escritorio contra pared derecha · Sofá al ventanal · Bici horizontal al centro · TV sobre la mesa.</p>
+      <p className="af-study-note">Refri a 113 cm del ventanal · Juegos en altura de ventanal a refri, sobre el arenero · Escritorio 110 × 60 hacia ventanal · 70 cm para silla · Mesa a la derecha · Sofá al ventanal · Bici horizontal al centro · TV sobre la mesa.</p>
     </section>
     <section data-living-layout="base">
       <h2>Variante vacía</h2>
       <ApartmentRoom label="Plano base del comedor sin rack ni banca, con cocina, mesa, refrigerador, ventanal y puerta" />
       <p className="af-study-note">Base de referencia, sin bici, sillón ni escritorio.</p>
     </section>
-    <p className="af-study-footnote">Medidas en cm: P900 131 × 53,5 · GLOSTAD 121 × 78 · escritorio 120 × 60* · mesa 107 × 70 · refri 70 × 70. Trazo discontinuo: zonas de uso, apertura aproximada del refri y juegos en altura sobre el arenero. *Sillas, arenero, juegos y alturas son esquemáticos.</p>
+    <p className="af-study-footnote">Medidas en cm: P900 131 × 53,5 · GLOSTAD 121 × 78 · escritorio 110 × 60* · mesa 107 × 70 · refri 70 × 70. Trazo discontinuo: zonas de uso, apertura aproximada del refri y juegos en altura sobre el arenero. *Sillas, arenero, juegos y alturas son esquemáticos. Tope de sillón: 150 cm desde su inicio actual; 165 cm si se desplaza 15 cm hacia el sector de gatos, sin holgura adicional.</p>
   </div>;
 }
 
