@@ -291,35 +291,53 @@ function Kitchen() {
   </g>;
 }
 
-function Remodel() {
+type FurniturePose = { x: number; y: number; angle?: number };
+type RoomFurniture = { fridge?: FurniturePose; table?: FurniturePose; tv?: FurniturePose; cat?: FurniturePose };
+
+// Optional transforms compose the existing figures. Defaults preserve the gym plans.
+function Placed({ pose, x, y, children }: { pose?: FurniturePose; x: number; y: number; children: React.ReactNode }) {
+  return pose ? <g transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle ?? 0}) translate(${-x} ${-y})`}>{children}</g> : <>{children}</>;
+}
+
+function Television({ pose }: { pose?: FurniturePose } = {}) {
   const start = FRIDGE.y + FRIDGE.depth;
   const length = KITCHEN.sinkY - start;
   const screenY = start + (length-71)/2;
-  return <g data-part="remodel">
-    <g data-part="cat-zone">
-      <rect data-part="litter-box" x="280" y="12" width="60" height="45" rx="7" fill="#ece2da" stroke="#a18b7e" />
-      <text x="310" y="38" style={{fontSize:7}}>Arenero*</text>
-      <g data-part="cat-platforms" fill="#c4b0da" fillOpacity=".35" stroke="#9474b2" strokeDasharray="3 2">
-        <rect x="275" y="4" width="30" height="25" rx="2" />
-        <rect x="310" y="40" width="30" height="25" rx="2" />
-        <path d="M290 16L325 52L325 85" fill="none" />
-      </g>
-      <text x="251" y="33" style={{fontSize:6.5}} transform="rotate(-90 251 33)">2 peldaños arriba*</text>
-      <Ruler x={363} y={FRIDGE.y} length={FRIDGE.y} label="≈70 cm" vertical />
-    </g>
-    <rect data-part="table" x={ROOM.width-TABLE.width} y={start} width={TABLE.width} height={length} fill="#e4d1aa" stroke="#8b7044" strokeWidth="1.5" />
-    <text x={ROOM.width-TABLE.width/2} y={start+length/2+18}>Mesa</text>
-    <g data-part="tv" stroke="#647381" strokeWidth="1">
+  return <Placed pose={pose} x={341.5} y={193.5}><g data-part="tv" stroke="#647381" strokeWidth="1">
       <path d={`M350 ${screenY+35.5}h-8`} />
       <rect x="340" y={screenY} width="3" height="71" rx="1" fill="#5b6c7a" />
-      <text x="329" y={screenY+35.5} stroke="none" transform={`rotate(-90 329 ${screenY+35.5})`}>TV 32″ · sobre mesa</text>
-    </g>
-    <rect data-part="fridge" x={FRIDGE.x} y={FRIDGE.y} width={FRIDGE.width} height={FRIDGE.depth} rx="2" fill="#d5e7ed" stroke="#456d7a" strokeWidth="1.5" />
-    <text x={FRIDGE.x+FRIDGE.width/2} y={FRIDGE.y+40}>Refri</text>
-    <Ruler x={ROOM.width-TABLE.width} y={start+length-12} length={TABLE.width} label="70 cm" />
+      <text x="329" y={screenY+35.5} stroke="none" transform={`rotate(-90 329 ${screenY+35.5})`}>{pose ? 'TV 32″ · sobre escritorio*' : 'TV 32″ · sobre mesa'}</text>
+    </g></Placed>;
+}
+
+function CatPlatforms({ pose, showPath = true, span }: { pose?: FurniturePose; showPath?: boolean; span?: number } = {}) {
+  return <Placed pose={pose} x={310} y={34.5}><g data-part="cat-platforms" fill="#c4b0da" fillOpacity=".35" stroke="#9474b2" strokeDasharray="3 2">
+        <rect x="275" y={span === undefined ? 4 : 0} width="30" height="25" rx="2" />
+        <rect x="310" y={span === undefined ? 40 : span-25} width="30" height="25" rx="2" />
+        {showPath && <path d="M290 16L325 52L325 85" fill="none" />}
+      </g></Placed>;
+}
+
+function Remodel({ furniture }: { furniture?: RoomFurniture } = {}) {
+  const start = FRIDGE.y + FRIDGE.depth;
+  const length = KITCHEN.sinkY - start;
+  return <g data-part="remodel">
+    <Placed pose={furniture?.cat} x={310} y={34.5}><g data-part="cat-zone">
+      <rect data-part="litter-box" x="280" y="12" width="60" height="45" rx="7" fill="#ece2da" stroke="#a18b7e" />
+      <text x="310" y="38" style={{fontSize:7}}>Arenero*</text>
+      {!furniture && <><CatPlatforms />
+      <text x="251" y="33" style={{fontSize:6.5}} transform="rotate(-90 251 33)">2 peldaños arriba*</text></>}
+      {!furniture && <Ruler x={363} y={FRIDGE.y} length={FRIDGE.y} label="≈70 cm" vertical />}
+    </g></Placed>
+    <Placed pose={furniture?.table} x={315} y={193.5}><rect data-part="table" x={ROOM.width-TABLE.width} y={start} width={TABLE.width} height={length} fill="#e4d1aa" stroke="#8b7044" strokeWidth="1.5" />
+    <text x={ROOM.width-TABLE.width/2} y={start+length/2+18}>Mesa</text></Placed>
+    {!furniture?.tv && <Television />}
+    <Placed pose={furniture?.fridge} x={310} y={105}><rect data-part="fridge" x={FRIDGE.x} y={FRIDGE.y} width={FRIDGE.width} height={FRIDGE.depth} rx="2" fill="#d5e7ed" stroke="#456d7a" strokeWidth="1.5" />
+    <text x={FRIDGE.x+FRIDGE.width/2} y={FRIDGE.y+40} transform={furniture?.fridge?.angle ? `rotate(${-furniture.fridge.angle} ${FRIDGE.x+FRIDGE.width/2} ${FRIDGE.y+40})` : undefined}>Refri</text></Placed>
+    {!furniture && <><Ruler x={ROOM.width-TABLE.width} y={start+length-12} length={TABLE.width} label="70 cm" />
     <Ruler x={363} y={KITCHEN.sinkY} length={length} label={`Mesa ≈${length} cm`} vertical />
     <Ruler x={FRIDGE.x} y={FRIDGE.y+FRIDGE.depth+10} length={FRIDGE.width} label="70 cm" />
-    <Ruler x={363} y={FRIDGE.y+FRIDGE.depth} length={FRIDGE.depth} label="70 cm" vertical />
+    <Ruler x={363} y={FRIDGE.y+FRIDGE.depth} length={FRIDGE.depth} label="70 cm" vertical /></>}
   </g>;
 }
 
@@ -329,7 +347,7 @@ function Remodel() {
 // Gap39 to kitchen335 is narrow;112 to table280,6 to stored bench tail169.
 // Assumed seated eye(120,235.5) to TV(341.5,193.5):~2.25m,~11° off-axis.
 // Upholstery and cushions schematic; only the outer footprint is published.
-function Sofa() {
+function Sofa({ rulers = true }: { rulers?: boolean } = {}) {
   return <g data-part="sofa">
     <rect data-part="sofa-envelope" x="90" y="175" width="78" height="121" rx="4" fill="#b9c0c3" stroke="#596a70" strokeWidth="1" />
     {[179,237].map(y=><rect key={y} x="111" y={y} width="54" height="55" rx="4" fill="#d7dcde" stroke="#87969c" strokeWidth=".7" />)}
@@ -338,8 +356,8 @@ function Sofa() {
     <text x="137" y="204" style={{fontSize:7}}>GLOSTAD</text>
     <text x="137" y="215" style={{fontSize:6.5}}>121 × 78 cm</text>
     <path d="M168 235.5h9l-3 -3m3 3l-3 3" fill="none" stroke="#596a70" strokeWidth="1" />
-    <Ruler x={168} y={250} length={112} label="112 cm hasta mesa" />
-    <Ruler x={215} y={335} length={39} label="39 cm · cocina · estrecho" vertical />
+    {rulers && <><Ruler x={168} y={250} length={112} label="112 cm hasta mesa" />
+    <Ruler x={215} y={335} length={39} label="39 cm · cocina · estrecho" vertical /></>}
   </g>;
 }
 
@@ -362,6 +380,114 @@ function FridgeClearance({ rackX }: { rackX: number }) {
     <Ruler x={smithRight} y={65} length={FRIDGE.x-smithRight} label={`${FRIDGE.x-smithRight} cm · Smith/refri`} />
     <Ruler x={freeRight} y={133} length={FRIDGE.x-freeRight} label="63,5 cm · barra/refri" />
   </g>;
+}
+
+// Shared apartment shell: coordinates and uncertainty stay owned by this plan.
+// Gym layers are supplied by the comparison; the dining base leaves them empty.
+function ApartmentRoom({ label, floor, children, equipment, furniture }: { label: string; floor?: React.ReactNode; children?: React.ReactNode; equipment?: React.ReactNode; furniture?: RoomFurniture }) {
+  return <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={label}>
+      <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
+      {floor}
+      <Kitchen />
+      <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
+      <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
+      <text x={ROOM.width/2} y="-10">Ventanal</text>
+      <Remodel furniture={furniture} />
+      {children}
+      <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
+      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
+      <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
+      <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
+      <Ruler x={0} y={358} length={KITCHEN.passage} label="Paso 115 cm" />
+      <Ruler x={KITCHEN.passage+13} y={KITCHEN.y} length={13} label="13 cm" vertical />
+      <Ruler x={KITCHEN.sinkX} y={KITCHEN.y-13} length={KITCHEN.sinkWidth} label="53 cm" />
+      <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
+      <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
+      <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
+      {equipment}
+  </svg>;
+}
+
+// User-selected study. Preserve actual furniture sizes; only poses change.
+// Fridge stays on the left with the user-confirmed113cm window gap.
+// Sofa back meets y0; desk/table meet x350.
+// Bike stays horizontal; facing the TV is a general orientation only.
+const SELECTED_FRIDGE_GAP = 113;
+const SELECTED_LIVING_LAYOUT = {
+  sofa: { x: 150.5, y: 39, angle: 90 },
+  desk: { x: 295, y: 30, angle: 0 },
+  bike: { x: 145, y: 225, angle: 0 },
+  furniture: { fridge: { x: 40, y: SELECTED_FRIDGE_GAP+35, angle: 180 }, cat: { x: 35, y: 82.5 } } as RoomFurniture,
+  // Dashed shelf projections are ABOVE the litter box, not floor obstacles.
+  games: { x: 40, y: 34.5 },
+};
+
+function Desk({ pose }: { pose: FurniturePose }) {
+  return <g data-part="desk-zone" transform={`translate(${pose.x} ${pose.y}) rotate(${pose.angle ?? 0})`}>
+    <rect data-part="desk-use" x="-55" y="30" width="110" height="70" className="af-use-zone" />
+    <rect data-part="desk-envelope" x="-55" y="-30" width="110" height="60" rx="2" fill="#d8d1bd" stroke="#897c5c" />
+    <rect x="-21" y="-19" width="42" height="4" rx="1" fill="#647381" />
+    <path d="M0 -15v8m-9 0h18" stroke="#647381" fill="none" />
+    <rect x="-15" y="2" width="30" height="10" rx="1" fill="#ede8dd" stroke="#b0a58d" strokeWidth=".5" />
+    <rect data-part="desk-chair" x="-22.5" y="42.5" width="45" height="45" rx="9" fill="#c5d7cf" stroke="#648272" />
+    <path d="M-17 80h34" stroke="#648272" strokeWidth="3" />
+    <text y="24" style={{fontSize:6.5}}>Escritorio · 110 × 60*</text>
+  </g>;
+}
+
+function DiningTableSeat({ pose }: { pose?: FurniturePose }) {
+  return <Placed pose={pose} x={315} y={193.5}>
+    <g data-part="table-seat">
+      <rect data-part="table-use" x="225" y="171" width="55" height="45" className="af-use-zone" />
+      <rect data-part="table-chair" x="230" y="171" width="45" height="45" rx="6" fill="#e8decb" stroke="#b6a784" strokeWidth=".8" />
+    </g>
+  </Placed>;
+}
+
+// Same hypothetical70cm right-hinged leaf as the reference, moved with fridge.
+// It is an opening study, not a verified door/ventilation/service envelope.
+function StudyFridgeDoor({ pose }: { pose?: FurniturePose }) {
+  return <Placed pose={pose} x={310} y={105}>
+    <g data-part="study-fridge-door">
+      <path d="M275 140V70A70 70 0 0 0 205 140Z" fill="#d4a86a" fillOpacity=".09" stroke="#b28a50" strokeWidth=".8" strokeDasharray="3 2" />
+      <path d="M275 140h-70" stroke="#b28a50" strokeWidth="1" />
+      <circle cx="275" cy="140" r="1.5" fill="#b28a50" />
+    </g>
+  </Placed>;
+}
+
+export function DiningRoomBase() {
+  const layout = SELECTED_LIVING_LAYOUT;
+  return <div className="af-simple af-living-study">
+    <section data-living-layout="selected">
+      <h2>Comedor · Distribución elegida</h2>
+      <ApartmentRoom label="Comedor con refri a la izquierda, juegos sobre el arenero, sofá al ventanal, mesa a la derecha, escritorio hacia el ventanal con70cm para silla y bici horizontal en el centro" furniture={layout.furniture}>
+        <StudyFridgeDoor pose={layout.furniture.fridge} />
+        <Placed pose={layout.sofa} x={129} y={235.5}><Sofa rulers={false} /></Placed>
+        <Desk pose={layout.desk} />
+        <DiningTableSeat />
+        <Placed pose={layout.bike} x={155.5} y={299}><Bike mat={false} /></Placed>
+        <g data-part="bike-access" transform={`translate(${layout.bike.x} ${layout.bike.y}) rotate(${layout.bike.angle})`}>
+          <rect x="-50" y="26.75" width="75" height="35" className="af-use-zone" />
+        </g>
+        <g data-part="cat-games-over-litter" data-elevation="above-litter-box">
+          <rect data-part="cat-game-run" x="5" y="0" width="70" height={SELECTED_FRIDGE_GAP} fill="#c4b0da" fillOpacity=".08" stroke="#9474b2" strokeWidth=".7" strokeDasharray="3 2" />
+          <CatPlatforms pose={layout.games} showPath={false} span={SELECTED_FRIDGE_GAP} />
+          <text x="40" y="39" style={{fontSize:6}}>Juegos arriba*</text>
+        </g>
+        <Ruler x={90} y={90} length={150} label="150 cm · máx. sillón desde aquí" />
+        <Ruler x={363} y={130} length={70} label="70 cm · silla" vertical />
+        <Ruler x={82} y={SELECTED_FRIDGE_GAP} length={SELECTED_FRIDGE_GAP} label="113 cm · ventanal/refri" vertical />
+      </ApartmentRoom>
+      <p className="af-study-note">Refri a 113 cm del ventanal · Juegos en altura de ventanal a refri, sobre el arenero · Escritorio 110 × 60 hacia ventanal · 70 cm para silla · Mesa a la derecha · Sofá al ventanal · Bici horizontal al centro · TV sobre la mesa.</p>
+    </section>
+    <section data-living-layout="base">
+      <h2>Variante vacía</h2>
+      <ApartmentRoom label="Plano base del comedor sin rack ni banca, con cocina, mesa, refrigerador, ventanal y puerta" />
+      <p className="af-study-note">Base de referencia, sin bici, sillón ni escritorio.</p>
+    </section>
+    <p className="af-study-footnote">Medidas en cm: P900 131 × 53,5 · GLOSTAD 121 × 78 · escritorio 110 × 60* · mesa 107 × 70 · refri 70 × 70. Trazo discontinuo: zonas de uso, apertura aproximada del refri y juegos en altura sobre el arenero. *Sillas, arenero, juegos y alturas son esquemáticos. Tope de sillón: 150 cm desde su inicio actual; 165 cm si se desplaza 15 cm hacia el sector de gatos, sin holgura adicional.</p>
+  </div>;
 }
 
 export function ApartmentFloorPlan() {
@@ -394,31 +520,17 @@ export function ApartmentFloorPlan() {
     <section className="af-layout" data-layout={layout.id} data-mode={layout.model === 'g3' ? mode : 'baseline'} data-bike={bikeVisible ? 'living' : 'bedroom'} aria-label={layout.title}>
     <h2>{layout.title}{benchStored ? ' · Guardado' : ''}{!bikeVisible ? ' · Sin bici' : ''}</h2>
     {layout.model === 'g3' && <p className="af-plan-caption">{benchStored ? 'Banca horizontal al fondo · 137 × 57 cm' : 'Banca sólida: barra libre · Contorno: Smith · V1 bajo banca'}{' · Barra libre 2 m · Apoyos por confirmar'}{layout.id === 'd' ? ' · 8,5 cm hacia ventanal' : ''}{bikeStored ? ' · Barras elevadas en trazo punteado' : ''}{bikeVisible && !benchStored ? ' · Bici sin caucho' : ''}{sofaVisible ? ' · GLOSTAD · TV ≈2,25 m · Cocina: 39 cm' : ''}</p>}
-    <svg viewBox={`-45 -45 ${ROOM.width+90} ${ROOM.depth+75}`} role="img" aria-label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${sofaVisible ? ', sofá GLOSTAD frente a la tele' : ''}`}>
-      <rect width={ROOM.width} height={ROOM.depth} fill="#fbfdfd" />
-      <g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>
-      <Kitchen />
-      <path d={`M0 ${ROOM.doorY}V0H${ROOM.width}V${ROOM.depth}H${KITCHEN.passage}V${KITCHEN.partitionY} M0 ${ROOM.doorY+ROOM.doorWidth}V${ROOM.depth}`} fill="none" stroke="#263f48" strokeWidth="5" />
-      <path d={`M3 0H${ROOM.width-3}`} stroke="#73a8b8" strokeWidth="6" />
-      <text x={ROOM.width/2} y="-10">Ventanal</text>
-      <Remodel />
-      {layout.id === 'c' && <FridgeClearance rackX={layout.x} />}
-      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
-      {sofaVisible && <Sofa />}
-      <Ruler x={0} y={-31} length={ROOM.width} label="350 cm" />
-      <Ruler x={-32} y={ROOM.depth} length={ROOM.depth} label="≈388 cm" vertical />
-      <Ruler x={-14} y={ROOM.doorY} length={ROOM.doorY} label="210 cm hasta puerta" vertical />
-      <Ruler x={-14} y={ROOM.doorY+ROOM.doorWidth} length={ROOM.doorWidth} label="≈80 cm" vertical />
-      <Ruler x={0} y={358} length={KITCHEN.passage} label="Paso 115 cm" />
-      <Ruler x={KITCHEN.passage+13} y={KITCHEN.y} length={13} label="13 cm" vertical />
-      <Ruler x={KITCHEN.sinkX} y={KITCHEN.y-13} length={KITCHEN.sinkWidth} label="53 cm" />
-      <Ruler x={363} y={KITCHEN.y} length={KITCHEN.sinkLength} label="88 cm" vertical />
-      <Ruler x={363} y={ROOM.depth} length={KITCHEN.depth} label="53 cm" vertical />
-      <Ruler x={KITCHEN.passage} y={ROOM.depth+13} length={ROOM.width-KITCHEN.passage} label="Cocina 235 cm" />
+    <ApartmentRoom label={`Plano ${layout.id.toUpperCase()} con rack, banca, barra, caucho y cocina en L${sofaVisible ? ', sofá GLOSTAD frente a la tele' : ''}`}
+      floor={<g transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}><ModularFloor extension={layout.model === 'g3' && !benchStored} turn={layout.angle} /></g>}
+      equipment={<>
       <Ruler x={layout.floorX} y={sofaVisible ? 308 : bikeStored ? (layout.angle === 270 ? 205 : 190) : 252} length={layout.floorW} label="R · Caucho fijo 140 × 150 cm" />
       {layout.angle === 270 && <Ruler x={layout.x+(layout.model === 'g3' ? G3.smithY : RACK.barY)+10} y={20} length={20} label={layout.model === 'g3' ? 'Smith: 20 cm' : '20 cm'} vertical />}
       <g data-part="rack" transform={`translate(${layout.x} ${layout.y}) rotate(${layout.angle})`}>{layout.model === 'g3' ? <G3Rack turn={layout.angle} benchStored={benchStored} bikeStored={bikeStored} /> : <Rack turn={layout.angle} />}</g>
-    </svg>
+      </>}>
+      {layout.id === 'c' && <FridgeClearance rackX={layout.x} />}
+      {bikeVisible && <Bike parking={bikeStored ? layout.angle : undefined} mat={layout.model !== 'g3' || benchStored} />}
+      {sofaVisible && <Sofa />}
+    </ApartmentRoom>
     {layout.id === 'c' && <p className="af-plan-caption">*Puerta de 70 cm aproximada · Bisagra derecha. El barrido cruza la barra libre{bikeStored ? ' y la bici' : ''}; comprobar alturas y modelo del refri.</p>}
   </section></React.Fragment>; })}<RubberCutPlan /></div>;
 }

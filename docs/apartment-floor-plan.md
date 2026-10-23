@@ -205,3 +205,35 @@ La partición nominal consume los 3 m² sin retazos. Las alternativas del diagra
 9. Confirmar altura y acceso operativo de P900 y barras elevadas; medir dimensiones útiles de las planchetas antes de cortar.
 
 Para iterar rápido, editar las constantes `ROOM`, `KITCHEN`, `FRIDGE`, `TABLE`, `RACK`, `G3`, `BENCH`, `G3_FREE_BAR`, `BIKE`, `LAYOUTS`, `CUT_TILES` y `RACK_FLOOR_PARTS`; las siluetas de cocina, gatos, TV, sofá y apertura se definen en sus funciones. Mantener este archivo sincronizado y evitar convertir una estimación en medida confirmada al copiarla.
+
+## Comedor: distribución elegida y variante vacía — UDS-016
+
+`/m/dining-room-base` muestra **solo dos plantas**: la distribución especificada por el usuario y la variante vacía previa. Se eliminaron A/B/C, sus datos de configuración y las recomendaciones anteriores; su historial queda en Git y en los runs de Governance. La variante vacía conserva el plano base anterior, sin bici, sillón ni escritorio, con los elementos de remodelación originales.
+
+Ambas plantas y `/m/apartment-floor-plan` reutilizan `ApartmentRoom`, `Placed`, `Kitchen`, `Remodel`, `Ruler` y las figuras existentes de P900/GLOSTAD. `CatPlatforms` reutiliza las dos plataformas esquemáticas originales. Los defaults del estudio de gimnasio no cambian. No hay editor ni motor de colisiones.
+
+### Posiciones vigentes
+
+Las medidas aceptadas para esta simulación siguen siendo P900131×53,5, GLOSTAD121×78, escritorio110×60, mesa70×107 y refri70×70, todas en cm. Las coordenadas siguientes son propuestas, no medidas de una instalación real.
+
+| Elemento | Posición en planta | Orientación / límite |
+| --- | --- | --- |
+| Refri | `x=5..75; y=113..183` | Borde más cercano al ventanal a **113cm**, confirmado por usuario. Frente +x; quedan27 hasta el borde supuesto de puerta en210. |
+| Arenero | `x=5..65; y=60..105` | En el sector entre refri y ventanal; conserva silueta estimada60×45. |
+| Juegos de gatos | Zona `x=5..75;y=0..113`; plataformas esquemáticas `x=5..35;y=0..25` y `x=40..70;y=88..113` | **En altura encima del arenero, ocupando todo el tramo ventanal–refri de113cm**, según aclaración del usuario. Ancho70 esquemático, no medido; plataformas conservan30×25. No son obstáculos adicionales de suelo; alturas y montaje pendientes. |
+| Sofá | `x=90..211; y=0..78` | Respaldo contra el ventanal; frente hacia +y. GLOSTAD girado90°, sin cambiar121×78. |
+| Escritorio | `x=240..350; y=0..60` |110×60 en esquina superior derecha, mirando al ventanal; giro0°. |
+| Zona de silla escritorio | `x=240..350; y=60..130` | **70cm libres detrás del canto del escritorio**, elegidos por usuario. Silla dibujada45×45 dentro de esa franja. |
+| Mesa | `x=280..350; y=140..247` | Contra pared derecha, ubicación original junto a lavaplatos; 80 desde escritorio;10 desde el final de la zona de uso de silla. |
+| Silla mesa | Uso `x=225..280; y=171..216` | Propuesta45×45, zona de uso55×45. |
+| TV | Centro `(341,5;193,5)` | Sobre mesa comedor, conservando el panel32″ original. |
+| Bici | Centro `(145;225)`; giro **0°** | Horizontal, frente general hacia la derecha. El usuario aclara que mirar a la TV no es literal; se elimina la alineación exacta y su línea. Envolvente131×53,5 sin alterar. |
+| Subida a bici | Rectángulo local `x=−50..25; y=26,75..61,75` respecto de su centro, con el mismo giro | Franja propuesta75×35 por el lado inferior de la bici. |
+
+La bici horizontal ocupa `x=79,5..210,5; y=198,25..251,75`, manteniendo el mismo centro. Su zona de subida queda `x=95..170; y=251,75..286,75`. El barrido de refri sigue siendo la hoja hipotética70cm girada junto con el refri. No se certifica la apertura real, ventilación, enchufes, acceso del ventanal ni ergonomía. Confirmar alturas/montajes de juegos encima del arenero y de TV encima de mesa. La mesa sigue siendo la propuesta de remodelación previa.
+
+La corrección113cm sustituye los135cm de la propuesta B. El arenero se adelanta20cm hacia el ventanal para permanecer dentro de ese tramo, acabando8cm antes del refri. Los juegos no se escalan como producto: se representa la zona completa y se reparten las dos plataformas esquemáticas entre sus extremos, sin alturas de montaje inferidas.
+
+### Largo disponible para sillón con escritorio mirando al ventanal
+
+El escritorio empieza enx240 (=350−110). El sillón actual empieza enx90: manteniendo ese punto, puede alargarse hasta **150cm** (=240−90). Su dimensión dibujada sigue siendo121×78 y queda29 hasta escritorio. Si se traslada15cm a la izquierda, hasta el límite dibujado del sector de gatos enx75, el límite geométrico sube a **165cm** (=240−75). Estos máximos llegan al borde del escritorio sin margen adicional, no son medidas de compra recomendadas. El ancho70 del sector de gatos sigue siendo esquemático. Los70cm para silla se reservan **en profundidad**, y no se restan otra vez de la longitud del ventanal.
