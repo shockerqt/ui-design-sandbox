@@ -98,3 +98,11 @@ texto secundario sobre los degradados propios fue 4,77:1; para las acciones,
 Estos controles corresponden al prototipo web. La aceptación visual permite
 cerrar el diseño y planificar su implementación; no sustituye la validación
 nativa ni afirma que Balance ya contenga estos estilos o colores dinámicos.
+
+## Iteración integral pendiente — UDS-017
+
+La aprobación anterior se conserva como base visual. UDS-017 extiende el mismo
+comparador a las pantallas realmente conectadas de Balance Android; consultar
+[inventario y decisiones de diagramación](balance-current-screen-inventory.md).
+Esta extensión requiere revisión antes de refinar el plan BAL-041; no modifica
+su arquitectura Compose/Expo ni autoriza implementar fixtures en producción.

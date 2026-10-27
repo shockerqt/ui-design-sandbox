@@ -1,0 +1,41 @@
+/* UDS-017: extend the accepted semantic roles; no competing palette system. */
+.blw-scope-review { display: grid; gap: 12px; margin-block: 20px; }
+.blw-scope-review h2 { font-size: 15px; }
+.blw-scope-review label { display: grid; gap: 6px; font-size: 13px; }
+.blw-scope-review select { width: 100%; min-height: 44px; padding: 8px; background: var(--rail); color: var(--fg); border: 1px solid var(--line); border-radius: 8px; }
+.blw-scope-review p { font-size: 12px; line-height: 1.6; color: var(--fg-quiet); }
+.blw-current-scope .blw-secondary-content { display: flex; flex-direction: column; gap: 16px; padding: 20px; }
+.blw-current-scope .blw-secondary-content p { color: var(--md-muted); font-size: 13px; line-height: 1.6; margin: 0; }
+.blw-secondary-card, .blw-state-card { background: var(--md-container); color: var(--md-ink); border: 1px solid var(--md-outline); border-radius: 20px; padding: 16px; display: grid; gap: 12px; min-width: 0; margin: 0; }
+.blw-secondary-card h3 { font-family: Outfit, Inter, sans-serif; font-size: 18px; margin: 0; }
+.blw-secondary-card legend { font-weight: 600; padding-inline: 6px; }
+.blw-secondary-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.blw-secondary-content form { display: grid; gap: 20px; }
+.blw-secondary-content button, .blw-state-card button { min-height: 48px; padding: 12px 16px; color: var(--md-on-secondary); background: var(--md-secondary); border: 0; border-radius: 16px; font: inherit; cursor: pointer; }
+.blw-secondary-content .blw-tool-link { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; text-align: left; background: var(--md-surface); color: var(--md-ink); }
+.blw-tool-link span { min-width: 0; overflow-wrap: anywhere; }
+.blw-tool-link small { display: block; color: var(--md-muted); margin-top: 4px; font-size: 12px; }
+.blw-tool-link svg { flex-shrink: 0; }
+.blw-current-scope .blw-add-header { background: var(--study-header-gradient); flex-shrink: 0; }
+.blw-current-scope .blw-add-header h2 { font-size: 19px; white-space: normal; }
+.blw-current-scope .blw-add-confirm { flex-shrink: 0; }
+.blw-current-scope .blw-add-confirm button, .blw-secondary-content .blw-secondary-primary { background: var(--study-action-gradient); color: var(--md-on-primary); }
+.blw-current-scope .blw-danger { color: var(--md-ink); background: var(--md-surface); text-decoration: underline; text-underline-offset: 4px; }
+.blw-secondary-content :disabled { opacity: .55; cursor: default; }
+.blw-secondary-content :focus-visible, .blw-scope-review :focus-visible { outline: 3px solid var(--md-primary, var(--signal)); outline-offset: 3px; }
+.blw-current-scope > .blw-state-card { border-radius: 0; flex-shrink: 0; padding: 12px 20px; }
+.blw-state-card p { font-size: 13px; line-height: 1.5; margin: 0; }
+.blw-access-intro { padding-block: 24px 8px; }
+.blw-access-intro h3 { font: 500 42px Outfit, Inter, sans-serif; margin: 8px 0; }
+.blw-secondary-content progress { display: block; width: 100%; accent-color: var(--md-primary); margin-top: 16px; }
+.blw-layout-compact .blw-secondary-card { border-radius: 0; border-width: 0 0 1px; background: var(--md-bg); padding-inline: 0; }
+.blw-layout-compact .blw-secondary-content { gap: 12px; }
+.blw-historical-notes { display: none; }
+@media (max-width: 360px) { .blw-secondary-grid { grid-template-columns: 1fr; } .blw-current-scope .blw-secondary-content { padding: 14px; } }
+@media (prefers-reduced-motion: reduce) { .blw-current-scope * { scroll-behavior: auto; transition: none; animation: none; } }
+
+.blw-secondary-content .blw-secondary-card .blw-tool-link { background: var(--md-surface); color: var(--md-ink); }
+.blw-optional-nutrients { margin-top: 20px; padding: 16px; background: var(--md-container, #f3f3f3); border-radius: 16px; }
+.blw-optional-nutrients summary { cursor: pointer; min-height: 44px; display: flex; align-items: center; }
+.blw-optional-nutrients[open] > * + * { margin-top: 12px; }
+.blw-secondary-content .blw-secondary-card .blw-danger { background: var(--md-surface); color: var(--md-ink); }

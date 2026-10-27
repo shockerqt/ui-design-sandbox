@@ -29,10 +29,10 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-style-studies',
     title: 'Balance · Comparador de estilos',
     category: 'Dashboards',
-    description: 'Cuatro estilos sobre la misma distribución compacta. Orgánico incluye paletas Bosque, Laguna, Lavanda y Durazno con degradados y modos claro/oscuro.',
+    description: 'Orgánico en las pantallas vigentes: diario, peso, resumen, biblioteca, fichas, cuenta, acceso e importación. Cuatro paletas claro/oscuro y estados de revisión.',
     tags: ['Balance', 'styles', 'gradients', 'mobile', 'comparison'],
-    version: 'v1.1.0',
-    updatedAt: '2026-10-20',
+    version: 'v1.2.0',
+    updatedAt: '2026-10-27',
     component: BalanceStyleStudies
   },
   {

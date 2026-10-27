@@ -76,3 +76,13 @@ state continuity, portal classes, header/list proportions, gradient-stop
 contrast, keyboard focus and zoom. Actual evidence belongs in the UDS-012 run.
 Native TalkBack, device font scaling, IME/insets and Compose implementation
 remain future native review, as documented in the earlier studies.
+
+## Current-screen review (UDS-017)
+
+The same comparator now offers secondary screens and external state/layout
+review controls. Organic remains the default and all four palettes retain both
+themes. The current Android review excludes body circumference/reminder fixtures;
+other historical studies retain their original scope. Library, account, access
+and import screens use memory-only interaction examples. See the
+[current screen inventory](balance-current-screen-inventory.md) for actual
+entry points, coverage, diagramming decisions and remaining native/product work.

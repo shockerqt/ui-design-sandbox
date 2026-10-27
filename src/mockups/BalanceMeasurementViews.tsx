@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Tabs } from '@base-ui/react/tabs';
+import { santiagoDate } from './BalanceFoodModel';
 import { ChevronLeft, ChevronRight, Scale, Ruler } from 'lucide-react';
 
 const DAY_MS = 86_400_000;
@@ -55,8 +56,8 @@ function Segments({ value, onChange, labels }: { value: string; onChange: (value
   </Tabs.Root>;
 }
 
-export function MeasurementView({ offset, onDate, kind, onKind, weights, body, onRegister }: {
-  offset: number; onDate: (day: number) => void; kind: MeasurementKind; onKind: (kind: MeasurementKind) => void;
+export function MeasurementView({ currentOnly = false, offset, onDate, kind, onKind, weights, body, onRegister }: {
+  currentOnly?: boolean; offset: number; onDate: (day: number) => void; kind: MeasurementKind; onKind: (kind: MeasurementKind) => void;
   weights: Record<number, string>; body: BodyByDay; onRegister: (kind: MeasurementKind) => void;
 }) {
   const [month, setMonth] = useState(dayISO(offset).slice(0, 7));
@@ -73,7 +74,7 @@ export function MeasurementView({ offset, onDate, kind, onKind, weights, body, o
   const bodyEntries = BODY_FIELDS.filter(([key]) => body[offset]?.[key] !== undefined);
   return <>
     <header className="blw-page-header"><h2>Mediciones</h2><span>Registrar y consultar</span></header>
-    <Segments value={kind} onChange={(next) => onKind(next as MeasurementKind)} labels={[[ 'weight', 'Peso' ], [ 'body', 'Medidas corporales' ]]} />
+    {!currentOnly && <Segments value={kind} onChange={(next) => onKind(next as MeasurementKind)} labels={[[ 'weight', 'Peso' ], [ 'body', 'Medidas corporales' ]]} />}
     <div className="blw-feed blw-measurement-feed">
       <section className="blw-calendar" aria-label="Calendario mensual de mediciones">
         <div className="blw-month-navigation">
@@ -92,7 +93,7 @@ export function MeasurementView({ offset, onDate, kind, onKind, weights, body, o
       </section>
       <section className="blw-day-measurements" aria-label="Registros de la fecha seleccionada">
         <h3>{shortDate(offset)} de {dayISO(offset).slice(0, 4)}</h3>
-        {kind === 'weight' ? weights[offset] ? <button className="blw-measurement-row" onClick={() => onRegister('weight')}><Scale size={20} aria-hidden="true" /><span>Peso<small>Un registro por día</small></span><strong>{decimal(Number(weights[offset]))} <small>kg</small></strong><ChevronRight size={16} /></button> : <div className="blw-measurement-empty"><p>Sin peso registrado este día.</p><button onClick={() => onRegister('weight')}>Registrar peso</button></div> : bodyEntries.length ? <>
+        {kind === 'weight' ? weights[offset] ? <button className="blw-measurement-row" onClick={() => onRegister('weight')}><Scale size={20} aria-hidden="true" /><span>Peso<small>Un registro por día</small></span><strong>{decimal(Number(weights[offset]))} <small>kg</small></strong><ChevronRight size={16} /></button> : <div className="blw-measurement-empty"><p>Sin peso registrado este día.</p><button disabled={currentOnly && dayISO(offset) > santiagoDate()} onClick={() => onRegister('weight')}>Registrar peso</button>{currentOnly && dayISO(offset) > santiagoDate() && <p>Elige hoy o una fecha anterior para registrar peso.</p>}</div> : bodyEntries.length ? <>
           <dl className="blw-body-record">{bodyEntries.map(([key, label]) => <div key={key}><dt>{label}</dt><dd>{decimal(body[offset][key]!)} <small>cm</small></dd></div>)}</dl>
           <button className="blw-inline-action" onClick={() => onRegister('body')}>Editar / agregar medidas</button>
         </> : <div className="blw-measurement-empty"><p>Sin medidas corporales este día.</p><button onClick={() => onRegister('body')}>Registrar medidas</button></div>}
@@ -186,8 +187,8 @@ function RecordChart({ title, unit, points, series, period, endDay, onOpen, open
 
 const BODY_CHARTS: [string, readonly BodyKey[]][] = [['Cintura', ['waist']], ['Cadera', ['hips']], ['Pecho', ['chest']], ['Cuello', ['neck']], ['Brazos', ['armLeft', 'armRight']], ['Muslos', ['thighLeft', 'thighRight']], ['Pantorrillas', ['calfLeft', 'calfRight']]];
 
-export function SummaryView({ nutrition, weights, body, options, onOptions, onOpenFoods, onOpenMeasurements }: {
-  nutrition: NutritionDay[]; weights: Record<number, string>; body: BodyByDay;
+export function SummaryView({ currentOnly = false, nutrition, weights, body, options, onOptions, onOpenFoods, onOpenMeasurements }: {
+  currentOnly?: boolean; nutrition: NutritionDay[]; weights: Record<number, string>; body: BodyByDay;
   options: SummaryOptions; onOptions: (options: SummaryOptions) => void;
   onOpenFoods: (day: number) => void; onOpenMeasurements: (day: number, kind: MeasurementKind) => void;
 }) {
@@ -208,8 +209,8 @@ export function SummaryView({ nutrition, weights, body, options, onOptions, onOp
         <p className="blw-chart-footnote">Solo se muestran días con alimentos registrados. Un día vacío no equivale a consumo cero. Las metas son ilustrativas.</p>
       </> : <>
         <RecordChart key={`weight-${period}-${endDay}`} title="Peso" unit="kg" period={period} endDay={endDay} series={[{ label: 'Peso' }]} points={weightPoints} onOpen={(day) => onOpenMeasurements(day, 'weight')} openLabel="Ver peso" />
-        <section className="blw-body-chart-picker"><label>Medida corporal<select value={metric} onChange={(event) => onOptions({ ...options, metric: event.target.value })}>{BODY_CHARTS.map(([label]) => <option key={label}>{label}</option>)}</select></label></section>
-        <RecordChart key={`${metric}-${period}-${endDay}`} title={metric} unit="cm" period={period} endDay={endDay} series={fields.map((_, i) => ({ label: fields.length === 1 ? metric : i === 0 ? 'Izquierda' : 'Derecha', dash: i === 1 ? '5 3' : undefined }))} points={bodyPoints} onOpen={(day) => onOpenMeasurements(day, 'body')} openLabel="Ver medidas" />
+        {!currentOnly && <><section className="blw-body-chart-picker"><label>Medida corporal<select value={metric} onChange={(event) => onOptions({ ...options, metric: event.target.value })}>{BODY_CHARTS.map(([label]) => <option key={label}>{label}</option>)}</select></label></section>
+        <RecordChart key={`${metric}-${period}-${endDay}`} title={metric} unit="cm" period={period} endDay={endDay} series={fields.map((_, i) => ({ label: fields.length === 1 ? metric : i === 0 ? 'Izquierda' : 'Derecha', dash: i === 1 ? '5 3' : undefined }))} points={bodyPoints} onOpen={(day) => onOpenMeasurements(day, 'body')} openLabel="Ver medidas" /></>}
         <p className="blw-chart-footnote">Los puntos son mediciones registradas. Las líneas unen los valores disponibles; no crean registros en los días intermedios.</p>
       </>}
     </div>
