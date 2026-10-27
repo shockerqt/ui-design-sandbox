@@ -1,7 +1,8 @@
 import { useEffect, useId, useRef, useState } from 'react';
 import { Dialog } from '@base-ui/react/dialog';
-import { ArrowLeft, ChevronRight, Search, UserRound } from 'lucide-react';
+import { ArrowLeft, ChevronRight, Plus, Search, UserRound, Utensils } from 'lucide-react';
 import type { Food } from './BalanceFoodModel';
+import { formatFoodNumber } from './BalanceFoodModel';
 import { foodLibrary } from './BalanceFoodRegistration';
 
 export type SecondaryScreen = 'library' | 'food' | 'new-food' | 'settings' | 'import' | 'login' | 'callback' | 'logout';
@@ -54,16 +55,21 @@ export function BalanceSecondaryViews({ appearance, onAppearance, palette, onPal
   const startNew = () => { setChosen(null); setName(''); setPortion('100 g'); setCategory(''); setNutrients({}); setSeals([]); setOfficial(false); setDraftSaved(false); onOpen('new-food'); };
   const listing = foods.filter((food) => !deleted.includes(food.id) && food.name.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es')) && (filter === 'all' || filter === foodLibrary(food)));
   const tool = (label: string, action: () => void) => <button type="button" className="blw-tool-link" onClick={action} disabled={busy}><span>{label}</span><ChevronRight size={18} aria-hidden="true" /></button>;
-  return <><header className="blw-add-header">{!['login', 'callback', 'logout'].includes(screen) && <button onClick={onBack} aria-label="Volver" disabled={busy}><ArrowLeft size={20} /></button>}<h2 ref={heading} tabIndex={-1}>{title}</h2></header>
-    <div className="blw-feed blw-secondary-content">
+  return <><header className="blw-add-header">{!['login', 'callback', 'logout'].includes(screen) && <button onClick={onBack} aria-label="Volver" disabled={busy}><ArrowLeft size={20} /></button>}<h2 ref={heading} tabIndex={-1}>{title}</h2>{screen === 'library' && <button className="blw-catalog-create" onClick={startNew} aria-label="Crear alimento" disabled={busy}><Plus size={20} aria-hidden="true" /></button>}</header>
+    <div className={`blw-feed blw-secondary-content${screen === 'library' ? ' blw-catalog' : ''}`}>
       <ReviewStatus state={state} onRetry={() => onState('ready')} />
       {notice && <p className="blw-state-card" role="status">{notice}</p>}
       {(screen === 'library') && <>
-        <p>Alimentos guardados para registrar más rápido.</p><div className="blw-library-search"><label><Search size={18} aria-hidden="true" /><input type="search" aria-label="Buscar en biblioteca" placeholder="Buscar alimento" value={query} onChange={e => setQuery(e.target.value)} /></label></div>
-        <label className="blw-field">Biblioteca<select aria-label="Biblioteca" value={filter} onChange={e => setFilter(e.target.value)}><option value="all">Todas</option><option value="personal">Personal</option><option value="official">Oficial</option></select></label>
-        {tool('Crear alimento', startNew)}
-        {state !== 'empty' && state !== 'loading' && listing.map((food) => <button key={food.id} className="blw-tool-link" onClick={() => openFood(food, foodLibrary(food) === 'official')}><span><strong>{food.name}</strong><small>{foodLibrary(food) === 'official' ? 'Oficial · solo lectura' : 'Personal'} · {food.portion}</small></span><ChevronRight size={18} aria-hidden="true" /></button>)}
-        {(state === 'empty' || !listing.length) && <section className="blw-secondary-card"><h3>Tu biblioteca empieza aquí</h3><p>Prueba otra búsqueda o crea un alimento.</p><button onClick={startNew}>Crear alimento</button></section>}
+        <div className="blw-catalog-controls">
+          <div className="blw-library-search"><label><Search size={18} aria-hidden="true" /><input type="search" aria-label="Buscar en biblioteca" placeholder="Buscar un alimento" value={query} onChange={e => setQuery(e.target.value)} /></label></div>
+          <div className="blw-catalog-filters" role="group" aria-label="Biblioteca">{[['all', 'Todas'], ['personal', 'Personal'], ['official', 'Oficial']].map(([id, label]) => <button key={id} type="button" aria-pressed={filter === id} onClick={() => setFilter(id)}>{label}</button>)}</div>
+        </div>
+        <div className="blw-catalog-caption"><span>{filter === 'personal' ? 'Tu biblioteca' : filter === 'official' ? 'Biblioteca oficial' : 'Tus alimentos y referencias'}</span><span>{state === 'empty' ? 0 : listing.length} alimentos</span></div>
+        {state !== 'empty' && state !== 'loading' && listing.length > 0 && <ul className="blw-catalog-list" aria-label="Alimentos de biblioteca">{listing.map(food => <li key={food.id}><button className="blw-catalog-row" onClick={() => openFood(food, foodLibrary(food) === 'official')}>
+          <span className="blw-catalog-copy"><strong>{food.name}</strong><small>{food.portion}<span aria-hidden="true"> · </span>{foodLibrary(food) === 'official' ? 'Oficial' : 'Personal'}</small></span>
+          <span className="blw-catalog-energy"><strong>{formatFoodNumber(food.calories)}</strong><small>kcal</small></span>
+        </button></li>)}</ul>}
+        {(state === 'empty' || !listing.length) && <section className="blw-catalog-empty"><Utensils size={28} aria-hidden="true" /><h3>{query ? 'Sin coincidencias' : 'Tu biblioteca empieza aquí'}</h3><p>{query ? 'Prueba con otro nombre o cambia de biblioteca.' : 'Guarda un alimento para encontrarlo al registrar.'}</p><button onClick={startNew}>Crear alimento</button></section>}
       </>}
       {(screen === 'food' || screen === 'new-food') && state !== 'missing' && <form id={form} onSubmit={e => { e.preventDefault(); if (!name.trim() || !portion.trim() || ['Energía', 'Proteínas', 'Carbohidratos', 'Grasas'].some(k => !nutrients[k]?.trim() || !Number.isFinite(Number(nutrients[k])) || Number(nutrients[k]) < 0)) { setError('Completa nombre, porción y los cuatro nutrientes principales con valores válidos.'); return; } setError(''); setDraftSaved(true); setNotice('Ficha guardada en el ejemplo. No se modificó tu biblioteca real.'); }}>
         <p>{editable ? 'Tu alimento · ficha personal' : 'Referencia oficial · solo lectura'}</p>

@@ -86,3 +86,9 @@ other historical studies retain their original scope. Library, account, access
 and import screens use memory-only interaction examples. See the
 [current screen inventory](balance-current-screen-inventory.md) for actual
 entry points, coverage, diagramming decisions and remaining native/product work.
+
+UDS-017 surface refinement replaces bordered secondary groups with soft tonal
+surfaces and filled fields, retaining visible keyboard focus. The library uses
+compact search and filter buttons above one continuous list, with portion/source
+metadata and aligned energy. No repeated per-food cards, generic images or new
+domain. The open-sections variant remains available for comparison.

@@ -84,8 +84,8 @@ de las preferencias cotidianas. La ficha oficial conserva el mismo orden en lect
 La importación presenta primero archivo y cambios, luego acción/progreso/resultado.
 Acceso prioriza la elección de cuenta o invitado y conserva errores junto a acciones.
 
-«Grupos tonales» es la propuesta inicial: favorece orientación en formularios largos.
-«Compacta con separadores» reduce contenedores para comparar densidad. Cambiar esta
+«Superficies suaves» es la propuesta inicial: favorece orientación en formularios largos.
+«Secciones abiertas» reduce contenedores para comparar densidad. Cambiar esta
 variante no remonta formulario ni cambia sus datos. El riesgo expresivo sigue en
 las cabeceras y acciones degradadas; las filas y campos sólidos mantienen lectura.
 Outfit/Inter y roles de las cuatro paletas se reutilizan, sin una segunda identidad.
@@ -111,3 +111,18 @@ la lista completa y sus unidades deben proceder del contrato nativo durante adop
 La evidencia concreta de navegador, validadores, fuente/CI y plan de preview se
 registra en el run UDS-017. El diseño completo sigue pendiente de revisión humana.
 La preview pública temporal requiere aprobar su plan exacto; no es una release.
+
+## Revisión de superficies y biblioteca — feedback del usuario
+
+La primera extensión UDS-017 fue rechazada por sus marcos y la biblioteca como
+tarjetas de botón repetidas. La nueva propuesta elimina bordes de las superficies
+de contenido y fieldsets. Las secciones se separan por tono, espaciado y títulos;
+los campos permanecen sólidos y el foco de teclado conserva su contorno visible.
+
+Biblioteca ahora presenta búsqueda compacta, filtros Todas/Personal/Oficial,
+creación mediante + en cabecera y una única lista continua. Cada fila alinea
+nombre/porción/origen con energía por esa porción; no son valores por 100 g ni
+una meta. No se añaden fotos o iconos genéricos repetidos. Los separadores son
+secundarios. Los datos, clasificación y navegación reutilizan el modelo existente.
+Se conserva la alternativa de secciones abiertas, también sin marcos exteriores.
+Esta revisión sigue pendiente de aceptación humana.

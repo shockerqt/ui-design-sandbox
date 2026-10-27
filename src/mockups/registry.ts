@@ -31,7 +31,7 @@ export const mockupRegistry: MockupItem[] = [
     category: 'Dashboards',
     description: 'Orgánico en las pantallas vigentes: diario, peso, resumen, biblioteca, fichas, cuenta, acceso e importación. Cuatro paletas claro/oscuro y estados de revisión.',
     tags: ['Balance', 'styles', 'gradients', 'mobile', 'comparison'],
-    version: 'v1.2.0',
+    version: 'v1.3.0',
     updatedAt: '2026-10-27',
     component: BalanceStyleStudies
   },
