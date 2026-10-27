@@ -47,14 +47,14 @@ export function BalanceSecondaryViews({ appearance, onAppearance, palette, onPal
   const title = screen === 'food' && official ? 'Ficha oficial' : SECONDARY_SCREENS.find(([id]) => id === screen)![1];
   const heading = useRef<HTMLHeadingElement>(null);
   const form = useId();
-  useEffect(() => { heading.current?.focus(); setNotice(''); setError(''); }, [screen]);
+  useEffect(() => { heading.current?.focus(); setNotice(''); setError(''); if (screen === 'new-food') { setName(''); setPortion('100 g'); setCategory(''); setNutrients({}); setSeals([]); setOfficial(false); setDraftSaved(false); } }, [screen]);
   const busy = state === 'loading' || state === 'saving';
   const editable = screen === 'new-food' || !official;
   const openFood = (food: Food, isOfficial: boolean) => { setChosen(food); setName(food.name); setPortion(food.portion); setOfficial(isOfficial); setDraftSaved(false); setNutrients({ Energía: String(food.calories), Proteínas: String(food.protein), Carbohidratos: String(food.carbs), Grasas: String(food.fat) }); onOpen('food'); };
   const startNew = () => { setChosen(null); setName(''); setPortion('100 g'); setCategory(''); setNutrients({}); setSeals([]); setOfficial(false); setDraftSaved(false); onOpen('new-food'); };
   const listing = foods.filter((food) => !deleted.includes(food.id) && food.name.toLocaleLowerCase('es').includes(query.toLocaleLowerCase('es')) && (filter === 'all' || filter === foodLibrary(food)));
   const tool = (label: string, action: () => void) => <button type="button" className="blw-tool-link" onClick={action} disabled={busy}><span>{label}</span><ChevronRight size={18} aria-hidden="true" /></button>;
-  return <><header className="blw-add-header"><button onClick={onBack} aria-label="Volver" disabled={busy}><ArrowLeft size={20} /></button><h2 ref={heading} tabIndex={-1}>{title}</h2></header>
+  return <><header className="blw-add-header">{!['login', 'callback', 'logout'].includes(screen) && <button onClick={onBack} aria-label="Volver" disabled={busy}><ArrowLeft size={20} /></button>}<h2 ref={heading} tabIndex={-1}>{title}</h2></header>
     <div className="blw-feed blw-secondary-content">
       <ReviewStatus state={state} onRetry={() => onState('ready')} />
       {notice && <p className="blw-state-card" role="status">{notice}</p>}
