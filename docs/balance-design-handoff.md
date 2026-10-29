@@ -99,10 +99,21 @@ Estos controles corresponden al prototipo web. La aceptación visual permite
 cerrar el diseño y planificar su implementación; no sustituye la validación
 nativa ni afirma que Balance ya contenga estos estilos o colores dinámicos.
 
-## Iteración integral pendiente — UDS-017
+## Iteración integral aceptada — UDS-017
 
 La aprobación anterior se conserva como base visual. UDS-017 extiende el mismo
 comparador a las pantallas realmente conectadas de Balance Android; consultar
 [inventario y decisiones de diagramación](balance-current-screen-inventory.md).
-Esta extensión requiere revisión antes de refinar el plan BAL-041; no modifica
-su arquitectura Compose/Expo ni autoriza implementar fixtures en producción.
+El usuario acepta esta versión el 29 de octubre de 2026 como base para comenzar
+la adaptación BAL-041. Referencia visual revisada: `3b801d98ec3fceaeac3a87b110ee2dde777fd7a3`.
+Superficies sin marcos exteriores, campos sólidos, biblioteca continua con filtros
+visibles y energía alineada; Outfit/Inter, cabecera compacta, + central y las
+cuatro paletas claro/oscuro se conservan. Los próximos ajustes visuales se guiarán
+por el uso de la app, sin exigir otra iteración previa del prototipo.
+
+La aceptación cierra la revisión de diseño y autoriza su integración. BAL-041
+refina primero el plan sobre Balance vigente y después adapta la presentación
+Compose/Expo. No se convierten fixtures en funcionalidades de producción, ni se
+modifican ownership de datos/auth/backend. La validación web no sustituye la
+compilación, entrega y revisión física nativas. Sistema/color dinámico sigue
+siendo un requisito nativo, no una capacidad del mockup web.

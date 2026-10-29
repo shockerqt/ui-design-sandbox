@@ -1,6 +1,6 @@
 # Balance · revisión integral Orgánico (UDS-017)
 
-Estado: propuesta para revisión, sin aceptación del usuario ni adaptación nativa.
+Estado: diseño aceptado por el usuario el 29 oct 2026 para comenzar BAL-041; sin adaptación nativa en este repositorio.
 Fuente Balance inspeccionada: `64eddd6abcc69fe48b2f3eccb77fe56b9aef77ad`
 (`origin/main`, fetch 27 oct 2026). El checkout local estaba 19 commits atrasado;
 no se usa como evidencia del estado integrado. Diseño base aprobado:
@@ -125,4 +125,4 @@ nombre/porción/origen con energía por esa porción; no son valores por 100 g n
 una meta. No se añaden fotos o iconos genéricos repetidos. Los separadores son
 secundarios. Los datos, clasificación y navegación reutilizan el modelo existente.
 Se conserva la alternativa de secciones abiertas, también sin marcos exteriores.
-Esta revisión sigue pendiente de aceptación humana.
+El usuario acepta esta revisión el 29 oct 2026 y solicita comenzar la adaptación en Balance.

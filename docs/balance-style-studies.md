@@ -92,3 +92,10 @@ surfaces and filled fields, retaining visible keyboard focus. The library uses
 compact search and filter buttons above one continuous list, with portion/source
 metadata and aligned energy. No repeated per-food cards, generic images or new
 domain. The open-sections variant remains available for comparison.
+
+## Accepted for native adoption — 29 October 2026
+
+The operator accepts the UDS-017 surface/catalog revision at visual source
+`3b801d98ec3fceaeac3a87b110ee2dde777fd7a3`. Close design review and begin BAL-041
+planning/adoption in the existing Compose/Expo architecture. Later visual changes
+will follow real use. This acceptance does not implement any native behavior here.
