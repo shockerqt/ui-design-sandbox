@@ -1,5 +1,5 @@
 import { MockupItem } from '../types';
-import { ApartmentFloorPlan } from './ApartmentFloorPlan';
+import { ApartmentFloorPlan, DiningRoomBase } from './ApartmentFloorPlan';
 import { BedroomFloorPlan } from './BedroomFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
@@ -16,6 +16,16 @@ import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'dining-room-base',
+    title: 'Comedor · Bici, sofá y escritorio',
+    category: 'Espacios',
+    description: 'Distribución elegida y base vacía: refri a la izquierda, juegos sobre arenero, sofá al ventanal, mesa y escritorio a la derecha y bici horizontal al centro.',
+    tags: ['plano', 'comedor', 'distribución', 'medidas', 'SVG'],
+    version: 'v1.3.0',
+    updatedAt: '2026-10-23',
+    component: DiningRoomBase
+  },
   {
     id: 'bedroom-floor-plan',
     title: 'Pieza · SID y cama',
