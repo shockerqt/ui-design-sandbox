@@ -1,5 +1,5 @@
 // Local fixture projection of Balance V2 (0c01f5a); no API or persistence layer.
-export type Nutrition = { calories: number; protein: number; carbs: number; fat: number; fiber?: number };
+export type Nutrition = { calories: number; protein: number; carbs: number; fat: number; fiber?: number; sodiumMg?: number; cholesterolMg?: number; extendedNutrition?: Record<string, number> };
 export type CanonicalUnit = 'g' | 'ml';
 export type PortionSnapshot = { name: string; portionQuantity: number; canonicalQuantity: number };
 export type Food = Nutrition & {
@@ -17,6 +17,9 @@ export function scaleFixtureNutrition(base: Nutrition, factor: number): Nutritio
   return {
     calories: base.calories * factor, protein: base.protein * factor,
     carbs: base.carbs * factor, fat: base.fat * factor,
+    ...(base.sodiumMg === undefined ? {} : { sodiumMg: base.sodiumMg * factor }),
+    ...(base.cholesterolMg === undefined ? {} : { cholesterolMg: base.cholesterolMg * factor }),
+    ...(base.extendedNutrition === undefined ? {} : { extendedNutrition: Object.fromEntries(Object.entries(base.extendedNutrition).map(([key, value]) => [key, value * factor])) }),
     ...(base.fiber === undefined ? {} : { fiber: base.fiber * factor }),
   };
 }
@@ -31,7 +34,7 @@ export function foodWithQuantity(food: Food, draft: QuantityDraft): Food | null 
   const canonicalQuantity = portion ? enteredQuantity / portion.portionQuantity * portion.canonicalQuantity : enteredQuantity;
   if (!positive(canonicalQuantity)) return null;
   const consumed = scaleFixtureNutrition(food.nutritionSnapshot.nutritionPer100, canonicalQuantity / 100);
-  if (Object.values(consumed).some((value) => !Number.isFinite(value) || value < 0)) return null;
+  if (Object.values(consumed).flatMap(value => typeof value === 'number' ? [value] : Object.values(value)).some((value) => !Number.isFinite(value) || value < 0)) return null;
   const canonical = `${formatFoodNumber(canonicalQuantity)} ${food.nutritionSnapshot.canonicalUnit}`;
   return {
     ...food, ...consumed,

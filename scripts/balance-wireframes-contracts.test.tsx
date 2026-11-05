@@ -18,6 +18,13 @@ assert.ok(Math.abs(yogurt.calories - 190) < 1e-10);
 assert.equal(yogurt.fiber, undefined);
 assert.equal(Object.hasOwn(yogurt.nutritionSnapshot.nutritionPer100, 'fiber'), false);
 
+const enriched = foodFromLabel({ ...label, sodiumMg: '80', cholesterolMg: '', extendedNutrition: { calciumMg: '120' } })!;
+assert.equal(enriched.sodiumMg, 160);
+assert.equal(enriched.cholesterolMg, undefined);
+assert.equal(enriched.extendedNutrition?.calciumMg, 240);
+assert.equal(foodFromLabel({ ...label, sodiumMg: '-1' }), null);
+assert.equal(foodFromLabel({ ...label, extendedNutrition: { calciumMg: 'Infinity' } }), null);
+
 const half = foodWithQuantity(yogurt, { quantity: '0.5', unit: 'portion' })!;
 assert.equal(half.canonicalQuantity, 75);
 assert.ok(Math.abs(half.calories - 47.5) < 1e-10);

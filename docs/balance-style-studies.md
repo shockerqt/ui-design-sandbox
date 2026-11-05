@@ -76,3 +76,26 @@ state continuity, portal classes, header/list proportions, gradient-stop
 contrast, keyboard focus and zoom. Actual evidence belongs in the UDS-012 run.
 Native TalkBack, device font scaling, IME/insets and Compose implementation
 remain future native review, as documented in the earlier studies.
+
+## Current-screen review (UDS-017)
+
+The same comparator now offers secondary screens and external state/layout
+review controls. Organic remains the default and all four palettes retain both
+themes. The current Android review excludes body circumference/reminder fixtures;
+other historical studies retain their original scope. Library, account, access
+and import screens use memory-only interaction examples. See the
+[current screen inventory](balance-current-screen-inventory.md) for actual
+entry points, coverage, diagramming decisions and remaining native/product work.
+
+UDS-017 surface refinement replaces bordered secondary groups with soft tonal
+surfaces and filled fields, retaining visible keyboard focus. The library uses
+compact search and filter buttons above one continuous list, with portion/source
+metadata and aligned energy. No repeated per-food cards, generic images or new
+domain. The open-sections variant remains available for comparison.
+
+## Accepted for native adoption — 29 October 2026
+
+The operator accepts the UDS-017 surface/catalog revision at visual source
+`3b801d98ec3fceaeac3a87b110ee2dde777fd7a3`. Close design review and begin BAL-041
+planning/adoption in the existing Compose/Expo architecture. Later visual changes
+will follow real use. This acceptance does not implement any native behavior here.

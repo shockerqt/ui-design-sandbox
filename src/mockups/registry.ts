@@ -1,5 +1,6 @@
 import { MockupItem } from '../types';
 import { ApartmentFloorPlan, DiningRoomBase } from './ApartmentFloorPlan';
+import { BedroomFloorPlan } from './BedroomFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
@@ -26,6 +27,16 @@ export const mockupRegistry: MockupItem[] = [
     component: DiningRoomBase
   },
   {
+    id: 'bedroom-floor-plan',
+    title: 'Pieza · SID y cama',
+    category: 'Espacios',
+    description: 'SID al ventanal o pared izquierda con press en ganchos delanteros, caucho entero de 200 × 200 y dos camas; pilar de 60 × 60 y puerta de 70 cm.',
+    tags: ['plano', 'pieza', 'SID', 'cama', 'caucho'],
+    version: 'v1.4.1',
+    updatedAt: '2026-10-22',
+    component: BedroomFloorPlan
+  },
+  {
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
     category: 'Espacios',
@@ -39,10 +50,10 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-style-studies',
     title: 'Balance · Comparador de estilos',
     category: 'Dashboards',
-    description: 'Cuatro estilos sobre la misma distribución compacta. Orgánico incluye paletas Bosque, Laguna, Lavanda y Durazno con degradados y modos claro/oscuro.',
+    description: 'Orgánico en las pantallas vigentes: diario, peso, resumen, biblioteca, fichas, cuenta, acceso e importación. Cuatro paletas claro/oscuro y estados de revisión.',
     tags: ['Balance', 'styles', 'gradients', 'mobile', 'comparison'],
-    version: 'v1.1.0',
-    updatedAt: '2026-10-20',
+    version: 'v1.3.0',
+    updatedAt: '2026-10-27',
     component: BalanceStyleStudies
   },
   {

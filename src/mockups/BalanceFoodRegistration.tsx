@@ -1,4 +1,5 @@
 import { useEffect, useId, useRef, useState } from 'react';
+import { Dialog } from '@base-ui/react/dialog';
 import { Tabs } from '@base-ui/react/tabs';
 import { ArrowLeft, Check, ChevronRight, Image, Search } from 'lucide-react';
 import { dayISO, dayOffset } from './BalanceMeasurementViews';
@@ -25,7 +26,7 @@ export function foodRegistrationURL(context: FoodRegistrationContext, basePath =
 }
 
 const personalIds = new Set(['a1', 'a2', 'c1', 'c2', 'd1', 'd2']);
-const foodLibrary = (food: Food) => personalIds.has(food.id) ? 'personal' : 'official';
+export const foodLibrary = (food: Food) => personalIds.has(food.id) ? 'personal' : 'official';
 const libraryLabel = (food: Food) => foodLibrary(food) === 'personal' ? 'Mi biblioteca' : 'Oficial';
 const normalize = (text: string) => text.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLocaleLowerCase('es');
 export function searchExampleFoods(foods: Food[], query: string, library: string) {
@@ -33,20 +34,23 @@ export function searchExampleFoods(foods: Food[], query: string, library: string
 }
 
 const LABEL_NUTRIENTS = [['calories', 'Energía', 'kcal'], ['protein', 'Proteínas', 'g'], ['carbs', 'Carbohidratos', 'g'], ['fat', 'Grasas', 'g'], ['fiber', 'Fibra', 'g']] as const;
-export type LabelDraft = { name: string; unit: CanonicalUnit; basis: 'per100' | 'portion'; portionName: string; portionSize: string; quantity: string } & Record<typeof LABEL_NUTRIENTS[number][0], string>;
+export type LabelDraft = { sodiumMg?: string; cholesterolMg?: string; extendedNutrition?: Record<string, string>; name: string; unit: CanonicalUnit; basis: 'per100' | 'portion'; portionName: string; portionSize: string; quantity: string } & Record<typeof LABEL_NUTRIENTS[number][0], string>;
 export function foodFromLabel(draft: LabelDraft): Food | null {
   if (!draft.name.trim() || !['g', 'ml'].includes(draft.unit) || !['per100', 'portion'].includes(draft.basis)) return null;
   if (LABEL_NUTRIENTS.some(([key]) => (key !== 'fiber' || draft[key].trim() !== '') && (draft[key].trim() === '' || !Number.isFinite(Number(draft[key])) || Number(draft[key]) < 0))) return null;
+  const extras = Object.fromEntries(Object.entries(draft.extendedNutrition ?? {}).filter(([, value]) => value.trim() !== '').map(([key, value]) => [key, Number(value)]));
+  const optional = Object.fromEntries((['sodiumMg', 'cholesterolMg'] as const).filter(key => draft[key]?.trim()).map(key => [key, Number(draft[key])]));
+  if ([...Object.values(extras), ...Object.values(optional)].some(value => !Number.isFinite(value) || value < 0)) return null;
   const quantity = Number(draft.quantity);
   const size = Number(draft.portionSize);
   if (!draft.quantity.trim() || !Number.isFinite(quantity) || quantity <= 0 || (draft.basis === 'portion' && (!Number.isFinite(size) || size <= 0))) return null;
-  const base = scaleFixtureNutrition({ calories: Number(draft.calories), protein: Number(draft.protein), carbs: Number(draft.carbs), fat: Number(draft.fat), ...(draft.fiber.trim() === '' ? {} : { fiber: Number(draft.fiber) }) }, draft.basis === 'portion' ? 100 / size : 1);
-  if (Object.values(base).some((value) => !Number.isFinite(value))) return null;
+  const base = scaleFixtureNutrition({ ...optional, ...(Object.keys(extras).length ? { extendedNutrition: extras } : {}), calories: Number(draft.calories), protein: Number(draft.protein), carbs: Number(draft.carbs), fat: Number(draft.fat), ...(draft.fiber.trim() === '' ? {} : { fiber: Number(draft.fiber) }) }, draft.basis === 'portion' ? 100 / size : 1);
+  if (Object.values(base).flatMap(value => typeof value === 'number' ? [value] : Object.values(value)).some((value) => !Number.isFinite(value))) return null;
   const canonical = quantity * (draft.basis === 'portion' ? size : 1);
-  if (!Number.isFinite(canonical) || canonical <= 0 || Object.values(base).some((value) => !Number.isFinite(value * (canonical / 100)))) return null;
+  if (!Number.isFinite(canonical) || canonical <= 0 || Object.values(base).flatMap(value => typeof value === 'number' ? [value] : Object.values(value)).some((value) => !Number.isFinite(value * (canonical / 100)))) return null;
   const portion = draft.basis === 'portion' ? { name: draft.portionName.trim() || 'porción', portionQuantity: 1, canonicalQuantity: size } : undefined;
   const food = makeFixtureFood('label-draft', draft.name.trim(), '13:00', draft.unit, base, { quantity: draft.quantity, unit: portion ? 'portion' : 'canonical' }, portion);
-  return Object.values(base).every((value) => Number.isFinite(value * (food.canonicalQuantity / 100))) ? food : null;
+  return Object.values(base).flatMap(value => typeof value === 'number' ? [value] : Object.values(value)).every((value) => Number.isFinite(value * (food.canonicalQuantity / 100))) ? food : null;
 }
 
 function NutritionLabelForm({ id, draft, setDraft, onAdd }: { id: string; draft: LabelDraft; setDraft: (draft: LabelDraft) => void; onAdd: (food: Food) => void }) {
@@ -62,7 +66,11 @@ function NutritionLabelForm({ id, draft, setDraft, onAdd }: { id: string; draft:
     </div>
     {draft.basis === 'portion' && <div className="blw-quantity-fields"><label className="blw-field">Nombre de porción<input value={draft.portionName} placeholder="Ej. envase" onChange={(event) => setDraft({ ...draft, portionName: event.target.value })} /></label><label className="blw-field">Tamaño ({draft.unit})<input type="number" required min="0" step="any" value={draft.portionSize} onChange={(event) => setDraft({ ...draft, portionSize: event.target.value })} /></label></div>}
     <fieldset className="blw-label-nutrients"><legend>{draft.basis === 'portion' ? 'Información por porción' : `Información por 100 ${draft.unit}`}</legend>{LABEL_NUTRIENTS.map(([key, label, unit]) => <label className="blw-field" key={key}>{label} ({unit}){key === 'fiber' ? ' · opcional' : ''}<input type="number" inputMode="decimal" required={key !== 'fiber'} min="0" step="any" value={draft[key]} onChange={(event) => setDraft({ ...draft, [key]: event.target.value })} /></label>)}</fieldset>
-    </section>
+    <details className="blw-optional-nutrients"><summary>Fibra y otros nutrientes</summary><p>Opcionales; deja en blanco los que no conozcas.</p>
+    <div className="blw-secondary-grid">{([['sodiumMg', 'Sodio (mg)'], ['cholesterolMg', 'Colesterol (mg)']] as const).map(([key, label]) => <label className="blw-field" key={key}>{label}<input type="number" min="0" step="any" inputMode="decimal" value={draft[key] ?? ''} onChange={e => setDraft({ ...draft, [key]: e.target.value })} /></label>)}</div>
+    <label className="blw-field">Añadir otro nutriente<select value="" onChange={e => { if (e.target.value) setDraft({ ...draft, extendedNutrition: { ...draft.extendedNutrition, [e.target.value]: '' } }); }}><option value="">Elegir nutriente</option>{[['calciumMg', 'Calcio (mg)'], ['ironMg', 'Hierro (mg)'], ['potassiumMg', 'Potasio (mg)'], ['vitaminCMg', 'Vitamina C (mg)'], ['vitaminB12Mcg', 'Vitamina B12 (µg)'], ['saturatedFatG', 'Grasas saturadas (g)'], ['sugarsG', 'Azúcares (g)']].map(([key, label]) => <option key={key} value={key}>{label}</option>)}</select></label>
+    {Object.entries(draft.extendedNutrition ?? {}).map(([key, value]) => <label className="blw-field" key={key}>{({ calciumMg: 'Calcio (mg)', ironMg: 'Hierro (mg)', potassiumMg: 'Potasio (mg)', vitaminCMg: 'Vitamina C (mg)', vitaminB12Mcg: 'Vitamina B12 (µg)', saturatedFatG: 'Grasas saturadas (g)', sugarsG: 'Azúcares (g)' } as Record<string, string>)[key]}<input type="number" min="0" step="any" inputMode="decimal" value={value} onChange={e => setDraft({ ...draft, extendedNutrition: { ...draft.extendedNutrition, [key]: e.target.value } })} /></label>)}
+    </details></section>
     <section className="blw-label-section blw-label-consumption" aria-label="Tu consumo"><h3>Tu consumo</h3><p>Indica cuánto consumiste de este alimento.</p>
     <label className="blw-field">Cantidad consumida ({draft.basis === 'portion' ? 'porciones' : draft.unit})<input type="number" inputMode="decimal" required min="0" step="any" value={draft.quantity} onChange={(event) => setDraft({ ...draft, quantity: event.target.value })} /></label>
     {draft.basis === 'portion' && Number(draft.portionSize) > 0 && <p className="blw-quantity-equivalence">1 {draft.portionName.trim() || 'porción'} = {formatFoodNumber(Number(draft.portionSize))} {draft.unit}</p>}
@@ -71,10 +79,11 @@ function NutritionLabelForm({ id, draft, setDraft, onAdd }: { id: string; draft:
   </form>;
 }
 
-export function FoodRegistrationView({ foods, context, onContext, onBack, onAdd }: {
-  foods: Food[]; context: FoodRegistrationContext; onContext: (context: FoodRegistrationContext) => void;
+export function FoodRegistrationView({ themeClass = '', foods, context, onContext, onBack, onAdd }: {
+  themeClass?: string; foods: Food[]; context: FoodRegistrationContext; onContext: (context: FoodRegistrationContext) => void;
   onBack: () => void; onAdd: (food: Food) => void;
 }) {
+  const [discard, setDiscard] = useState(false);
   const [query, setQuery] = useState('');
   const [library, setLibrary] = useState('all');
   const [chosen, setChosen] = useState<Food | null>(null);
@@ -85,9 +94,10 @@ export function FoodRegistrationView({ foods, context, onContext, onBack, onAdd 
   const selectedFood = chosen ? foodWithQuantity(chosen, quantity) : null;
   const heading = useRef<HTMLHeadingElement>(null);
   useEffect(() => heading.current?.focus(), []);
+  const dirty = !!chosen || !!labelDraft.name || !!labelDraft.quantity;
   const filtered = searchExampleFoods(foods, query, library);
   return <>
-    <header className="blw-add-header"><button onClick={onBack} aria-label="Volver sin agregar alimento"><ArrowLeft size={20} /></button><h2 ref={heading} tabIndex={-1}>Agregar alimento</h2></header>
+    <header className="blw-add-header"><button onClick={() => dirty ? setDiscard(true) : onBack()} aria-label="Volver sin agregar alimento"><ArrowLeft size={20} /></button><h2 ref={heading} tabIndex={-1}>Agregar alimento</h2></header>
     <div className="blw-add-context">
       <label>Fecha<input type="date" min="2000-01-01" max="2100-12-31" value={dayISO(context.day)} onChange={(event) => { if (event.target.value) onContext({ ...context, day: dayOffset(event.target.value) }); }} /></label>
       <label>Hora<input type="time" value={context.time} onChange={(event) => { if (event.target.value) onContext({ ...context, time: event.target.value }); }} /></label>
@@ -108,5 +118,6 @@ export function FoodRegistrationView({ foods, context, onContext, onBack, onAdd 
     {chosen && context.method === 'libraries' && <footer className="blw-add-confirm"><div><strong>{chosen.name}</strong><FoodQuantityFields food={chosen} draft={quantity} onChange={setQuantity} />{selectedFood && <small>{formatFoodNumber(selectedFood.calories)} kcal · P {formatFoodNumber(selectedFood.protein)} g · C {formatFoodNumber(selectedFood.carbs)} g · G {formatFoodNumber(selectedFood.fat)} g</small>}</div><button disabled={!selectedFood} onClick={() => { if (selectedFood) onAdd(selectedFood); }}>Registrar alimento</button></footer>}
     {context.method === 'labels' && <footer className="blw-add-confirm blw-label-confirm"><span>{labelPreview ? `${formatFoodNumber(labelPreview.canonicalQuantity)} ${labelDraft.unit} · ${formatFoodNumber(labelPreview.calories)} kcal` : 'Completa la etiqueta y tu consumo'}</span><button type="submit" form={labelFormId} disabled={!labelPreview}>Registrar alimento</button></footer>}
 
+    <Dialog.Root open={discard} onOpenChange={setDiscard}><Dialog.Portal><Dialog.Backdrop className="blw-dialog-backdrop" /><Dialog.Popup className={`blw-dialog ${themeClass}`}><div className="blw-dialog-heading"><Dialog.Title>¿Descartar el registro?</Dialog.Title><Dialog.Description>Los cambios sin guardar de este alimento se perderán.</Dialog.Description></div><footer className="blw-form-actions"><Dialog.Close>Seguir editando</Dialog.Close><button className="blw-sheet-primary" onClick={() => { setDiscard(false); onBack(); }}>Descartar</button></footer></Dialog.Popup></Dialog.Portal></Dialog.Root>
   </>;
 }
