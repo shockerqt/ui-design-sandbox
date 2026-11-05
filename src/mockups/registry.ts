@@ -1,5 +1,6 @@
 import { MockupItem } from '../types';
 import { ApartmentFloorPlan } from './ApartmentFloorPlan';
+import { BedroomFloorPlan } from './BedroomFloorPlan';
 import { BalanceLogRedesign } from './BalanceLogRedesign';
 import { NutritionApp } from './NutritionApp';
 import { PrimitivesWorkbench } from './PrimitivesWorkbench';
@@ -15,6 +16,16 @@ import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'bedroom-floor-plan',
+    title: 'Pieza · SID y cama',
+    category: 'Espacios',
+    description: 'SID al ventanal o pared izquierda con press en ganchos delanteros, caucho entero de 200 × 200 y dos camas; pilar de 60 × 60 y puerta de 70 cm.',
+    tags: ['plano', 'pieza', 'SID', 'cama', 'caucho'],
+    version: 'v1.4.1',
+    updatedAt: '2026-10-22',
+    component: BedroomFloorPlan
+  },
   {
     id: 'apartment-floor-plan',
     title: 'Departamento · Plano de distribución',
