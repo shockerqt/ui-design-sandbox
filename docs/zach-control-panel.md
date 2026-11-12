@@ -36,4 +36,42 @@ Motion only runs under `prefers-reduced-motion: no-preference`.
 
 Dark only: ground `#121316`, surface `#1A1C20`, text `#ECEAE4` / `#C9CCD3` /
 `#A3A6AD`, accent `#F0C94A` (text on accent `#17150C`), live `#7FB2FF`,
-danger `#FFA98C`. Fonts: Space Grotesk, Inter, JetBrains Mono.
+danger `#FFA98C`, cache `#62C7BA` (`--z-cache`). Fonts: Space Grotesk, Inter, JetBrains Mono.
+
+# Zach · Live telemetry map
+
+UDS-021. `/m/zach-live-map` explores a live radial telemetry companion to the control panel.
+
+## Visual references
+
+- **Preferred visual style — [`alexeyw/lot-map`](https://github.com/alexeyw/lot-map)**:
+  minimalist dark radial hub-and-spokes SVG map, usage-weighted worn spokes, fading
+  trail over the last 5 stations visited, rotating active clock hands (static high-contrast
+  indicators under `prefers-reduced-motion: reduce`), concurrency badges (`×N`),
+  outbound/inbound pulses (`#62C7BA` via `--z-cache` for cache/memory hits), and
+  persistent `#FFA98C` red fault dots until cleared or reset.
+- **Multi-provider & deep telemetry concepts — [`Deemer15/command-mesh`](https://github.com/Deemer15/command-mesh)**:
+  multi-provider bus strip (`Codex`, `AGY / Gemini`, `Zachd`) with clickable
+  filtering, task/worker drill-down, station/worker telemetry breakdown, and event
+  inspector.
+
+## Scopes, presets & controls
+
+- **Two map scopes**:
+  - **Orchestration (`zachd`)**: `Governance`, `Planner`, `Files / Worktree`,
+    `Shell / Checks`, `GitHub / CI`, `Reviewers`, `Merge Lane`, `You / Decisions`.
+  - **Worker drill-down (`ZACH-009`, `INF-020`, `UDS-021`, `LUMI-007`)**: `Model`,
+    `Memory / Cache`, `Files`, `Shell`, `Network`, `Agents`, `Skills`, `Hooks`.
+- **5 scenario presets**: `Parallel Impl`, `Review Gate`, `CI Fault`,
+  `Human Decision`, and `Idle`.
+- **Simulation controls**: `Auto-stream` Base UI `Switch`, `Pause` / `Resume` button,
+  `Step Event` button, `Reset` button, Base UI `Dialog` for the human decision gate
+  (never auto-approves), Base UI `Accordion` for station/worker breakdown, and Base UI
+  `Popover` event inspector.
+
+## Metadata-only telemetry rules
+
+All timeline events and popover inspector records are strictly **metadata-only**:
+`seq`, `ts`, `taskId`, `provider`, `stationId`, `durationMs`, `tokensIn`,
+`tokensCached`, `tokensOut`, `exitCode`, `shortSha`, and `status`. Raw prompts,
+model outputs, file contents/diffs, and secrets are never included or rendered.
