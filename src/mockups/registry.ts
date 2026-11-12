@@ -22,11 +22,11 @@ import { ZachLiveMap } from './ZachLiveMap';
 export const mockupRegistry: MockupItem[] = [
   {
     id: 'balance-diary-gestures',
-    title: 'Balance · Diario compacto, radial ascendente y macros',
+    title: 'Balance · Diario compacto, radial ascendente y macros P·C·G',
     category: 'Dashboards',
-    description: 'Diario sin fila de peso y guard de scroll corto (BAL-067), botón + dual con tríada al toque y swipe ← peso / → ahora / ↑ radial ascendente (BAL-066), más comparador en vivo de vistas limpias para macros.',
+    description: 'Diario sin fila de peso y guard de scroll corto (BAL-067), botón + dual con radial ascendente y peso (BAL-066), más comparador de macros pasivas P/C/G (puntos de color en hora vs monocromo) dejando el toque libre para editar.',
     tags: ['Balance', 'mobile', 'scroll', 'sticky header', 'gesture', 'radial', 'macros'],
-    version: 'v1.2.0',
+    version: 'v1.3.0',
     updatedAt: '2026-11-12',
     component: BalanceDiaryGestures
   },
