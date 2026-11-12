@@ -60,7 +60,7 @@
 .zcp-btn { min-height: 44px; padding: 0 16px; display: inline-flex; align-items: center; justify-content: center; gap: 8px; background: transparent; color: var(--z-ink); border: 1px solid var(--z-line-strong); border-radius: 10px; font-size: 14px; font-weight: 500; text-decoration: none; }
 .zcp-btn.is-icon { width: 44px; padding: 0; }
 .zcp-btn.is-primary { background: var(--z-accent); color: var(--z-on-accent); border: 0; font-weight: 600; }
-.zcp-btn[aria-pressed='true'] { border-color: var(--z-accent); color: var(--z-accent); }
+.zcp-btn.is-on { border-color: var(--z-accent); color: var(--z-accent); }
 
 .zcp-main { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 24px; padding: 24px 28px 40px; max-width: 1480px; margin: 0 auto; }
 .zcp-col-left { flex: 1 1 320px; max-width: 380px; display: flex; flex-direction: column; gap: 16px; }

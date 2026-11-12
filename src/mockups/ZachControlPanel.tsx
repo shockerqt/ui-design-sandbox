@@ -215,8 +215,8 @@ function DesktopPanel({ s, set }: { s: PanelState; set: (p: Partial<PanelState>)
           <span className="zcp-pill">Gemini disponible</span>
         </div>
         <div style={{ display: 'flex', gap: 8 }}>
-          <button type="button" className="zcp-btn" aria-pressed={s.paused} onClick={() => set({ paused: !s.paused })}>{s.paused ? 'Reanudar cola' : 'Pausar cola'}</button>
-          <button type="button" className="zcp-btn is-icon" aria-pressed={s.muted} aria-label={s.muted ? 'Activar sonidos' : 'Silenciar sonidos'} onClick={() => set({ muted: !s.muted })}>
+          <button type="button" className={`zcp-btn ${s.paused ? 'is-on' : ''}`} onClick={() => set({ paused: !s.paused })}>{s.paused ? 'Reanudar cola' : 'Pausar cola'}</button>
+          <button type="button" className={`zcp-btn is-icon ${s.muted ? 'is-on' : ''}`} aria-label={s.muted ? 'Activar sonidos' : 'Silenciar sonidos'} onClick={() => set({ muted: !s.muted })}>
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d={s.muted ? 'M4 10v4h4l5 4V6L8 10H4zM17 9l5 6M22 9l-5 6' : 'M4 10v4h4l5 4V6L8 10H4zM17 9a4 4 0 0 1 0 6M19.5 6.5a8 8 0 0 1 0 11'} />
             </svg>
@@ -315,7 +315,7 @@ function PhoneDecision({ s, set }: { s: PanelState; set: (p: Partial<PanelState>
         <header style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '14px 20px', borderBottom: '1px solid var(--z-line)' }}>
           <span className="zcp-display" style={{ fontWeight: 700, fontSize: 20, marginRight: 'auto' }}>Zach</span>
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8, fontSize: 13, color: 'var(--z-ink-2)' }}><span className={`zcp-dot ${s.paused ? 'is-paused' : ''}`} />{s.paused ? 'En pausa' : 'Activo'}</span>
-          <button type="button" className="zcp-btn is-icon" aria-pressed={s.paused} aria-label={s.paused ? 'Reanudar cola' : 'Pausar cola'} onClick={() => set({ paused: !s.paused })}>
+          <button type="button" className={`zcp-btn is-icon ${s.paused ? 'is-on' : ''}`} aria-label={s.paused ? 'Reanudar cola' : 'Pausar cola'} onClick={() => set({ paused: !s.paused })}>
             <svg aria-hidden="true" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d={s.paused ? 'M8 5l11 7-11 7z' : 'M9 6v12M15 6v12'} /></svg>
           </button>
         </header>

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useId, useMemo, useState } from 'react';
 import type { CSSProperties, ReactNode } from 'react';
 import { Switch } from '@base-ui/react/switch';
 import { Tabs } from '@base-ui/react/tabs';
@@ -229,6 +229,7 @@ const CATALOG: Record<string, Food[]> = {
 
 function AddScreen({ onNavigate }: { onNavigate: (s: Screen | 'add') => void }) {
   const [source, setSource] = useState('recent');
+  const searchId = useId();
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<Record<string, { qty: number; unit: 'portion' | 'grams' }>>({ 'Pollo con arroz': { qty: 1, unit: 'portion' }, 'Ensalada chilena': { qty: 1, unit: 'portion' } });
   const all = Object.values(F);
@@ -260,8 +261,8 @@ function AddScreen({ onNavigate }: { onNavigate: (s: Screen | 'add') => void }) 
       <div style={{ padding: '0 20px', display: 'flex', flexDirection: 'column', gap: 12 }}>
         <div className="bcr-search">
           <span className="quiet" style={{ display: 'inline-flex' }}><Icon d={I.search} size={18} width={2.2} /></span>
-          <label htmlFor="bcr-buscar" className="sr-only">Buscar alimento</label>
-          <input id="bcr-buscar" type="search" placeholder="Buscar alimento" value={query} onChange={(e) => setQuery(e.target.value)} />
+          <label htmlFor={searchId} className="sr-only">Buscar alimento</label>
+          <input id={searchId} type="search" placeholder="Buscar alimento" value={query} onChange={(e) => setQuery(e.target.value)} />
         </div>
         <Tabs.Root value={source} onValueChange={(v) => setSource(String(v))}>
           <Tabs.List className="bcr-chips" aria-label="Origen">
@@ -282,7 +283,7 @@ function AddScreen({ onNavigate }: { onNavigate: (s: Screen | 'add') => void }) 
                   <div className="bcr-row-name" style={{ fontWeight: s ? 600 : 500 }}>{f.name}</div>
                   <div className="bcr-row-meta">{f.portion} · {f.kcal} kcal · {f.p} g proteína</div>
                 </div>
-                <button type="button" className={`bcr-icon-btn ${s ? 'is-solid' : 'is-outline'}`} aria-label={`${s ? 'Quitar' : 'Agregar'} ${f.name}`} aria-pressed={!!s} onClick={() => toggle(f.name)}>
+                <button type="button" className={`bcr-icon-btn ${s ? 'is-solid' : 'is-outline'}`} aria-label={`${s ? 'Quitar' : 'Agregar'} ${f.name}`} onClick={() => toggle(f.name)}>
                   <Icon d={s ? I.check : I.plus} size={18} width={2.6} />
                 </button>
                 {s && (
