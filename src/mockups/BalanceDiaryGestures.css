@@ -28,46 +28,20 @@
 .bdg-kcal-compact { top: auto; height: 30px; display: flex; background: var(--b-ground); align-items: center; gap: 12px; padding: 4px 20px 0; font-size: 14px; }
 .bdg-kcal-compact .bcr-meter { flex: 1 1 auto; }
 
-/* Macros interactivas en tarjeta resumen (sin alterar altura de 188 px). */
-.bdg-macro-btn {
-  background: transparent; border: 0; padding: 4px 6px; margin: -4px -6px;
-  text-align: left; font: inherit; color: inherit; border-radius: 10px;
-  transition: background-color 140ms ease, box-shadow 140ms ease;
-}
-.bdg-macro-btn:hover { background: color-mix(in srgb, var(--b-track) 65%, transparent); }
-.bdg-macro-btn.is-focused {
-  background: color-mix(in srgb, var(--bdg-focus-color, var(--b-ink)) 10%, transparent);
-  box-shadow: inset 0 0 0 1.5px var(--bdg-focus-color, var(--b-ink));
-}
-.bdg-macro-label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
-.bdg-macro-dot { width: 6px; height: 6px; border-radius: 999px; flex: 0 0 auto; transition: opacity 140ms ease; }
-
-/* Macros en grupos horarios y filas de alimentos sin ruido visual. */
-.bdg-macro-bar {
-  display: inline-flex; align-items: center; width: 52px; height: 4px; flex: 0 0 auto;
-  border-radius: 999px; overflow: hidden; background: var(--b-track);
-}
-.bdg-macro-bar > span { display: block; height: 100%; transition: opacity 140ms ease, width 180ms ease; }
-.bdg-macro-bar > span.is-dim { opacity: 0.25; }
-
+/* Macros pasivas P/C/G en grupos horarios y porción + macros en filas de alimentos. */
 .bdg-meal-macros {
-  display: inline-flex; align-items: center; gap: 8px;
+  display: inline-flex; align-items: center; gap: 6px;
   font-size: 12px; color: var(--b-ink-2); font-variant-numeric: tabular-nums;
+  white-space: nowrap;
 }
 .bdg-meal-macro-item { display: inline-flex; align-items: center; gap: 4px; }
 .bdg-dot { display: inline-block; width: 6px; height: 6px; border-radius: 999px; flex: 0 0 auto; }
 
-.bdg-row-wrap + .bdg-row-wrap { border-top: 1px solid var(--b-track); }
 .bdg-food-btn {
   width: 100%; border: 0; background: transparent; text-align: left; padding: 0;
   font: inherit; color: inherit;
 }
-.bdg-food-detail {
-  display: flex; align-items: center; justify-content: space-between; gap: 10px;
-  padding: 0 0 10px; font-size: 12px; color: var(--b-ink-2); font-variant-numeric: tabular-nums;
-}
-.bdg-food-macros { display: inline-flex; align-items: center; gap: 10px; }
-.bdg-food-macros > span { display: inline-flex; align-items: center; gap: 4px; }
+.bdg-phone .bcr-row-meta { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 /* + con gesto: sin selección de texto ni scroll del navegador mientras se arrastra. */
 .bdg-add {

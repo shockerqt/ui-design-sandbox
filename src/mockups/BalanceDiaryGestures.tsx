@@ -115,36 +115,7 @@ const RANGE = EXPANDED - COMPACT;
 const BASE_SCROLL_TOP_PAD = EXPANDED + 12;
 const BASE_SCROLL_BOTTOM_PAD = 16;
 
-type MacroKey = (typeof MACROS)[number]['key'];
-type MacroMode = 'plain' | 'bar' | 'bar-focus' | 'meal-totals';
-
-function macroCalShares(t: { p: number; c: number; f: number }) {
-  const pk = t.p * 4;
-  const ck = t.c * 4;
-  const fk = t.f * 9;
-  const total = pk + ck + fk;
-  if (total <= 0) return { p: 0, c: 0, f: 0 };
-  return {
-    p: (pk / total) * 100,
-    c: (ck / total) * 100,
-    f: (fk / total) * 100,
-  };
-}
-
-function MacroMicroBar({ t, focus }: { t: { p: number; c: number; f: number }; focus: MacroKey | null }) {
-  const shares = macroCalShares(t);
-  return (
-    <span className="bdg-macro-bar" aria-hidden="true">
-      {MACROS.map((m) => (
-        <span
-          key={m.key}
-          className={focus && focus !== m.key ? 'is-dim' : undefined}
-          style={{ width: `${shares[m.key].toFixed(1)}%`, background: m.color }}
-        />
-      ))}
-    </span>
-  );
-}
+type MacroMode = 'color-head' | 'mono' | 'plain';
 
 const dayLabel = (day: number) => {
   const weekday = WEEKDAY_NAMES[day - 9] ?? '';
@@ -162,20 +133,16 @@ function previousWeightFor(day: number, weights: Record<number, number>): { day:
 }
 
 function DiaryHeader({
-  day, setDay, p, macroMode, focusMacro, onToggleFocusMacro, onWheel,
+  day, setDay, p, onWheel,
 }: {
   day: number;
   setDay: (d: number) => void;
   p: number;
-  macroMode: MacroMode;
-  focusMacro: MacroKey | null;
-  onToggleFocusMacro: (key: MacroKey) => void;
   onWheel?: (e: ReactWheelEvent) => void;
 }) {
   const t = totals(LOGS[day]);
   const left = GOAL.kcal - t.kcal;
   const compact = p > 0.5;
-  const interactiveMacros = macroMode === 'bar-focus';
 
   return (
     <header className="bdg-header" style={{ height: lerp(EXPANDED, COMPACT, p), boxShadow: p >= 1 ? '0 1px 0 var(--b-line)' : 'none' }} onWheel={onWheel}>
@@ -222,35 +189,13 @@ function DiaryHeader({
             </div>
             <div aria-hidden="true" className="bcr-meter"><span style={{ width: pct(t.kcal, GOAL.kcal) }} /></div>
             <div className="bcr-macros">
-              {MACROS.map((m) => {
-                const isFocused = interactiveMacros && focusMacro === m.key;
-                const inner = (
-                  <>
-                    <div className="quiet bdg-macro-label" style={{ fontSize: 12, color: isFocused ? m.color : undefined }}>
-                      <span>{m.name}</span>
-                      {interactiveMacros ? <span aria-hidden="true" className="bdg-macro-dot" style={{ background: m.color, opacity: isFocused ? 1 : 0.45 }} /> : null}
-                    </div>
-                    <div style={{ fontWeight: 600 }}>{t[m.key]} <span className="quiet" style={{ fontWeight: 400, fontSize: 13 }}>/ {m.target} g</span></div>
-                    <div aria-hidden="true" className="bcr-meter is-thin"><span style={{ width: pct(t[m.key], m.target), background: m.color }} /></div>
-                  </>
-                );
-                if (!interactiveMacros) {
-                  return <div key={m.key} className="bcr-macro">{inner}</div>;
-                }
-                return (
-                  <button
-                    key={m.key}
-                    type="button"
-                    className={`bcr-macro bdg-macro-btn${isFocused ? ' is-focused' : ''}`}
-                    style={isFocused ? { '--bdg-focus-color': m.color } as Record<string, string> : undefined}
-                    aria-pressed={isFocused}
-                    aria-label={`Enfocar ${m.name.toLowerCase()} en el diario`}
-                    onClick={() => onToggleFocusMacro(m.key)}
-                  >
-                    {inner}
-                  </button>
-                );
-              })}
+              {MACROS.map((m) => (
+                <div key={m.key} className="bcr-macro">
+                  <div className="quiet" style={{ fontSize: 12 }}>{m.name}</div>
+                  <div style={{ fontWeight: 600 }}>{t[m.key]} <span className="quiet" style={{ fontWeight: 400, fontSize: 13 }}>/ {m.target} g</span></div>
+                  <div aria-hidden="true" className="bcr-meter is-thin"><span style={{ width: pct(t[m.key], m.target), background: m.color }} /></div>
+                </div>
+              ))}
             </div>
           </section>
         </div>
@@ -263,23 +208,19 @@ function DiaryHeader({
   );
 }
 
+const MACRO_LETTERS = { p: 'P', c: 'C', f: 'G' } as const;
+
 function MealFeed({
-  day, macroMode, focusMacro, onAddAt,
+  day, macroMode, onAddAt, onEditFood,
 }: {
   day: number;
   macroMode: MacroMode;
-  focusMacro: MacroKey | null;
   onAddAt: (hour: string) => void;
+  onEditFood: (name: string, hour: string) => void;
 }) {
-  const [expandedFood, setExpandedFood] = useState<string | null>(null);
   const meals = LOGS[day] ?? [];
-  const activeFocus = macroMode === 'bar-focus' ? focusMacro : null;
-  const focusMeta = activeFocus ? MACROS.find((m) => m.key === activeFocus) : null;
-  const canExpandFood = macroMode === 'bar-focus' || macroMode === 'meal-totals';
-
-  useEffect(() => {
-    setExpandedFood(null);
-  }, [day, macroMode]);
+  const showMacros = macroMode !== 'plain';
+  const showColorDots = macroMode === 'color-head';
 
   if (meals.length === 0) {
     return (
@@ -297,25 +238,17 @@ function MealFeed({
           <section key={m.hour} aria-label={`Comidas de las ${m.hour}`}>
             <div className="bcr-group-head">
               <span className="bcr-group-hour">{m.hour}</span>
-              <span
-                className="quiet"
-                style={{
-                  fontSize: 13,
-                  color: focusMeta ? focusMeta.color : undefined,
-                  fontWeight: focusMeta ? 600 : undefined,
-                }}
-              >
-                {focusMeta ? `${mealTotals[focusMeta.key]} g ${focusMeta.name.toLowerCase()}` : `${fmt(mealTotals.kcal)} kcal`}
-              </span>
-              {(macroMode === 'bar' || macroMode === 'bar-focus') ? (
-                <MacroMicroBar t={mealTotals} focus={activeFocus} />
-              ) : null}
-              {macroMode === 'meal-totals' ? (
-                <span className="bdg-meal-macros" aria-label={`Proteína ${mealTotals.p} gramos, carbohidratos ${mealTotals.c} gramos, grasa ${mealTotals.f} gramos`}>
-                  {MACROS.map((macro) => (
+              <span className="quiet" style={{ fontSize: 13 }}>{fmt(mealTotals.kcal)} kcal</span>
+              {showMacros ? (
+                <span
+                  className="bdg-meal-macros"
+                  aria-label={`Proteína ${mealTotals.p} gramos, carbohidratos ${mealTotals.c} gramos, grasa ${mealTotals.f} gramos`}
+                >
+                  {MACROS.map((macro, idx) => (
                     <span key={macro.key} className="bdg-meal-macro-item">
-                      <span aria-hidden="true" className="bdg-dot" style={{ background: macro.color }} />
-                      {mealTotals[macro.key]}g
+                      {idx > 0 ? <span aria-hidden="true">·</span> : null}
+                      {showColorDots ? <span aria-hidden="true" className="bdg-dot" style={{ background: macro.color }} /> : null}
+                      {Math.round(mealTotals[macro.key])}{MACRO_LETTERS[macro.key]}
                     </span>
                   ))}
                 </span>
@@ -332,48 +265,23 @@ function MealFeed({
             </div>
             <div className="bcr-list">
               {m.foods.map((f) => {
-                const foodKey = `${day}-${m.hour}-${f.name}`;
-                const isOpen = canExpandFood && expandedFood === foodKey;
-                const valueText = focusMeta ? `${f[focusMeta.key]} g` : String(f.kcal);
-                const valueStyle = { fontWeight: 600, color: focusMeta ? focusMeta.color : undefined };
-
-                if (!canExpandFood) {
-                  return (
-                    <div key={f.name} className="bcr-row">
-                      <div className="bcr-row-main">
-                        <div className="bcr-row-name">{f.name}</div>
-                        <div className="bcr-row-meta">{f.portion}</div>
-                      </div>
-                      <div style={valueStyle}>{valueText}</div>
-                    </div>
-                  );
-                }
-
+                const meta = showMacros
+                  ? `${f.portion} · ${Math.round(f.p)}P · ${Math.round(f.c)}C · ${Math.round(f.f)}G`
+                  : f.portion;
                 return (
-                  <div key={f.name} className={`bdg-row-wrap${isOpen ? ' is-open' : ''}`}>
-                    <button
-                      type="button"
-                      className="bcr-row bdg-food-btn"
-                      aria-expanded={isOpen}
-                      onClick={() => setExpandedFood((cur) => (cur === foodKey ? null : foodKey))}
-                    >
-                      <div className="bcr-row-main">
-                        <div className="bcr-row-name">{f.name}</div>
-                        <div className="bcr-row-meta">{f.portion}</div>
-                      </div>
-                      <div style={valueStyle}>{valueText}</div>
-                    </button>
-                    {isOpen ? (
-                      <div className="bdg-food-detail">
-                        <MacroMicroBar t={f} focus={activeFocus} />
-                        <span className="bdg-food-macros">
-                          <span><i className="bdg-dot" style={{ background: 'var(--b-protein)' }} />{f.p}g P</span>
-                          <span><i className="bdg-dot" style={{ background: 'var(--b-carbs)' }} />{f.c}g C</span>
-                          <span><i className="bdg-dot" style={{ background: 'var(--b-fat)' }} />{f.f}g G</span>
-                        </span>
-                      </div>
-                    ) : null}
-                  </div>
+                  <button
+                    key={f.name}
+                    type="button"
+                    className="bcr-row bdg-food-btn"
+                    aria-label={`Editar ${f.name}, ${meta}, ${f.kcal} kcal`}
+                    onClick={() => onEditFood(f.name, m.hour)}
+                  >
+                    <div className="bcr-row-main">
+                      <div className="bcr-row-name">{f.name}</div>
+                      <div className="bcr-row-meta">{meta}</div>
+                    </div>
+                    <div style={{ fontWeight: 600 }}>{f.kcal}</div>
+                  </button>
                 );
               })}
             </div>
@@ -386,15 +294,14 @@ function MealFeed({
 
 /* Diario: una sola lista desplazable; en listas cortas con desborde garantiza recorrido completo y hace snap al soltar. */
 function Diary({
-  day, setDay, forced, macroMode, focusMacro, onToggleFocusMacro, onAddAt,
+  day, setDay, forced, macroMode, onAddAt, onEditFood,
 }: {
   day: number;
   setDay: (d: number) => void;
   forced?: number;
   macroMode: MacroMode;
-  focusMacro: MacroKey | null;
-  onToggleFocusMacro: (key: MacroKey) => void;
   onAddAt: (hour: string) => void;
+  onEditFood: (name: string, hour: string) => void;
 }) {
   const [scroll, setScroll] = useState(0);
   const [metrics, setMetrics] = useState({ rawMax: 0 });
@@ -499,16 +406,13 @@ function Diary({
         onScroll={(e) => handleScroll(e.currentTarget.scrollTop)}
       >
         <div ref={feedRef} className="bdg-feed-inner">
-          <MealFeed day={day} macroMode={macroMode} focusMacro={focusMacro} onAddAt={onAddAt} />
+          <MealFeed day={day} macroMode={macroMode} onAddAt={onAddAt} onEditFood={onEditFood} />
         </div>
       </div>
       <DiaryHeader
         day={day}
         setDay={setDay}
         p={p}
-        macroMode={macroMode}
-        focusMacro={focusMacro}
-        onToggleFocusMacro={onToggleFocusMacro}
         onWheel={forward}
       />
     </div>
@@ -819,7 +723,6 @@ function GesturePhone({
   onLog: (msg: string) => void;
 }) {
   const [day, setDay] = useState(TODAY);
-  const [focusMacro, setFocusMacro] = useState<MacroKey | null>(null);
   const [weights, setWeights] = useState<Record<number, number>>(INITIAL_WEIGHTS);
   const [add, setAdd] = useState<{ hour: string; how: string } | null>(null);
   const [weightOpen, setWeightOpen] = useState(false);
@@ -829,10 +732,6 @@ function GesturePhone({
   const radialRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
   const hintId = useId();
-
-  useEffect(() => {
-    if (macroMode !== 'bar-focus') setFocusMacro(null);
-  }, [macroMode]);
 
   useEffect(() => () => {
     if (gesture.current?.timer !== null && gesture.current?.timer !== undefined) {
@@ -851,15 +750,6 @@ function GesturePhone({
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [overlay.kind]);
-
-  const toggleFocusMacro = (key: MacroKey) => {
-    setFocusMacro((prev) => {
-      const next = prev === key ? null : key;
-      const meta = MACROS.find((m) => m.key === key);
-      onLog(next ? `Enfoque macro: ${meta?.name} (${dayLabel(day)})` : `Enfoque macro desactivado → vuelve a kcal`);
-      return next;
-    });
-  };
 
   const openAdd = (h: string, how: string) => {
     setOverlay({ kind: 'none' });
@@ -1013,9 +903,8 @@ function GesturePhone({
               setDay={setDay}
               forced={forced}
               macroMode={macroMode}
-              focusMacro={focusMacro}
-              onToggleFocusMacro={toggleFocusMacro}
               onAddAt={(h) => openAdd(h, `+ del grupo de las ${h}`)}
+              onEditFood={(name, h) => onLog(`Toque en alimento → Editar ${name} (${h})`)}
             />
             <TabBar>
               <button
@@ -1208,29 +1097,27 @@ function GesturePhone({
 }
 
 const MACRO_MODE_DESC: Record<MacroMode, string> = {
-  plain: 'Vista base actual: solo calorías por comida y alimento, sin macros en la lista.',
-  bar: 'Micro-barra tricolor de 3 px por grupo horario según aporte calórico (P/C/G). Filas intactas.',
-  'bar-focus': 'Recomendada: micro-barra + toca Proteína/Carbs/Grasa arriba para enfocar gramos + toca un alimento para ver detalle.',
-  'meal-totals': 'Totales P/C/G compactos con puntos de color en cada hora + detalle puntual al tocar un alimento.',
+  'color-head': 'Opción 1: puntos de color + P/C/G en cabecera de cada hora y macros monocromas junto a la porción en cada fila.',
+  mono: 'Opción 2: todo sin color en el diario (18P · 80C · 10G en cabecera y porción · P · C · G en fila).',
+  plain: 'Vista base actual: solo calorías por comida y porción en cada alimento.',
 };
 
 export function BalanceDiaryGestures() {
   const [dark, setDark] = useState(false);
-  const [macroMode, setMacroMode] = useState<MacroMode>('bar-focus');
+  const [macroMode, setMacroMode] = useState<MacroMode>('color-head');
   const [log, setLog] = useState('Todavía no hay gestos.');
   return (
     <div className="bcr" data-theme={dark ? 'dark' : 'light'}>
       <div className="bcr-toolbar">
         <div className="bcr-toolbar-title">
-          <strong>Balance · diario compacto, radial ascendente y macros</strong>
+          <strong>Balance · diario compacto, radial ascendente y macros P·C·G</strong>
           <span>{MACRO_MODE_DESC[macroMode]}</span>
         </div>
         <Tabs.Root value={macroMode} onValueChange={(v) => setMacroMode(v as MacroMode)}>
           <Tabs.List className="bcr-seg" aria-label="Macros en el diario">
+            <Tabs.Tab value="color-head">Puntos + fila</Tabs.Tab>
+            <Tabs.Tab value="mono">Sin color</Tabs.Tab>
             <Tabs.Tab value="plain">Tal como está</Tabs.Tab>
-            <Tabs.Tab value="bar">Micro-barra</Tabs.Tab>
-            <Tabs.Tab value="bar-focus">Barra + foco</Tabs.Tab>
-            <Tabs.Tab value="meal-totals">Por comida</Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
         <label className="bcr-switch">
@@ -1248,7 +1135,8 @@ export function BalanceDiaryGestures() {
           <div aria-live="polite" className="quiet">{log}</div>
           <div style={{ fontWeight: 600, marginTop: 12 }}>Cómo probar</div>
           <ul className="quiet">
-            <li><strong>Macros en el diario:</strong> compara <em>Tal como está</em> con <em>Micro-barra</em>, <em>Barra + foco</em> (toca un macro en la tarjeta o un alimento) y <em>Por comida</em>.</li>
+            <li><strong>Macros en el diario:</strong> compara <em>Puntos + fila</em> (círculos P/C/G en la hora + fila neutra), <em>Sin color</em> (monocromo) y <em>Tal como está</em>.</li>
+            <li><strong>Toque en alimento:</strong> queda reservado para editar la comida (sin acordeón).</li>
             <li><strong>Toque en +:</strong> abre las 3 opciones (← Peso, ↑ Elegir hora, → Alimento ahora).</li>
             <li><strong>Swipe ← en +:</strong> abre directo el registro editorial de peso (sin fila de peso en el diario).</li>
             <li><strong>Swipe → en +:</strong> abre directo Agregar a la hora actual ({NOW}).</li>
