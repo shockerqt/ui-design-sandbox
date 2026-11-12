@@ -15,10 +15,21 @@ import { BalanceMaterialExpressive } from './BalanceMaterialExpressive';
 import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 import { BalanceCleanRedesign } from './BalanceCleanRedesign';
+import { BalanceDiaryGestures } from './BalanceDiaryGestures';
 import { ZachControlPanel } from './ZachControlPanel';
 import { ZachLiveMap } from './ZachLiveMap';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-diary-gestures',
+    title: 'Balance · Diario compacto y hora desde +',
+    category: 'Dashboards',
+    description: 'Diario en un solo scroll con encabezado que se compacta (BAL-067) y riel de horas al mantener o arrastrar + (BAL-066), sobre los tokens del rediseño limpio.',
+    tags: ['Balance', 'mobile', 'scroll', 'sticky header', 'gesture', 'hour rail'],
+    version: 'v1.0.0',
+    updatedAt: '2026-11-12',
+    component: BalanceDiaryGestures
+  },
   {
     id: 'zach-live-map',
     title: 'Zach · Mapa de telemetría en vivo',
