@@ -22,11 +22,11 @@ import { ZachLiveMap } from './ZachLiveMap';
 export const mockupRegistry: MockupItem[] = [
   {
     id: 'balance-diary-gestures',
-    title: 'Balance · Diario compacto y hora desde +',
+    title: 'Balance · Diario compacto, + radial y peso',
     category: 'Dashboards',
-    description: 'Diario en un solo scroll con encabezado que se compacta (BAL-067) y riel de horas al mantener o arrastrar + (BAL-066), sobre los tokens del rediseño limpio.',
-    tags: ['Balance', 'mobile', 'scroll', 'sticky header', 'gesture', 'hour rail'],
-    version: 'v1.0.0',
+    description: 'Diario en un solo scroll con guard de listas cortas (BAL-067), botón + dual con menú direccional al toque y swipes ← peso / → ahora / ↑ radial (BAL-066), y sheet editorial de peso.',
+    tags: ['Balance', 'mobile', 'scroll', 'sticky header', 'gesture', 'radial', 'weight'],
+    version: 'v1.1.0',
     updatedAt: '2026-11-12',
     component: BalanceDiaryGestures
   },
