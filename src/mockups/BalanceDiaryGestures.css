@@ -1,0 +1,58 @@
+/* Balance · diario compacto y riel de horas. Se apoya en los tokens --b-* de BalanceCleanRedesign.css. */
+.bdg-phone { position: relative; }
+.bdg-body { position: relative; flex: 1 1 auto; min-height: 0; }
+.bdg-scroll {
+  position: absolute; inset: 0; overflow: auto; padding: 0 20px 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  scrollbar-width: thin; scrollbar-color: var(--b-line-strong) transparent;
+}
+
+/* Encabezado flotante: su altura sigue a la posición del scroll. */
+.bdg-header {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 2; overflow: hidden;
+  display: flex; flex-direction: column; background: var(--b-ground);
+}
+.bdg-layer { position: absolute; inset: 0; }
+.bdg-title { position: relative; flex: 0 0 auto; overflow: hidden; }
+.bdg-title-full { display: flex; align-items: center; gap: 12px; padding: 12px 20px 0; }
+.bdg-title-compact { display: flex; align-items: center; gap: 8px; padding: 8px 20px 0; }
+.bdg-compact-date { margin-right: auto; font-family: var(--b-font-display); font-weight: 650; font-size: 17px; letter-spacing: -0.01em; }
+.bdg-mini-btn {
+  width: 44px; height: 28px; display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; color: var(--b-ink); border: 0; border-radius: 10px;
+}
+.bdg-day-letter { overflow: hidden; line-height: 16px; }
+.bdg-kcal-area { position: relative; flex: 0 0 auto; overflow: hidden; }
+.bdg-kcal-full { display: flex; flex-direction: column; gap: 8px; }
+.bdg-summary { margin: 0 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+.bdg-weight { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 20px; font-size: 14px; }
+.bdg-link-btn { min-height: 36px; padding: 0 4px; border: 0; background: transparent; color: var(--b-link); font-size: 14px; font-weight: 600; }
+.bdg-kcal-compact { top: auto; height: 30px; display: flex; background: var(--b-ground); align-items: center; gap: 12px; padding: 4px 20px 0; font-size: 14px; }
+.bdg-kcal-compact .bcr-meter { flex: 1 1 auto; }
+
+/* + con gesto: sin selección de texto ni scroll del navegador mientras se arrastra. */
+.bdg-add { touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+
+/* Riel de horas sobre la barra inferior, centrado en el +. */
+.bdg-scrim {
+  position: absolute; left: 0; right: 0; top: 0; bottom: 74px; z-index: 5;
+  background: color-mix(in srgb, var(--b-ground) 72%, transparent);
+  display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 8px;
+}
+.bdg-rail {
+  width: 112px; display: flex; flex-direction: column; overflow: hidden;
+  background: var(--b-surface); border: 1px solid var(--b-line-strong); border-radius: 18px;
+  box-shadow: 0 8px 28px rgb(0 0 0 / 0.14);
+}
+.bdg-slot {
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
+  font-size: 13px; color: var(--b-ink-2); font-variant-numeric: tabular-nums;
+}
+.bdg-slot.is-active { background: var(--b-ink); color: var(--b-on-ink); font-weight: 700; font-size: 15px; }
+.bdg-rail-hint {
+  margin-top: 8px; padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500;
+  background: var(--b-surface); border: 1px solid var(--b-line); color: var(--b-ink);
+}
+
+.bdg-notes { flex: 0 1 300px; display: flex; flex-direction: column; gap: 4px; font-size: 14px; }
+.bdg-notes ul { margin: 4px 0 0; padding-left: 18px; display: flex; flex-direction: column; gap: 6px; }
