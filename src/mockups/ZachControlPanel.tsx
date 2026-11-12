@@ -165,7 +165,7 @@ function TaskCard({ t, onRetry }: { t: Task; onRetry: () => void }) {
         {t.stages.map((s) => (
           <li key={s.name} className={`zcp-stage is-${s.kind}`}>
             <div className="zcp-stage-name"><StageIcon kind={s.kind} /><span>{s.name}</span><span style={{ position: 'absolute', width: 1, height: 1, overflow: 'hidden', clipPath: 'inset(50%)' }}>, {STAGE_LABEL[s.kind]}</span></div>
-            <div className="zcp-stage-meta">{s.meta}</div>
+            <div className="zcp-stage-meta" title={s.meta || undefined}>{s.meta}</div>
           </li>
         ))}
       </ol>
