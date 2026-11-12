@@ -25,10 +25,49 @@
 .bdg-kcal-area { position: relative; flex: 0 0 auto; overflow: hidden; }
 .bdg-kcal-full { display: flex; flex-direction: column; gap: 8px; }
 .bdg-summary { margin: 0 20px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
-.bdg-weight { display: flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 20px; font-size: 14px; }
-.bdg-link-btn { min-height: 36px; padding: 0 4px; border: 0; background: transparent; color: var(--b-link); font-size: 14px; font-weight: 600; }
 .bdg-kcal-compact { top: auto; height: 30px; display: flex; background: var(--b-ground); align-items: center; gap: 12px; padding: 4px 20px 0; font-size: 14px; }
 .bdg-kcal-compact .bcr-meter { flex: 1 1 auto; }
+
+/* Macros interactivas en tarjeta resumen (sin alterar altura de 188 px). */
+.bdg-macro-btn {
+  background: transparent; border: 0; padding: 4px 6px; margin: -4px -6px;
+  text-align: left; font: inherit; color: inherit; border-radius: 10px;
+  transition: background-color 140ms ease, box-shadow 140ms ease;
+}
+.bdg-macro-btn:hover { background: color-mix(in srgb, var(--b-track) 65%, transparent); }
+.bdg-macro-btn.is-focused {
+  background: color-mix(in srgb, var(--bdg-focus-color, var(--b-ink)) 10%, transparent);
+  box-shadow: inset 0 0 0 1.5px var(--bdg-focus-color, var(--b-ink));
+}
+.bdg-macro-label { display: flex; align-items: center; justify-content: space-between; gap: 6px; }
+.bdg-macro-dot { width: 6px; height: 6px; border-radius: 999px; flex: 0 0 auto; transition: opacity 140ms ease; }
+
+/* Macros en grupos horarios y filas de alimentos sin ruido visual. */
+.bdg-macro-bar {
+  display: inline-flex; align-items: center; width: 52px; height: 4px; flex: 0 0 auto;
+  border-radius: 999px; overflow: hidden; background: var(--b-track);
+}
+.bdg-macro-bar > span { display: block; height: 100%; transition: opacity 140ms ease, width 180ms ease; }
+.bdg-macro-bar > span.is-dim { opacity: 0.25; }
+
+.bdg-meal-macros {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 12px; color: var(--b-ink-2); font-variant-numeric: tabular-nums;
+}
+.bdg-meal-macro-item { display: inline-flex; align-items: center; gap: 4px; }
+.bdg-dot { display: inline-block; width: 6px; height: 6px; border-radius: 999px; flex: 0 0 auto; }
+
+.bdg-row-wrap + .bdg-row-wrap { border-top: 1px solid var(--b-track); }
+.bdg-food-btn {
+  width: 100%; border: 0; background: transparent; text-align: left; padding: 0;
+  font: inherit; color: inherit;
+}
+.bdg-food-detail {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 0 0 10px; font-size: 12px; color: var(--b-ink-2); font-variant-numeric: tabular-nums;
+}
+.bdg-food-macros { display: inline-flex; align-items: center; gap: 10px; }
+.bdg-food-macros > span { display: inline-flex; align-items: center; gap: 4px; }
 
 /* + con gesto: sin selección de texto ni scroll del navegador mientras se arrastra. */
 .bdg-add {
@@ -133,19 +172,7 @@
 .bdg-hub-cap { font-size: 12px; color: var(--b-ink-2); }
 .bdg-hub-cancel { margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--b-link); }
 
-/* Riel vertical de respaldo. */
-.bdg-rail {
-  width: 112px; display: flex; flex-direction: column; overflow: hidden;
-  background: var(--b-surface); border: 1.5px solid var(--b-line-strong); border-radius: 18px;
-  box-shadow: 0 10px 28px rgb(0 0 0 / 0.18);
-}
-.bdg-slot {
-  display: flex; align-items: center; justify-content: center; flex: 0 0 auto;
-  border: 0; background: transparent; padding: 0; width: 100%;
-  font-size: 13px; color: var(--b-ink-2); font-variant-numeric: tabular-nums;
-}
-.bdg-slot.is-active { background: var(--b-ink); color: var(--b-on-ink); font-weight: 700; font-size: 15px; }
-.bdg-rail-hint {
+.bdg-triad-hint {
   margin-top: 6px; padding: 6px 14px; border-radius: 999px; font-size: 12px; font-weight: 500; text-align: center;
   background: var(--b-surface); border: 1px solid var(--b-line-strong); color: var(--b-ink);
   box-shadow: 0 6px 18px rgb(0 0 0 / 0.12);
