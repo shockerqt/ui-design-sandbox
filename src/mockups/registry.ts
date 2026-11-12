@@ -14,8 +14,30 @@ import { BalanceStyleStudies } from './BalanceStyleStudies';
 import { BalanceMaterialExpressive } from './BalanceMaterialExpressive';
 import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
+import { BalanceCleanRedesign } from './BalanceCleanRedesign';
+import { ZachControlPanel } from './ZachControlPanel';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'balance-clean-redesign',
+    title: 'Balance · Rediseño limpio (claro y oscuro)',
+    category: 'Dashboards',
+    description: 'Papel neutro, tinta y tres colores de macros. Diario, agregar con selección múltiple, resumen y diario web, con tema oscuro por tokens.',
+    tags: ['Balance', 'redesign', 'dark mode', 'mobile', 'web', 'tokens'],
+    version: 'v1.0.0',
+    updatedAt: '2026-11-12',
+    component: BalanceCleanRedesign
+  },
+  {
+    id: 'zach-control-panel',
+    title: 'Zach · Panel de control',
+    category: 'Dashboards',
+    description: 'Decisión pendiente, etapas por tarea, cola de merge y eventos; vista de teléfono y los siete estados de la mascota.',
+    tags: ['Zach', 'daemon', 'dashboard', 'mascot', 'dark'],
+    version: 'v1.0.0',
+    updatedAt: '2026-11-12',
+    component: ZachControlPanel
+  },
   {
     id: 'dining-room-base',
     title: 'Comedor · Bici, sofá y escritorio',
