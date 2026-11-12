@@ -16,8 +16,19 @@ import { BalanceAndroidMaterial } from './BalanceAndroidMaterial';
 import { BalanceLogWireframes } from './BalanceLogWireframes';
 import { BalanceCleanRedesign } from './BalanceCleanRedesign';
 import { ZachControlPanel } from './ZachControlPanel';
+import { ZachLiveMap } from './ZachLiveMap';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'zach-live-map',
+    title: 'Zach · Mapa de telemetría en vivo',
+    category: 'Dashboards',
+    description: 'Mapa radial vivo inspirado en lot-map y command-mesh: radios desgastados por uso, estela de 5 estaciones, pulsos entrantes de caché, múltiples proveedores, drill-down por worker y línea de tiempo metadata-only.',
+    tags: ['Zach', 'telemetry', 'lot-map', 'command-mesh', 'SVG', 'Base UI', 'dark'],
+    version: 'v1.0.0',
+    updatedAt: '2026-11-12',
+    component: ZachLiveMap
+  },
   {
     id: 'balance-clean-redesign',
     title: 'Balance · Rediseño limpio (claro y oscuro)',

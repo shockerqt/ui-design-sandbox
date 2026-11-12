@@ -1,0 +1,819 @@
+/* Zach · Live Telemetry Map — aesthetic inspired by alexeyw/lot-map + command-mesh */
+
+.zlm,
+.zlm-portal {
+  --z-ground: #121316;
+  --z-surface: #1A1C20;
+  --z-surface-hi: #21242A;
+  --z-inset: #16181B;
+  --z-ink: #ECEAE4;
+  --z-ink-2: #C9CCD3;
+  --z-quiet: #A3A6AD;
+  --z-line: #2A2D33;
+  --z-line-strong: #3A3E46;
+  --z-line-faint: #22252A;
+  --z-accent: #F0C94A;
+  --z-accent-hover: #FFE08A;
+  --z-on-accent: #17150C;
+  --z-accent-soft: rgba(240, 201, 74, 0.12);
+  --z-live: #7FB2FF;
+  --z-live-soft: rgba(127, 178, 255, 0.14);
+  --z-danger: #FFA98C;
+  --z-danger-line: #8A4630;
+  --z-danger-soft: rgba(255, 169, 140, 0.13);
+  --z-cache: #62C7BA;
+  --z-cache-soft: rgba(98, 199, 186, 0.14);
+  --z-ok: #8FD6A8;
+  --z-font-display: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+  --z-font-ui: 'Inter', system-ui, sans-serif;
+  --z-font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  color: var(--z-ink);
+  font-family: var(--z-font-ui);
+  font-size: 13px;
+  line-height: 1.45;
+  color-scheme: dark;
+}
+
+.zlm {
+  min-height: calc(100vh - 48px);
+  width: 100%;
+  box-sizing: border-box;
+  background: var(--z-ground);
+  display: flex;
+  flex-direction: column;
+}
+
+.zlm *,
+.zlm *::before,
+.zlm *::after,
+.zlm-portal *,
+.zlm-portal *::before,
+.zlm-portal *::after {
+  box-sizing: border-box;
+}
+
+.zlm button,
+.zlm-portal button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.zlm :is(button, a, input, [tabindex]):focus-visible,
+.zlm-portal :is(button, a, input, [tabindex]):focus-visible {
+  outline: 2px solid var(--z-live);
+  outline-offset: 2px;
+}
+
+.zlm-mono {
+  font-family: var(--z-font-mono);
+}
+
+.zlm-display {
+  font-family: var(--z-font-display);
+}
+
+.zlm-quiet {
+  color: var(--z-quiet);
+}
+
+/* ---------- Top Toolbar ---------- */
+
+.zlm-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px 24px;
+  background: var(--z-inset);
+  border-bottom: 1px solid var(--z-line);
+}
+
+.zlm-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-right: auto;
+  min-width: 220px;
+}
+
+.zlm-brand-title {
+  font-family: var(--z-font-display);
+  font-weight: 700;
+  font-size: 17px;
+  letter-spacing: -0.01em;
+  color: var(--z-ink);
+}
+
+.zlm-brand-sub {
+  font-size: 12px;
+  color: var(--z-quiet);
+}
+
+.zlm-tabs-list {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  padding: 3px;
+  background: var(--z-ground);
+  border: 1px solid var(--z-line-strong);
+  border-radius: 10px;
+}
+
+.zlm-tab {
+  min-height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 7px;
+  background: transparent;
+  color: var(--z-ink-2);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: background-color 0.14s ease, color 0.14s ease;
+}
+
+.zlm-tab:hover {
+  color: var(--z-ink);
+  background: var(--z-surface);
+}
+
+.zlm-tab[data-active] {
+  background: var(--z-accent);
+  color: var(--z-on-accent);
+  font-weight: 600;
+}
+
+.zlm-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.zlm-switch-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 10px;
+  border: 1px solid var(--z-line);
+  border-radius: 9px;
+  background: var(--z-surface);
+  font-size: 12px;
+  color: var(--z-ink-2);
+}
+
+.zlm-switch {
+  display: inline-flex;
+  align-items: center;
+  width: 36px;
+  height: 20px;
+  padding: 2px;
+  border-radius: 999px;
+  border: 1px solid var(--z-line-strong);
+  background: var(--z-ground);
+  transition: background-color 0.16s ease, border-color 0.16s ease;
+}
+
+.zlm-switch[data-checked] {
+  background: var(--z-live);
+  border-color: var(--z-live);
+}
+
+.zlm-switch-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--z-ink);
+  transition: transform 0.16s ease, background-color 0.16s ease;
+}
+
+.zlm-switch[data-checked] .zlm-switch-thumb {
+  transform: translateX(16px);
+  background: var(--z-on-accent);
+}
+
+.zlm-btn {
+  min-height: 34px;
+  padding: 0 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 9px;
+  border: 1px solid var(--z-line-strong);
+  background: var(--z-surface);
+  color: var(--z-ink);
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  transition: border-color 0.14s ease, background-color 0.14s ease, color 0.14s ease;
+}
+
+.zlm-btn:hover {
+  background: var(--z-surface-hi);
+  border-color: var(--z-quiet);
+}
+
+.zlm-btn.is-primary {
+  background: var(--z-accent);
+  color: var(--z-on-accent);
+  border-color: var(--z-accent);
+  font-weight: 600;
+}
+
+.zlm-btn.is-primary:hover {
+  background: var(--z-accent-hover);
+  border-color: var(--z-accent-hover);
+}
+
+.zlm-btn.is-live {
+  border-color: var(--z-live);
+  color: var(--z-live);
+  background: var(--z-live-soft);
+}
+
+.zlm-btn.is-danger {
+  border-color: var(--z-danger-line);
+  color: var(--z-danger);
+  background: var(--z-danger-soft);
+}
+
+.zlm-btn[data-popup-open] {
+  border-color: var(--z-accent);
+}
+
+/* ---------- Provider Bus Strip (command-mesh) ---------- */
+
+.zlm-bus {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 10px;
+  padding: 12px 24px;
+  border-bottom: 1px solid var(--z-line);
+  background: var(--z-ground);
+}
+
+.zlm-provider {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 14px;
+  border: 1px solid var(--z-line);
+  border-radius: 12px;
+  background: var(--z-surface);
+  color: var(--z-ink);
+  text-align: left;
+  transition: border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.zlm-provider:hover {
+  border-color: var(--z-line-strong);
+  background: var(--z-surface-hi);
+}
+
+.zlm-provider[aria-pressed='true'] {
+  border-color: var(--z-accent);
+  background: var(--z-accent-soft);
+}
+
+.zlm-provider-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.zlm-provider-name {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--z-font-display);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.zlm-provider-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--z-live);
+}
+
+.zlm-provider-dot.is-danger {
+  background: var(--z-danger);
+}
+
+.zlm-provider-dot.is-idle {
+  background: var(--z-quiet);
+}
+
+.zlm-provider-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  font-size: 11.5px;
+  color: var(--z-ink-2);
+}
+
+.zlm-cache-pill {
+  color: var(--z-cache);
+  font-family: var(--z-font-mono);
+  font-size: 11px;
+}
+
+/* ---------- Workspace Layout ---------- */
+
+.zlm-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(340px, 460px);
+  gap: 18px;
+  padding: 18px 24px 28px;
+  width: 100%;
+  max-width: 1560px;
+  margin: 0 auto;
+  align-items: start;
+}
+
+@media (max-width: 1060px) {
+  .zlm-workspace {
+    grid-template-columns: 1fr;
+  }
+}
+
+.zlm-card {
+  background: var(--z-surface);
+  border: 1px solid var(--z-line);
+  border-radius: 16px;
+}
+
+.zlm-card.is-gate {
+  border-color: var(--z-accent);
+}
+
+/* ---------- Map Stage (lot-map radial SVG) ---------- */
+
+.zlm-map-card {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.zlm-map-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+}
+
+.zlm-map-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.zlm-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--z-line-strong);
+  background: var(--z-ground);
+  font-family: var(--z-font-mono);
+  font-size: 11px;
+  color: var(--z-ink-2);
+}
+
+.zlm-badge.is-accent {
+  border-color: var(--z-accent);
+  color: var(--z-accent);
+}
+
+.zlm-badge.is-cache {
+  border-color: rgba(98, 199, 186, 0.45);
+  color: var(--z-cache);
+}
+
+.zlm-badge.is-danger {
+  border-color: var(--z-danger-line);
+  color: var(--z-danger);
+  background: var(--z-danger-soft);
+}
+
+.zlm-svg-wrap {
+  width: 100%;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 50%, #191B20 0%, #121316 74%);
+  border: 1px solid var(--z-line-faint);
+  overflow: hidden;
+}
+
+.zlm-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.zlm-station {
+  cursor: pointer;
+  outline: none;
+}
+
+.zlm-station:focus-visible .zlm-station-ring {
+  stroke: var(--z-live);
+  stroke-width: 2.5;
+}
+
+.zlm-station-ring {
+  transition: stroke 0.16s ease, fill 0.16s ease;
+}
+
+.zlm-station:hover .zlm-station-ring {
+  stroke: var(--z-ink);
+}
+
+.zlm-station[aria-pressed='true'] .zlm-station-ring {
+  stroke: var(--z-accent);
+  stroke-width: 2.2;
+  fill: #232219;
+}
+
+/* Clock hands & pulse motion */
+
+.zlm-clock-fast,
+.zlm-clock-slow {
+  transform-origin: 380px 320px;
+}
+
+.zlm-clock-reduced {
+  display: none;
+}
+
+.zlm-pulse-reduced {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .zlm-svg.is-streaming .zlm-clock-fast {
+    animation: zlm-spin 18s linear infinite;
+  }
+  .zlm-svg.is-streaming .zlm-clock-slow {
+    animation: zlm-spin 96s linear infinite;
+  }
+  .zlm-pulse-path {
+    stroke-dasharray: 14 110;
+    animation: zlm-pulse-travel 1.75s linear infinite;
+  }
+  .zlm-fault-halo {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: zlm-fault-breathe 1.8s ease-in-out infinite;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .zlm-clock-fast,
+  .zlm-clock-slow {
+    display: none;
+  }
+  .zlm-clock-reduced {
+    display: block;
+  }
+  .zlm-pulse-path {
+    display: none;
+  }
+  .zlm-pulse-reduced {
+    display: block;
+  }
+}
+
+@keyframes zlm-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes zlm-pulse-travel {
+  from {
+    stroke-dashoffset: 124;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes zlm-fault-breathe {
+  0%, 100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+.zlm-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  padding-top: 4px;
+  font-size: 11.5px;
+  color: var(--z-quiet);
+}
+
+.zlm-legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.zlm-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+/* ---------- Right Telemetry Rail ---------- */
+
+.zlm-rail {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.zlm-panel {
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.zlm-panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.zlm-h2 {
+  margin: 0;
+  font-family: var(--z-font-display);
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--z-ink);
+}
+
+.zlm-workers {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.zlm-worker-row {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--z-line);
+  background: var(--z-ground);
+  color: var(--z-ink);
+  text-align: left;
+  transition: border-color 0.14s ease, background-color 0.14s ease;
+}
+
+.zlm-worker-row:hover {
+  border-color: var(--z-line-strong);
+  background: var(--z-surface-hi);
+}
+
+.zlm-worker-row[aria-pressed='true'] {
+  border-color: var(--z-accent);
+  background: var(--z-accent-soft);
+}
+
+.zlm-worker-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.zlm-worker-sub {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--z-quiet);
+}
+
+/* ---------- Accordion ---------- */
+
+.zlm-accordion {
+  border-top: 1px solid var(--z-line);
+}
+
+.zlm-accordion-item {
+  border-bottom: 1px solid var(--z-line);
+}
+
+.zlm-accordion-item[data-open] .zlm-accordion-trigger {
+  color: var(--z-accent);
+}
+
+.zlm-accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 2px;
+  border: 0;
+  background: transparent;
+  color: var(--z-ink-2);
+  font-size: 12.5px;
+  font-weight: 600;
+  text-align: left;
+}
+
+.zlm-accordion-trigger:hover {
+  color: var(--z-ink);
+}
+
+.zlm-accordion-chevron {
+  transition: transform 0.18s ease;
+  flex: none;
+}
+
+.zlm-accordion-trigger[data-panel-open] .zlm-accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.zlm-accordion-panel {
+  padding: 2px 2px 12px;
+  color: var(--z-ink-2);
+  font-size: 12px;
+}
+
+.zlm-kv-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px 12px;
+}
+
+.zlm-kv {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  background: var(--z-ground);
+  border: 1px solid var(--z-line-faint);
+}
+
+.zlm-kv-label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--z-quiet);
+}
+
+.zlm-kv-value {
+  font-family: var(--z-font-mono);
+  font-size: 12px;
+  color: var(--z-ink);
+}
+
+/* ---------- Activity Timeline & Popover ---------- */
+
+.zlm-events {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  max-height: 290px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+
+.zlm-event-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: 9px;
+  border: 1px solid var(--z-line-faint);
+  background: var(--z-ground);
+  color: var(--z-ink);
+  text-align: left;
+  transition: border-color 0.12s ease, background-color 0.12s ease;
+}
+
+.zlm-event-btn:hover {
+  border-color: var(--z-line-strong);
+  background: var(--z-surface-hi);
+}
+
+.zlm-event-btn[data-popup-open] {
+  border-color: var(--z-accent);
+  background: var(--z-accent-soft);
+}
+
+.zlm-event-left {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zlm-event-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+}
+
+.zlm-event-meta {
+  font-family: var(--z-font-mono);
+  font-size: 11px;
+  color: var(--z-quiet);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------- Portaled Base UI Popups ---------- */
+
+.zlm-tooltip {
+  background: var(--z-surface-hi);
+  color: var(--z-ink);
+  border: 1px solid var(--z-line-strong);
+  border-radius: 9px;
+  padding: 8px 11px;
+  max-width: 240px;
+  font-size: 12px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+  z-index: 1200;
+}
+
+.zlm-popover {
+  background: var(--z-surface);
+  color: var(--z-ink);
+  border: 1px solid var(--z-line-strong);
+  border-radius: 12px;
+  padding: 14px 16px;
+  width: 320px;
+  max-width: calc(100vw - 24px);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.72);
+  z-index: 1200;
+}
+
+.zlm-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(8, 9, 11, 0.76);
+  backdrop-filter: blur(3px);
+  z-index: 1190;
+}
+
+.zlm-dialog-popup {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: min(480px, calc(100vw - 28px));
+  background: var(--z-surface);
+  color: var(--z-ink);
+  border: 1px solid var(--z-accent);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: 0 28px 64px rgba(0, 0, 0, 0.8);
+  z-index: 1200;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.zlm-input {
+  width: 100%;
+  min-height: 38px;
+  padding: 0 11px;
+  border-radius: 9px;
+  border: 1px solid var(--z-line-strong);
+  background: var(--z-ground);
+  color: var(--z-ink);
+  font: inherit;
+}
