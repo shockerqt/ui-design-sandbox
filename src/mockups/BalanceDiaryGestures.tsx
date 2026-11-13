@@ -115,7 +115,7 @@ const RANGE = EXPANDED - COMPACT;
 const BASE_SCROLL_TOP_PAD = EXPANDED + 12;
 const BASE_SCROLL_BOTTOM_PAD = 16;
 
-type MacroMode = 'color-head' | 'mono' | 'plain';
+type MacroMode = 'plain' | 'mono';
 
 const dayLabel = (day: number) => {
   const weekday = WEEKDAY_NAMES[day - 9] ?? '';
@@ -220,7 +220,6 @@ function MealFeed({
 }) {
   const meals = LOGS[day] ?? [];
   const showMacros = macroMode !== 'plain';
-  const showColorDots = macroMode === 'color-head';
 
   if (meals.length === 0) {
     return (
@@ -247,7 +246,6 @@ function MealFeed({
                   {MACROS.map((macro, idx) => (
                     <span key={macro.key} className="bdg-meal-macro-item">
                       {idx > 0 ? <span aria-hidden="true">·</span> : null}
-                      {showColorDots ? <span aria-hidden="true" className="bdg-dot" style={{ background: macro.color }} /> : null}
                       {Math.round(mealTotals[macro.key])}{MACRO_LETTERS[macro.key]}
                     </span>
                   ))}
@@ -475,7 +473,6 @@ type OverlayState =
   | { kind: 'menu'; mode: 'tap' | 'swipe'; active: SwipeAction | null }
   | { kind: 'hour'; mode: 'gesture' | 'tap' };
 
-type DockVariant = 'A' | 'B';
 type Axis = 'left' | 'right' | 'up' | 'down';
 export type PlusGestureState = {
   id: number;
@@ -577,8 +574,8 @@ export function radialSelection(x: number, y: number,
   return HOURS[clamp(Math.round(delta / RADIAL_STEP_DEG), 0, HOURS.length - 1)];
 }
 
-function TabBar({ children, actions, variant, overlay }: {
-  children: ReactNode; actions: ReactNode; variant: DockVariant; overlay: OverlayState;
+function TabBar({ children, actions, overlay }: {
+  children: ReactNode; actions: ReactNode; overlay: OverlayState;
 }) {
   const active = overlay.kind !== 'none';
   const tab = (label: string, icon: string, current?: boolean) => (
@@ -587,7 +584,7 @@ function TabBar({ children, actions, variant, overlay }: {
     </button>
   );
   return (
-    <div className="bdg-dock" data-variant={variant} data-open={active ? '' : undefined}>
+    <div className="bdg-dock" data-open={active ? '' : undefined}>
       <nav aria-label="Secciones" className="bcr-tabbar bdg-nav" aria-hidden={active} inert={active}>
         {tab('Diario', I.diary, true)}{tab('Mediciones', I.trend)}
         <span className="bdg-plus-slot" />
@@ -819,10 +816,9 @@ function WeightSheet({
 
 /* Teléfono navegable: diario + menú direccional / swipes en + + radial ascendente + peso. */
 function GesturePhone({
-  macroMode, forced, label, onLog, variant,
+  macroMode, forced, label, onLog,
 }: {
   macroMode: MacroMode;
-  variant: DockVariant;
   forced?: number;
   label: string;
   onLog: (msg: string) => void;
@@ -972,7 +968,7 @@ function GesturePhone({
               onEditFood={(name, h) => onLog(`Toque en alimento → Editar ${name} (${h})`)}
             />
             {overlay.kind !== 'none' ? <div className="bdg-scrim" aria-hidden="true" onClick={cancelGesture} /> : null}
-            <TabBar variant={variant} overlay={overlay} actions={overlay.kind === 'menu' ? (
+            <TabBar overlay={overlay} actions={overlay.kind === 'menu' ? (
               <div className="bdg-triad" role="group" aria-label="Acciones rápidas" aria-hidden={overlay.mode === 'swipe'} inert={overlay.mode === 'swipe'}>
                 <button type="button" className="bdg-triad-btn is-up"
                   style={{ backgroundColor: `color-mix(in srgb, var(--b-ink) ${feedback?.target === 'hour' ? Math.round(feedback.progress * 18) : 0}%, var(--b-surface))` }}
@@ -988,9 +984,6 @@ function GesturePhone({
                     <span>{action === 'weight' ? 'Peso' : 'Ahora'}</span>
                   </button>
                 ))}
-                {overlay.mode === 'swipe' ? <div className="bdg-triad-hint" role="status">
-                  {overlay.active === 'weight' ? 'Suelta para registrar peso' : overlay.active === 'food' ? `Suelta para agregar ahora (${NOW})` : 'Desliza para elegir · centro o abajo cancela'}
-                </div> : null}
               </div>
             ) : null}>
               <button ref={plusRef} type="button"
@@ -1075,13 +1068,13 @@ function GesturePhone({
                     }}
                   >
                     <span className="bdg-hub-hour">{hour !== null ? hh(hour) : '05–23'}</span>
-                    <span className="bdg-hub-cap">{hour !== null ? periodLabel(hour) : 'Toca una hora'}</span>
+                    {hour !== null ? <span className="bdg-hub-cap">{periodLabel(hour)}</span> : null}
                     <span className="bdg-hub-cancel">Cancelar</span>
                   </button>
                 ) : (
                   <div className="bdg-radial-hub" aria-hidden="true">
                     <span className="bdg-hub-hour">{hour !== null ? hh(hour) : '05–23'}</span>
-                    <span className="bdg-hub-cap">{hour !== null ? 'Suelta para abrir' : 'Soltar aquí cancela'}</span>
+                    {hour !== null ? <span className="bdg-hub-cap">{periodLabel(hour)}</span> : null}
                   </div>
                 )}
               </div>
@@ -1116,15 +1109,13 @@ function GesturePhone({
 }
 
 const MACRO_MODE_DESC: Record<MacroMode, string> = {
-  'color-head': 'Opción 1: puntos de color + P/C/G en cabecera de cada hora y macros monocromas junto a la porción en cada fila.',
-  mono: 'Opción 2: todo sin color en el diario (18P · 80C · 10G en cabecera y porción · P · C · G en fila).',
-  plain: 'Vista base actual: solo calorías por comida y porción en cada alimento.',
+  plain: 'Simple: solo calorías por comida y porción por alimento.',
+  mono: 'Con macros P·C·G: macros monocromas P · C · G configurables desde Configuración.',
 };
 
 export function BalanceDiaryGestures() {
   const [dark, setDark] = useState(false);
-  const [variant, setVariant] = useState<DockVariant>('A');
-  const [macroMode, setMacroMode] = useState<MacroMode>('color-head');
+  const [macroMode, setMacroMode] = useState<MacroMode>('plain');
   const [log, setLog] = useState('Todavía no hay gestos.');
   return (
     <div className="bcr bdg" data-theme={dark ? 'dark' : 'light'}>
@@ -1133,17 +1124,10 @@ export function BalanceDiaryGestures() {
           <strong>Balance · diario compacto, radial ascendente y macros P·C·G</strong>
           <span>{MACRO_MODE_DESC[macroMode]}</span>
         </div>
-        <Tabs.Root value={variant} onValueChange={(v) => setVariant(v as DockVariant)}>
-          <Tabs.List className="bcr-seg bdg-variants" aria-label="Variante del gesto +">
-            <Tabs.Tab value="A">Variante A: Dock morfeado</Tabs.Tab>
-            <Tabs.Tab value="B">Variante B: Alas en y₀ + puck</Tabs.Tab>
-          </Tabs.List>
-        </Tabs.Root>
         <Tabs.Root value={macroMode} onValueChange={(v) => setMacroMode(v as MacroMode)}>
           <Tabs.List className="bcr-seg" aria-label="Macros en el diario">
-            <Tabs.Tab value="color-head">Puntos + fila</Tabs.Tab>
-            <Tabs.Tab value="mono">Sin color</Tabs.Tab>
-            <Tabs.Tab value="plain">Tal como está</Tabs.Tab>
+            <Tabs.Tab value="plain">Simple</Tabs.Tab>
+            <Tabs.Tab value="mono">Con macros P·C·G</Tabs.Tab>
           </Tabs.List>
         </Tabs.Root>
         <label className="bcr-switch">
@@ -1154,16 +1138,16 @@ export function BalanceDiaryGestures() {
         </label>
       </div>
       <div className="bcr-canvas">
-        <GesturePhone variant={variant} macroMode={macroMode} onLog={setLog} label="Navegable · prueba día L 9 (corto), X 11 (medio), J 12 (largo)" />
-        <GesturePhone variant={variant} macroMode={macroMode} forced={1} onLog={setLog} label="Encabezado compacto (fijo, para comparar)" />
+        <GesturePhone macroMode={macroMode} onLog={setLog} label="Navegable · prueba día L 9 (corto), X 11 (medio), J 12 (largo)" />
+        <GesturePhone macroMode={macroMode} forced={1} onLog={setLog} label="Encabezado compacto (fijo, para comparar)" />
         <aside className="bdg-notes">
           <div style={{ fontWeight: 600 }}>Último gesto</div>
           <div aria-live="polite" className="quiet">{log}</div>
           <div style={{ fontWeight: 600, marginTop: 12 }}>Cómo probar</div>
           <ul className="quiet">
-            <li><strong>Variantes:</strong> A transforma el dock; B atenúa los tabs y muestra alas en el eje de +. Ambas conservan los mismos gestos.</li>
+            <li><strong>Dock:</strong> al abrir +, Peso y Ahora reemplazan la navegación a la misma altura; Elegir hora queda centrado arriba.</li>
             <li><strong>Desde el menú abierto:</strong> arrastra + sin levantar el dedo; vuelve al centro para corregir o baja para cancelar.</li>
-            <li><strong>Macros en el diario:</strong> compara <em>Puntos + fila</em> (círculos P/C/G en la hora + fila neutra), <em>Sin color</em> (monocromo) y <em>Tal como está</em>.</li>
+            <li><strong>Macros en el diario:</strong> <em>Simple</em> muestra calorías por comida y porciones; <em>Con macros P·C·G</em> agrega macros monocromas configurables desde Configuración.</li>
             <li><strong>Toque en alimento:</strong> queda reservado para editar la comida (sin acordeón).</li>
             <li><strong>Toque en +:</strong> abre las 3 opciones (← Peso, ↑ Elegir hora, → Alimento ahora).</li>
             <li><strong>Swipe ← en +:</strong> abre directo el registro editorial de peso (sin fila de peso en el diario).</li>
