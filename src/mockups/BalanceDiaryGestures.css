@@ -35,7 +35,6 @@
   white-space: nowrap;
 }
 .bdg-meal-macro-item { display: inline-flex; align-items: center; gap: 4px; }
-.bdg-dot { display: inline-block; width: 6px; height: 6px; border-radius: 999px; flex: 0 0 auto; }
 
 .bdg-food-btn {
   width: 100%; border: 0; background: transparent; text-align: left; padding: 0;
@@ -64,8 +63,7 @@
   border-radius: 14px; background: var(--b-ink); color: var(--b-on-ink); pointer-events: none;
 }
 .bdg-add.is-open { background: var(--b-track); }
-.bdg-dock[data-open][data-variant='A'] .bdg-nav { visibility: hidden; opacity: 0; }
-.bdg-dock[data-open][data-variant='B'] .bdg-nav { opacity: 0.18; }
+.bdg-dock[data-open] .bdg-nav { visibility: hidden; opacity: 0; }
 .bdg-triad { position: absolute; inset: 0; display: grid; grid-template-columns: inherit; gap: inherit; align-items: center; }
 .bdg-triad-btn {
   min-width: 0; height: 52px; padding: 0 8px; display: flex; align-items: center; justify-content: center; gap: 8px;
@@ -76,15 +74,9 @@
 .bdg-triad-btn.is-weight { grid-column: 1; grid-row: 1; }
 .bdg-triad-btn.is-food { grid-column: 3; grid-row: 1; }
 .bdg-triad-btn.is-up { position: absolute; left: 50%; top: 50%; transform: translate(-50%, calc(-50% - 76px)); width: 148px; height: 48px; }
-.bdg-dock[data-variant='A'] .bdg-triad-btn:not(.is-up) { border-color: transparent; border-radius: 0; }
-.bdg-dock[data-variant='B'] .bdg-triad-btn:not(.is-up) { height: 44px; }
+.bdg-dock .bdg-triad-btn:not(.is-up) { border-color: transparent; border-radius: 0; }
 .bdg-triad-btn.is-active { background: var(--b-ink) !important; color: var(--b-on-ink); border-color: var(--b-ink); }
 .bdg-triad[inert] .bdg-triad-btn { pointer-events: none; }
-.bdg-triad-hint {
-  position: absolute; left: 50%; bottom: 116px; transform: translateX(-50%); width: max-content; max-width: 100%;
-  padding: 8px 12px; border-radius: 12px; font-size: 12px; font-weight: 500; text-align: center;
-  background: var(--b-surface); border: 1px solid var(--b-line-strong); color: var(--b-ink);
-}
 
 /* El fondo no participa en las coordenadas ni tapa el dock. */
 .bdg-scrim { position: absolute; inset: 0; z-index: 5; background: color-mix(in srgb, var(--b-ink) 24%, transparent); }
@@ -113,8 +105,6 @@
 .bdg-hub-hour { font-family: var(--b-font-display); font-size: 30px; font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; font-variant-numeric: tabular-nums; }
 .bdg-hub-cap { font-size: 11px; color: var(--b-ink-2); }
 .bdg-hub-cancel { margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--b-link); }
-.bdg-variants { flex-wrap: wrap; max-width: 100%; }
-.bdg-variants > button { flex: 1 1 auto; white-space: normal; padding: 10px 12px; }
 .bdg .bcr-toolbar > div { min-width: 0; max-width: 100%; }
 @media (max-width: 480px) {
   .bdg .bcr-canvas { padding: 24px 12px 40px; }

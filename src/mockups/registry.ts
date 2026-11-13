@@ -24,9 +24,9 @@ export const mockupRegistry: MockupItem[] = [
     id: 'balance-diary-gestures',
     title: 'Balance · Diario compacto, radial ascendente y macros P·C·G',
     category: 'Dashboards',
-    description: 'Diario sin fila de peso y guard de scroll corto (BAL-067), botón + con dock morfeado o alas en y₀, puck elástico y radial compacto (BAL-066), más comparador de macros pasivas P/C/G (puntos de color en hora vs monocromo) dejando el toque libre para editar.',
-    tags: ['Balance', 'mobile', 'scroll', 'sticky header', 'gesture', 'dock variants', 'radial', 'macros'],
-    version: 'v1.4.0',
+    description: 'Diario compacto con dock morfeado, puck elástico y selector radial de hora; vista Simple por defecto o macros monocromas P·C·G, con toque en alimentos para editar.',
+    tags: ['Balance', 'mobile', 'scroll', 'sticky header', 'gesture', 'dock', 'radial', 'macros'],
+    version: 'v1.5.0',
     updatedAt: '2026-11-13',
     component: BalanceDiaryGestures
   },
