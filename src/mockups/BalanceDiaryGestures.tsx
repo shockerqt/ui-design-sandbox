@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react';
-import type { PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react';
+import type { MouseEvent as ReactMouseEvent, PointerEvent as ReactPointerEvent, ReactNode, WheelEvent as ReactWheelEvent } from 'react';
 import { Switch } from '@base-ui/react/switch';
 import { Tabs } from '@base-ui/react/tabs';
 import './BalanceCleanRedesign.css';
@@ -421,19 +421,27 @@ function Diary({
 
 const HOURS = Array.from({ length: 19 }, (_, i) => i + 5);
 const hh = (h: number) => `${String(h).padStart(2, '0')}:00`;
-const HOLD_MS = 300;
+const HOLD_MS = 350;
+const TAP_DISTANCE = 10;
+const AXIS_DISTANCE = 18;
+const AXIS_DOMINANCE = 1.3;
+const AXIS_RESET = 12;
+const ARM_DISTANCE = 44;
+const DISARM_DISTANCE = 28;
+const RADIAL_DISTANCE = 32;
+const DOWN_CANCEL = 40;
 
 /* Geometría del dial radial de herradura (288° con boca inferior de 72° mirando al +). */
-const RADIAL_SIZE = 336;
+const RADIAL_SIZE = 288;
 const RADIAL_CX = RADIAL_SIZE / 2;
-const RADIAL_R_OUT = 168;
-const RADIAL_R_IN = 92;
-const RADIAL_R_SLOT = 130;
+const RADIAL_R_OUT = 143;
+const RADIAL_R_IN = 78;
+const RADIAL_R_SLOT = 112;
 const RADIAL_CAP = (RADIAL_R_OUT - RADIAL_R_IN) / 2;
 const RADIAL_START_DEG = 126;
 const RADIAL_STEP_DEG = 16;
-const RADIAL_INNER_CANCEL = 84;
-const RADIAL_OUTER_CANCEL = 192;
+const RADIAL_INNER_CANCEL = 70;
+const RADIAL_OUTER_CANCEL = 144;
 
 const polar = (cx: number, cy: number, r: number, deg: number) => {
   const rad = (deg * Math.PI) / 180;
@@ -467,30 +475,126 @@ type OverlayState =
   | { kind: 'menu'; mode: 'tap' | 'swipe'; active: SwipeAction | null }
   | { kind: 'hour'; mode: 'gesture' | 'tap' };
 
-type GestureState = {
+type DockVariant = 'A' | 'B';
+type Axis = 'left' | 'right' | 'up' | 'down';
+export type PlusGestureState = {
   id: number;
   x: number;
   y: number;
-  phase: 'pending' | 'swipe' | 'hour';
-  swipe: SwipeAction | null;
-  timer: number | null;
+  startedAt: number;
+  maxDistance: number;
+  dx: number;
+  dy: number;
+  phase: 'pending' | 'dragging' | 'radial' | 'cancelled' | 'finished';
+  axis: Axis | null;
+  armed: 'weight' | 'food' | null;
+  target: SwipeAction | null;
+  progress: number;
+  puck: { x: number; y: number };
+  hour: number | null;
+  outcome: 'tap' | 'weight' | 'food' | 'cancel' | number | null;
 };
+type PlusGestureEvent =
+  | { type: 'start'; id: number; x: number; y: number; time: number }
+  | { type: 'move' | 'release'; x: number; y: number; time: number; hour?: number | null }
+  | { type: 'hold'; time: number }
+  | { type: 'cancel' };
 
-function TabBar({ children }: { children: ReactNode }) {
+/** Resistencia vectorial: el botón exterior nunca se mueve. */
+export function puckOffset(dx: number, dy: number) {
+  const distance = Math.hypot(dx, dy);
+  const amount = 24 * (1 - Math.exp(-distance / 48));
+  return distance === 0 ? { x: 0, y: 0 } : { x: dx / distance * amount, y: dy / distance * amount };
+}
+
+/** Transiciones sin DOM, reloj global ni efectos; ambos docks comparten este contrato. */
+export function transitionPlusGesture(state: PlusGestureState | null, event: PlusGestureEvent): PlusGestureState {
+  if (event.type === 'start') {
+    return { id: event.id, x: event.x, y: event.y, startedAt: event.time, maxDistance: 0,
+      dx: 0, dy: 0, phase: 'pending', axis: null, armed: null, target: null, progress: 0,
+      puck: { x: 0, y: 0 }, hour: null, outcome: null };
+  }
+  if (!state) throw new Error('El gesto necesita un inicio');
+  if (state.phase === 'finished') return state;
+  const cancel = (): PlusGestureState => ({ ...state, phase: 'cancelled', axis: null, armed: null,
+    target: null, progress: 0, puck: { x: 0, y: 0 }, hour: null, outcome: 'cancel' });
+  if (event.type === 'cancel') return cancel();
+  if (state.phase === 'cancelled') return state;
+  if (event.type === 'hold') {
+    return state.phase === 'pending' && state.maxDistance <= TAP_DISTANCE && event.time - state.startedAt >= HOLD_MS
+      ? { ...state, phase: 'radial', hour: null, armed: null, target: 'hour', progress: 1 }
+      : state;
+  }
+  const dx = event.x - state.x;
+  const dy = event.y - state.y;
+  const distance = Math.hypot(dx, dy);
+  const maxDistance = Math.max(state.maxDistance, distance);
+  if (dy > DOWN_CANCEL) return cancel();
+  let next: PlusGestureState = { ...state, dx, dy, maxDistance, puck: puckOffset(dx, dy) };
+  if (state.phase === 'radial') {
+    next.hour = event.hour === undefined ? state.hour : event.hour;
+  } else {
+    next.phase = maxDistance <= TAP_DISTANCE ? 'pending' : 'dragging';
+    if (distance <= AXIS_RESET) {
+      next.axis = null;
+      next.armed = null;
+    } else if (next.axis === null && distance >= AXIS_DISTANCE) {
+      if (Math.abs(dx) >= AXIS_DOMINANCE * Math.abs(dy)) next.axis = dx < 0 ? 'left' : 'right';
+      else if (Math.abs(dy) >= AXIS_DOMINANCE * Math.abs(dx)) next.axis = dy < 0 ? 'up' : 'down';
+    }
+    const lateral = next.axis === 'left' ? -dx : next.axis === 'right' ? dx : 0;
+    if (lateral < DISARM_DISTANCE) next.armed = null;
+    if (lateral >= ARM_DISTANCE) next.armed = next.axis === 'left' ? 'weight' : 'food';
+    next.target = lateral > 0 ? (next.axis === 'left' ? 'weight' : 'food') : next.axis === 'up' && dy < 0 ? 'hour' : null;
+    next.progress = next.target === null ? 0 : clamp((next.target === 'hour' ? -dy : lateral) / (next.target === 'hour' ? RADIAL_DISTANCE : ARM_DISTANCE));
+    if (next.axis === 'up' && dy <= -RADIAL_DISTANCE) {
+      next = { ...next, phase: 'radial', hour: null, armed: null, target: 'hour', progress: 1 };
+    }
+  }
+  if (event.type === 'release') {
+    const outcome = next.phase === 'radial' ? next.hour ?? 'cancel'
+      : maxDistance <= TAP_DISTANCE && event.time - state.startedAt < HOLD_MS ? 'tap'
+      : next.armed ?? 'cancel';
+    return { ...next, phase: 'finished', outcome, puck: { x: 0, y: 0 }, progress: 0 };
+  }
+  return next;
+}
+
+/** Coordenadas cliente con cursor 24px sobre el dedo, normalizadas al dial renderizado. */
+export function radialSelection(x: number, y: number,
+  box: { left: number; top: number; width: number; height: number }, previous: number | null = null): number | null {
+  if (box.width <= 0 || box.height <= 0) return null;
+  const dx = (x - box.left) * RADIAL_SIZE / box.width - RADIAL_CX;
+  const dy = (y - 24 - box.top) * RADIAL_SIZE / box.height - RADIAL_CX;
+  const radius = Math.hypot(dx, dy);
+  if (radius <= RADIAL_INNER_CANCEL || radius > RADIAL_OUTER_CANCEL) return null;
+  const alpha = (Math.atan2(dy, dx) * 180 / Math.PI + 360) % 360;
+  if (alpha > 62 && alpha < 118) return null;
+  let delta = (alpha - RADIAL_START_DEG + 360) % 360;
+  if (delta > 288) delta = alpha >= 90 ? 0 : 288;
+  const previousIndex = previous === null ? -1 : HOURS.indexOf(previous);
+  if (previousIndex >= 0 && Math.abs(delta - previousIndex * RADIAL_STEP_DEG) <= RADIAL_STEP_DEG / 2 + 3) return previous;
+  return HOURS[clamp(Math.round(delta / RADIAL_STEP_DEG), 0, HOURS.length - 1)];
+}
+
+function TabBar({ children, actions, variant, overlay }: {
+  children: ReactNode; actions: ReactNode; variant: DockVariant; overlay: OverlayState;
+}) {
+  const active = overlay.kind !== 'none';
   const tab = (label: string, icon: string, current?: boolean) => (
-    <button type="button" className="bcr-tab" aria-current={current ? 'page' : undefined}>
-      <Icon d={icon} size={22} />
-      {label}
+    <button type="button" className="bcr-tab" disabled={active} aria-current={current ? 'page' : undefined}>
+      <Icon d={icon} size={22} />{label}
     </button>
   );
   return (
-    <nav aria-label="Secciones" className="bcr-tabbar">
-      {tab('Diario', I.diary, true)}
-      {tab('Mediciones', I.trend)}
-      {children}
-      {tab('Resumen', I.bars)}
-      {tab('Perfil', I.user)}
-    </nav>
+    <div className="bdg-dock" data-variant={variant} data-open={active ? '' : undefined}>
+      <nav aria-label="Secciones" className="bcr-tabbar bdg-nav" aria-hidden={active} inert={active}>
+        {tab('Diario', I.diary, true)}{tab('Mediciones', I.trend)}
+        <span className="bdg-plus-slot" />
+        {tab('Resumen', I.bars)}{tab('Perfil', I.user)}
+      </nav>
+      <div className="bdg-dock-row">{children}{actions}</div>
+    </div>
   );
 }
 
@@ -715,9 +819,10 @@ function WeightSheet({
 
 /* Teléfono navegable: diario + menú direccional / swipes en + + radial ascendente + peso. */
 function GesturePhone({
-  macroMode, forced, label, onLog,
+  macroMode, forced, label, onLog, variant,
 }: {
   macroMode: MacroMode;
+  variant: DockVariant;
   forced?: number;
   label: string;
   onLog: (msg: string) => void;
@@ -728,161 +833,121 @@ function GesturePhone({
   const [weightOpen, setWeightOpen] = useState(false);
   const [overlay, setOverlay] = useState<OverlayState>({ kind: 'none' });
   const [hour, setHour] = useState<number | null>(null);
-  const gesture = useRef<GestureState | null>(null);
+  const gesture = useRef<PlusGestureState | null>(null);
+  const [feedback, setFeedback] = useState<PlusGestureState | null>(null);
+  const holdTimer = useRef<number | null>(null);
+  const plusRef = useRef<HTMLButtonElement>(null);
   const radialRef = useRef<HTMLDivElement>(null);
   const suppressClick = useRef(false);
   const hintId = useId();
 
-  useEffect(() => () => {
-    if (gesture.current?.timer !== null && gesture.current?.timer !== undefined) {
-      window.clearTimeout(gesture.current.timer);
+  const clearHold = () => {
+    if (holdTimer.current !== null) window.clearTimeout(holdTimer.current);
+    holdTimer.current = null;
+  };
+  const resetGesture = () => {
+    clearHold();
+    const id = gesture.current?.id;
+    gesture.current = null;
+    setFeedback(null);
+    if (id !== undefined && plusRef.current?.hasPointerCapture(id)) plusRef.current.releasePointerCapture(id);
+  };
+  const cancelGesture = () => {
+    if (gesture.current) {
+      gesture.current = transitionPlusGesture(gesture.current, { type: 'cancel' });
+      suppressClick.current = true;
     }
+    resetGesture();
+    setOverlay({ kind: 'none' });
+    setHour(null);
+  };
+  useEffect(() => () => {
+    if (holdTimer.current !== null) window.clearTimeout(holdTimer.current);
   }, []);
-
   useEffect(() => {
-    if (overlay.kind === 'none') return;
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') {
-        setOverlay({ kind: 'none' });
-        setHour(null);
-      }
-    };
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') cancelGesture(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [overlay.kind]);
+  });
 
   const openAdd = (h: string, how: string) => {
+    resetGesture();
     setOverlay({ kind: 'none' });
     setHour(null);
     setAdd({ hour: h, how });
     onLog(`${how} → Agregar a las ${h} (${dayLabel(day)})`);
   };
-
   const openWeight = (how: string) => {
+    resetGesture();
     setOverlay({ kind: 'none' });
     setHour(null);
     setWeightOpen(true);
     onLog(`${how} → Peso (${dayLabel(day)})`);
   };
-
   const hourAtRadial = (x: number, y: number) => {
     const box = radialRef.current?.getBoundingClientRect();
-    if (!box) return null;
-    const cx = box.left + box.width / 2;
-    const cy = box.top + box.height / 2;
-    const dx = x - cx;
-    const dy = y - cy;
-    const r = Math.hypot(dx, dy);
-    if (r < RADIAL_INNER_CANCEL || r > RADIAL_OUTER_CANCEL) return null;
-    const alpha = ((Math.atan2(dy, dx) * 180) / Math.PI + 360) % 360;
-    /* Boca inferior (62°..118°) sobre + cancela. */
-    if (alpha > 62 && alpha < 118) return null;
-    let delta = (alpha - RADIAL_START_DEG + 360) % 360;
-    if (delta > 324) delta = 0;
-    const idx = clamp(Math.round(delta / RADIAL_STEP_DEG), 0, HOURS.length - 1);
-    return HOURS[idx];
+    return box ? radialSelection(x, y, box, gesture.current?.hour ?? null) : null;
   };
-
-  const enterHourGesture = () => {
-    if (gesture.current) {
-      if (gesture.current.timer !== null) window.clearTimeout(gesture.current.timer);
-      gesture.current.timer = null;
-      gesture.current.phase = 'hour';
+  const presentGesture = (next: PlusGestureState) => {
+    const enteringRadial = next.phase === 'radial' && gesture.current?.phase !== 'radial';
+    gesture.current = next;
+    setFeedback(next);
+    if (next.maxDistance > TAP_DISTANCE || next.phase !== 'pending') clearHold();
+    if (next.phase === 'radial') {
+      setOverlay({ kind: 'hour', mode: 'gesture' });
+      setHour(enteringRadial ? null : next.hour);
+    } else if (next.phase === 'dragging') {
+      setOverlay({ kind: 'menu', mode: 'swipe', active: next.armed });
+    } else if (next.phase === 'cancelled') {
+      setOverlay({ kind: 'none' });
+      setHour(null);
     }
-    setOverlay({ kind: 'hour', mode: 'gesture' });
-    setHour(null);
   };
-
   const onPointerDown = (e: ReactPointerEvent<HTMLButtonElement>) => {
-    if (e.button !== 0) return;
-    if (overlay.kind === 'menu' && overlay.mode === 'tap') return;
+    if (e.button !== 0 || !e.isPrimary || gesture.current) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     suppressClick.current = false;
-    gesture.current = {
-      id: e.pointerId,
-      x: e.clientX,
-      y: e.clientY,
-      phase: 'pending',
-      swipe: null,
-      timer: window.setTimeout(enterHourGesture, HOLD_MS),
-    };
+    gesture.current = transitionPlusGesture(null, { type: 'start', id: e.pointerId, x: e.clientX, y: e.clientY, time: e.timeStamp });
+    const startedAt = e.timeStamp;
+    holdTimer.current = window.setTimeout(() => {
+      if (gesture.current) presentGesture(transitionPlusGesture(gesture.current, { type: 'hold', time: startedAt + HOLD_MS }));
+    }, HOLD_MS);
   };
-
   const onPointerMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
     const g = gesture.current;
     if (!g || g.id !== e.pointerId) return;
-    if (g.phase === 'hour') {
-      setHour(hourAtRadial(e.clientX, e.clientY));
-      return;
-    }
-    const dx = e.clientX - g.x;
-    const dy = e.clientY - g.y;
-    const dist = Math.hypot(dx, dy);
-    if (dist > 10 && g.timer !== null) {
-      window.clearTimeout(g.timer);
-      g.timer = null;
-    }
-    if (dist < 14) {
-      if (g.phase === 'swipe') {
-        g.swipe = null;
-        setOverlay({ kind: 'menu', mode: 'swipe', active: null });
-      }
-      return;
-    }
-    /* Deslizar hacia arriba >= 26 px salta directo al selector de hora bajo el dedo. */
-    if (dy <= -26 && Math.abs(dy) >= Math.abs(dx)) {
-      enterHourGesture();
-      return;
-    }
-    g.phase = 'swipe';
-    let swipe: SwipeAction | null = null;
-    if (dx <= -26 && Math.abs(dx) > Math.abs(dy)) swipe = 'weight';
-    else if (dx >= 26 && Math.abs(dx) > Math.abs(dy)) swipe = 'food';
-    else if (dy < -12 && Math.abs(dy) >= Math.abs(dx)) swipe = 'hour';
-    g.swipe = swipe;
-    setOverlay({ kind: 'menu', mode: 'swipe', active: swipe });
+    presentGesture(transitionPlusGesture(g, { type: 'move', x: e.clientX, y: e.clientY, time: e.timeStamp,
+      hour: g.phase === 'radial' ? hourAtRadial(e.clientX, e.clientY) : undefined }));
   };
-
-  const finishGesture = (e: ReactPointerEvent<HTMLButtonElement>, cancelled: boolean) => {
+  const toggleMenu = () => {
+    if (overlay.kind !== 'none') cancelGesture();
+    else {
+      setOverlay({ kind: 'menu', mode: 'tap', active: null });
+      onLog('Toque en + → Peso · Elegir hora · Ahora');
+    }
+  };
+  const finishGesture = (e: ReactPointerEvent<HTMLButtonElement>) => {
     const g = gesture.current;
     if (!g || g.id !== e.pointerId) return;
-    if (g.timer !== null) window.clearTimeout(g.timer);
-    gesture.current = null;
-
-    if (g.phase === 'pending') return; // toque corto lo resuelve onClick
+    const next = transitionPlusGesture(g, { type: 'release', x: e.clientX, y: e.clientY, time: e.timeStamp,
+      hour: g.phase === 'radial' ? hourAtRadial(e.clientX, e.clientY) : undefined });
     suppressClick.current = true;
-
-    if (g.phase === 'hour') {
-      const picked = cancelled ? null : hourAtRadial(e.clientX, e.clientY);
+    resetGesture();
+    if (next.outcome === 'tap') toggleMenu();
+    else if (next.outcome === 'weight') openWeight('Swipe ← en +');
+    else if (next.outcome === 'food') openAdd(NOW, 'Swipe → en + (hora actual)');
+    else if (typeof next.outcome === 'number') openAdd(hh(next.outcome), 'Gesto ↑ al radial');
+    else {
       setOverlay({ kind: 'none' });
       setHour(null);
-      if (picked === null) onLog('Radial abierto y soltado en zona neutra → cancelado');
-      else openAdd(hh(picked), 'Gesto ↑ al radial');
-      return;
+      onLog('Gesto soltado en zona neutra → cancelado');
     }
-
-    const action = cancelled ? null : g.swipe;
-    setOverlay({ kind: 'none' });
-    if (action === 'weight') openWeight('Swipe ← en +');
-    else if (action === 'food') openAdd(NOW, 'Swipe → en + (hora actual)');
-    else if (action === 'hour') setOverlay({ kind: 'hour', mode: 'tap' });
-    else onLog('Swipe cancelado al volver al centro');
   };
-
-  const onPlusClick = () => {
-    if (suppressClick.current) {
-      suppressClick.current = false;
-      return;
-    }
-    if (overlay.kind === 'menu' && overlay.mode === 'tap') {
-      setOverlay({ kind: 'none' });
-    } else if (overlay.kind === 'hour') {
-      setOverlay({ kind: 'none' });
-      setHour(null);
-    } else {
-      setOverlay({ kind: 'menu', mode: 'tap', active: null });
-      onLog('Toque en + → menú de acciones (← peso · ↑ hora · → ahora)');
-    }
+  const onPlusClick = (e: ReactMouseEvent<HTMLButtonElement>) => {
+    // Los clics de teclado (detail=0) siguen disponibles tras cancelar una captura.
+    if (suppressClick.current && e.detail !== 0) { suppressClick.current = false; return; }
+    suppressClick.current = false;
+    toggleMenu();
   };
 
   const activeIdx = hour !== null ? HOURS.indexOf(hour) : -1;
@@ -906,21 +971,39 @@ function GesturePhone({
               onAddAt={(h) => openAdd(h, `+ del grupo de las ${h}`)}
               onEditFood={(name, h) => onLog(`Toque en alimento → Editar ${name} (${h})`)}
             />
-            <TabBar>
-              <button
-                type="button"
+            {overlay.kind !== 'none' ? <div className="bdg-scrim" aria-hidden="true" onClick={cancelGesture} /> : null}
+            <TabBar variant={variant} overlay={overlay} actions={overlay.kind === 'menu' ? (
+              <div className="bdg-triad" role="group" aria-label="Acciones rápidas" aria-hidden={overlay.mode === 'swipe'} inert={overlay.mode === 'swipe'}>
+                <button type="button" className="bdg-triad-btn is-up"
+                  style={{ backgroundColor: `color-mix(in srgb, var(--b-ink) ${feedback?.target === 'hour' ? Math.round(feedback.progress * 18) : 0}%, var(--b-surface))` }}
+                  onClick={() => { setHour(null); setOverlay({ kind: 'hour', mode: 'tap' }); }}>
+                  <Icon d={I.clock} size={18} /><span>Elegir hora</span>
+                </button>
+                {(['weight', 'food'] as const).map((action) => (
+                  <button key={action} type="button"
+                    className={`bdg-triad-btn is-${action}${overlay.active === action ? ' is-active' : ''}`}
+                    style={{ backgroundColor: `color-mix(in srgb, var(--b-ink) ${feedback?.target === action ? Math.round(feedback.progress * 18) : 0}%, var(--b-surface))` }}
+                    onClick={() => action === 'weight' ? openWeight('Menú + → Registrar peso') : openAdd(NOW, 'Menú + → Alimento ahora')}>
+                    <Icon d={action === 'weight' ? I.scale : I.utensils} size={18} />
+                    <span>{action === 'weight' ? 'Peso' : 'Ahora'}</span>
+                  </button>
+                ))}
+                {overlay.mode === 'swipe' ? <div className="bdg-triad-hint" role="status">
+                  {overlay.active === 'weight' ? 'Suelta para registrar peso' : overlay.active === 'food' ? `Suelta para agregar ahora (${NOW})` : 'Desliza para elegir · centro o abajo cancela'}
+                </div> : null}
+              </div>
+            ) : null}>
+              <button ref={plusRef} type="button"
                 className={`bcr-tab-add bdg-add${overlay.kind !== 'none' ? ' is-open' : ''}`}
-                aria-label={overlay.kind === 'menu' ? 'Cerrar acciones' : 'Agregar alimento o peso'}
-                aria-expanded={overlay.kind !== 'none'}
-                aria-describedby={hintId}
-                onPointerDown={onPointerDown}
-                onPointerMove={onPointerMove}
-                onPointerUp={(e) => finishGesture(e, false)}
-                onPointerCancel={(e) => finishGesture(e, true)}
-                onClick={onPlusClick}
-                onContextMenu={(e) => e.preventDefault()}
-              >
-                <Icon d={overlay.kind === 'menu' && overlay.mode === 'tap' ? I.close : I.plus} size={24} width={2.4} />
+                aria-label={overlay.kind !== 'none' ? 'Cerrar acciones' : 'Agregar alimento o peso'}
+                aria-expanded={overlay.kind !== 'none'} aria-describedby={hintId}
+                onPointerDown={onPointerDown} onPointerMove={onPointerMove} onPointerUp={finishGesture}
+                onPointerCancel={(e) => { if (gesture.current?.id === e.pointerId) cancelGesture(); }}
+                onLostPointerCapture={(e) => { if (gesture.current?.id === e.pointerId) cancelGesture(); }}
+                onClick={onPlusClick} onContextMenu={(e) => e.preventDefault()}>
+                <span className="bdg-puck" style={{ transform: `translate(${feedback?.puck.x ?? 0}px, ${feedback?.puck.y ?? 0}px)` }}>
+                  <Icon d={overlay.kind !== 'none' ? I.close : I.plus} size={24} width={2.4} />
+                </span>
               </button>
               <span id={hintId} className="sr-only">
                 Toca para elegir alimento ahora, hora o peso; desliza a la izquierda para peso, derecha para alimento ahora, o arriba para elegir hora.
@@ -929,60 +1012,9 @@ function GesturePhone({
           </>
         )}
 
-        {overlay.kind === 'menu' ? (
-          <div
-            className="bdg-scrim"
-            aria-hidden={overlay.mode === 'swipe'}
-            onClick={(e) => { if (overlay.mode === 'tap' && e.target === e.currentTarget) setOverlay({ kind: 'none' }); }}
-          >
-            <div className="bdg-triad" role={overlay.mode === 'tap' ? 'group' : undefined} aria-label="Acciones rápidas">
-              <div className="bdg-triad-top">
-                <button
-                  type="button"
-                  className={`bdg-triad-btn is-up${overlay.active === 'hour' ? ' is-active' : ''}`}
-                  onClick={() => setOverlay({ kind: 'hour', mode: 'tap' })}
-                >
-                  <span className="bdg-triad-dir" aria-hidden="true">↑</span>
-                  <Icon d={I.clock} size={18} />
-                  <span>Elegir hora</span>
-                </button>
-              </div>
-              <div className="bdg-triad-row">
-                <button
-                  type="button"
-                  className={`bdg-triad-btn${overlay.active === 'weight' ? ' is-active' : ''}`}
-                  onClick={() => openWeight('Menú + → Registrar peso')}
-                >
-                  <span className="bdg-triad-dir" aria-hidden="true">←</span>
-                  <Icon d={I.scale} size={18} />
-                  <span>Peso</span>
-                </button>
-                <button
-                  type="button"
-                  className={`bdg-triad-btn is-primary${overlay.active === 'food' ? ' is-active' : ''}`}
-                  onClick={() => openAdd(NOW, 'Menú + → Alimento ahora')}
-                >
-                  <Icon d={I.utensils} size={18} />
-                  <span>Ahora · {NOW}</span>
-                  <span className="bdg-triad-dir" aria-hidden="true">→</span>
-                </button>
-              </div>
-              <div className="bdg-triad-hint">
-                {overlay.mode === 'swipe'
-                  ? overlay.active === 'weight'
-                    ? 'Suelta ← para registrar peso'
-                    : overlay.active === 'food'
-                      ? `Suelta → para agregar ahora (${NOW})`
-                      : 'Desliza ↑ al selector de hora · centro cancela'
-                  : 'Toca una opción · o desliza ← peso · ↑ hora · → ahora'}
-              </div>
-            </div>
-          </div>
-        ) : null}
-
         {overlay.kind === 'hour' ? (
           <div
-            className="bdg-scrim is-radial"
+            className="bdg-radial-overlay"
             aria-hidden={overlay.mode === 'gesture'}
             onClick={(e) => {
               if (overlay.mode === 'tap' && e.target === e.currentTarget) {
@@ -992,19 +1024,6 @@ function GesturePhone({
             }}
           >
             <div className="bdg-radial-stage">
-              <div className={`bdg-radial-pill${hour !== null ? ' is-picked' : ''}`}>
-                {hour !== null ? (
-                  <>
-                    <strong>{hh(hour)}</strong>
-                    <span className="quiet">{periodLabel(hour)}</span>
-                  </>
-                ) : (
-                  <span className="quiet">
-                    {overlay.mode === 'tap' ? 'Toca una hora' : 'Desliza por el aro · suelta fuera para cancelar'}
-                  </span>
-                )}
-              </div>
-
               <div
                 ref={radialRef}
                 className="bdg-radial"
@@ -1035,13 +1054,13 @@ function GesturePhone({
                       type="button"
                       tabIndex={overlay.mode === 'tap' ? 0 : -1}
                       className={`bdg-radial-node${isActive ? ' is-active' : ''}${isAnchor ? ' is-anchor' : ''}`}
-                      style={{ left: pos.x, top: pos.y }}
+                      style={{ left: `${pos.x / RADIAL_SIZE * 100}%`, top: `${pos.y / RADIAL_SIZE * 100}%` }}
                       aria-label={`Agregar a las ${hh(h)}`}
                       onMouseEnter={() => { if (overlay.mode === 'tap') setHour(h); }}
                       onFocus={() => { if (overlay.mode === 'tap') setHour(h); }}
                       onClick={() => openAdd(hh(h), 'Selector radial (toque)')}
                     >
-                      {isActive ? hh(h) : String(h).padStart(2, '0')}
+                      {String(h).padStart(2, '0')}
                     </button>
                   );
                 })}
@@ -1104,15 +1123,22 @@ const MACRO_MODE_DESC: Record<MacroMode, string> = {
 
 export function BalanceDiaryGestures() {
   const [dark, setDark] = useState(false);
+  const [variant, setVariant] = useState<DockVariant>('A');
   const [macroMode, setMacroMode] = useState<MacroMode>('color-head');
   const [log, setLog] = useState('Todavía no hay gestos.');
   return (
-    <div className="bcr" data-theme={dark ? 'dark' : 'light'}>
+    <div className="bcr bdg" data-theme={dark ? 'dark' : 'light'}>
       <div className="bcr-toolbar">
         <div className="bcr-toolbar-title">
           <strong>Balance · diario compacto, radial ascendente y macros P·C·G</strong>
           <span>{MACRO_MODE_DESC[macroMode]}</span>
         </div>
+        <Tabs.Root value={variant} onValueChange={(v) => setVariant(v as DockVariant)}>
+          <Tabs.List className="bcr-seg bdg-variants" aria-label="Variante del gesto +">
+            <Tabs.Tab value="A">Variante A: Dock morfeado</Tabs.Tab>
+            <Tabs.Tab value="B">Variante B: Alas en y₀ + puck</Tabs.Tab>
+          </Tabs.List>
+        </Tabs.Root>
         <Tabs.Root value={macroMode} onValueChange={(v) => setMacroMode(v as MacroMode)}>
           <Tabs.List className="bcr-seg" aria-label="Macros en el diario">
             <Tabs.Tab value="color-head">Puntos + fila</Tabs.Tab>
@@ -1128,13 +1154,15 @@ export function BalanceDiaryGestures() {
         </label>
       </div>
       <div className="bcr-canvas">
-        <GesturePhone macroMode={macroMode} onLog={setLog} label="Navegable · prueba día L 9 (corto), X 11 (medio), J 12 (largo)" />
-        <GesturePhone macroMode={macroMode} forced={1} onLog={setLog} label="Encabezado compacto (fijo, para comparar)" />
+        <GesturePhone variant={variant} macroMode={macroMode} onLog={setLog} label="Navegable · prueba día L 9 (corto), X 11 (medio), J 12 (largo)" />
+        <GesturePhone variant={variant} macroMode={macroMode} forced={1} onLog={setLog} label="Encabezado compacto (fijo, para comparar)" />
         <aside className="bdg-notes">
           <div style={{ fontWeight: 600 }}>Último gesto</div>
           <div aria-live="polite" className="quiet">{log}</div>
           <div style={{ fontWeight: 600, marginTop: 12 }}>Cómo probar</div>
           <ul className="quiet">
+            <li><strong>Variantes:</strong> A transforma el dock; B atenúa los tabs y muestra alas en el eje de +. Ambas conservan los mismos gestos.</li>
+            <li><strong>Desde el menú abierto:</strong> arrastra + sin levantar el dedo; vuelve al centro para corregir o baja para cancelar.</li>
             <li><strong>Macros en el diario:</strong> compara <em>Puntos + fila</em> (círculos P/C/G en la hora + fila neutra), <em>Sin color</em> (monocromo) y <em>Tal como está</em>.</li>
             <li><strong>Toque en alimento:</strong> queda reservado para editar la comida (sin acordeón).</li>
             <li><strong>Toque en +:</strong> abre las 3 opciones (← Peso, ↑ Elegir hora, → Alimento ahora).</li>
