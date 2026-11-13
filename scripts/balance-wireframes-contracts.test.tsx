@@ -8,6 +8,151 @@ import type { LabelDraft } from '../src/mockups/BalanceFoodRegistration';
 import { fiberTotal, foodWithQuantity, groupFoodsByHour, hourGroup, makeFixtureFood, santiagoDate, validWeight } from '../src/mockups/BalanceFoodModel';
 import { SummaryView } from '../src/mockups/BalanceMeasurementViews';
 
+import { transitionPlusGesture, puckOffset, radialSelection } from '../src/mockups/BalanceDiaryGestures';
+import type { PlusGestureState } from '../src/mockups/BalanceDiaryGestures';
+import { mockupRegistry } from '../src/mockups/registry';
+
+const start = () => transitionPlusGesture(null, { type: 'start', id: 7, x: 0, y: 0, time: 100 });
+const move = (s: PlusGestureState, x: number, y = 0, time = 200) => transitionPlusGesture(s, { type: 'move', x, y, time });
+const release = (s: PlusGestureState, x = s.dx, y = s.dy, time = 250, hour?: number | null) => transitionPlusGesture(s, { type: 'release', x, y, time, hour });
+const hold = (s: PlusGestureState, elapsed: number) => transitionPlusGesture(s, { type: 'hold', time: s.startedAt + elapsed });
+const cancel = (s: PlusGestureState) => transitionPlusGesture(s, { type: 'cancel' });
+
+// Exact tap/hold boundaries; maximum excursion prevents a returning drag becoming a tap.
+for (const x of [0, 9.999, 10]) assert.equal(release(move(start(), x), x, 0, 449).outcome, 'tap');
+assert.equal(release(move(start(), 10.001)).outcome, 'cancel');
+assert.equal(release(start(), 0, 0, 450).outcome, 'cancel');
+assert.equal(hold(start(), 349).phase, 'pending');
+assert.equal(hold(move(start(), 10), 350).phase, 'radial');
+assert.equal(hold(move(start(), 10.001), 350).phase, 'dragging');
+assert.equal(hold(move(move(start(), 11), 0), 350).phase, 'dragging');
+assert.equal(release(move(move(start(), 50), 0)).outcome, 'cancel');
+
+// Axis lock, 1.3× dominance, center reset, and direction changes only through center.
+assert.equal(move(start(), 17.999).axis, null);
+assert.equal(move(start(), 18).axis, 'right');
+assert.equal(move(start(), 26, 20).axis, 'right');
+assert.equal(move(start(), 25.999, 20).axis, null);
+assert.equal(move(start(), 20, -26).axis, 'up');
+assert.equal(move(start(), 20, -25.999).axis, null);
+assert.equal(move(move(start(), 44), -44).armed, null);
+assert.equal(move(move(start(), 44), -44).axis, 'right');
+assert.equal(move(move(start(), 44), 12.001).axis, 'right');
+assert.equal(move(move(start(), 44), 12).axis, null);
+assert.equal(move(move(move(start(), 44), 12), -44).armed, 'weight');
+assert.equal(move(move(move(start(), 44), 12), 0, -32).phase, 'radial');
+
+for (const sign of [-1, 1]) {
+  const action = sign === -1 ? 'weight' : 'food';
+  assert.equal(move(start(), sign * 43.999).armed, null);
+  const armed = move(start(), sign * 44);
+  assert.equal(armed.armed, action);
+  assert.equal(move(armed, sign * 28).armed, action);
+  assert.equal(move(armed, sign * 27.999).armed, null);
+  assert.equal(release(armed).outcome, action);
+  assert.equal(release(armed, sign * 27).outcome, 'cancel');
+  const progress = [11, 18, 28, 40, 44].map(x => move(start(), sign * x).progress);
+  assert.ok(progress.every((v, i) => v >= 0 && v <= 1 && (i === 0 || v >= progress[i - 1])));
+  assert.equal(progress.at(-1), 1);
+}
+assert.equal(move(start(), 0, -31.999).phase, 'dragging');
+const radialEntry = move(start(), 0, -32);
+assert.equal(radialEntry.phase, 'radial');
+assert.equal(radialEntry.hour, null);
+assert.equal(hold(start(), 350).hour, null);
+assert.equal(move(start(), 0, 40).phase, 'dragging');
+assert.equal(move(start(), 0, 40.001).phase, 'cancelled');
+assert.equal(release(move(start(), 44), 44, 40.001).outcome, 'cancel');
+const selected = transitionPlusGesture(radialEntry, { type: 'move', x: 0, y: -152, time: 500, hour: 12 });
+assert.equal(release(selected, 0, -152, 600, 12).outcome, 12);
+assert.equal(release(selected, 0, -152, 600, null).outcome, 'cancel');
+assert.equal(release(radialEntry).outcome, 'cancel');
+for (const state of [start(), move(start(), 44), selected, move(start(), 0, 41)]) {
+  assert.equal(cancel(state).outcome, 'cancel');
+  assert.deepEqual(cancel(cancel(state)), cancel(state));
+  assert.deepEqual(cancel(state).puck, { x: 0, y: 0 });
+  assert.equal(release(cancel(state)).outcome, 'cancel');
+}
+// Nonzero client origins must not alter the thresholds; transitions never mutate input.
+const translatedStart = transitionPlusGesture(null, { type: 'start', id: 9, x: 320, y: 700, time: 100 });
+const frozenStart = Object.freeze(start());
+assert.deepEqual(move(frozenStart, 44), move(start(), 44));
+assert.equal(frozenStart.maxDistance, 0);
+assert.equal(transitionPlusGesture(translatedStart, { type: 'release', x: 364, y: 700, time: 250 }).outcome, 'food');
+const finished = release(move(start(), 44));
+assert.deepEqual(release(finished), finished);
+assert.deepEqual(finished.puck, { x: 0, y: 0 });
+// The machine has no menu/variant input: presentation cannot change an action sequence.
+for (const source of ['idle', 'tap-menu']) for (const variant of ['A', 'B']) {
+  const origin = { source, variant, state: start() };
+  assert.equal(release(move(origin.state, -44)).outcome, 'weight');
+  assert.equal(release(move(origin.state, 44)).outcome, 'food');
+  assert.equal(hold(origin.state, 350).phase, 'radial');
+}
+assert.deepEqual(puckOffset(0, 0), { x: 0, y: 0 });
+let priorPuck = 0;
+for (const distance of [1, 10, 18, 28, 44, 100, 1000, 1e9]) {
+  const value = puckOffset(distance, 0).x;
+  assert.ok(value >= priorPuck && value <= 24);
+  assert.ok(value < distance);
+  priorPuck = value;
+  for (let deg = 0; deg < 360; deg += 15) {
+    const dx = distance * Math.cos(deg * Math.PI / 180), dy = distance * Math.sin(deg * Math.PI / 180);
+    const p = puckOffset(dx, dy);
+    assert.ok(Math.hypot(p.x, p.y) <= 24 + 1e-12);
+    assert.ok(Math.abs(p.x * dy - p.y * dx) < distance * 1e-10);
+  }
+}
+
+const dialBox = { left: 20, top: 40, width: 288, height: 288 };
+const atAngle = (deg: number, r = 112, box = dialBox) => ({
+  x: box.left + (144 + r * Math.cos(deg * Math.PI / 180)) * box.width / 288,
+  y: box.top + (144 + r * Math.sin(deg * Math.PI / 180)) * box.height / 288 + 24,
+});
+const pick = (deg: number, previous: number | null = null, radius = 112) => {
+  const { x, y } = atAngle(deg, radius);
+  return radialSelection(x, y, dialBox, previous);
+};
+// All clockwise slots, wrap through 360°, and client-coordinate scaling.
+for (let i = 0; i < 19; i++) {
+  const deg = 126 + 16 * i;
+  assert.equal(pick(deg), i + 5);
+  for (const scale of [0.5, 1, 1.5]) {
+    const box = { left: 135, top: 87, width: 288 * scale, height: 288 * scale };
+    const point = atAngle(deg, 112, box);
+    assert.equal(radialSelection(point.x, point.y, box), i + 5);
+  }
+}
+// Virtual cursor lands on 06:00 only after the -24px offset (unshifted lands on 05).
+const offsetPoint = atAngle(142);
+assert.equal(radialSelection(offsetPoint.x, offsetPoint.y, dialBox), 6);
+const rawAngle = Math.atan2(offsetPoint.y - dialBox.top - 144, offsetPoint.x - dialBox.left - 144) * 180 / Math.PI;
+assert.equal(pick(rawAngle), 5);
+for (let hour = 5; hour < 23; hour++) {
+  const deg = 126 + (hour - 5) * 16;
+  assert.equal(pick(deg + 10.99, hour), hour);
+  assert.equal(pick(deg + 11.01, hour), hour + 1);
+  assert.equal(pick(deg + 5.01, hour + 1), hour + 1);
+  assert.equal(pick(deg + 4.99, hour + 1), hour);
+}
+// The release uses the same latched selection: a midpoint alone cannot commit a neighbor.
+const latchedHour = 12;
+const latchedState = { ...radialEntry, hour: latchedHour };
+assert.equal(release(latchedState, 0, -152, 600, pick(248.99, latchedHour)).outcome, 12);
+assert.equal(release(latchedState, 0, -152, 600, pick(249.01, latchedHour)).outcome, 13);
+assert.equal(release(latchedState, 0, -152, 600, pick(90, latchedHour)).outcome, 'cancel');
+assert.equal(pick(118.01), 5);
+assert.equal(pick(61.99), 23);
+for (const previous of [null, 5, 12, 23]) {
+  for (const deg of [62.01, 90, 117.99]) assert.equal(pick(deg, previous), null);
+  assert.equal(pick(270, previous, 0), null);
+  assert.equal(pick(270, previous, 69.99), null);
+  assert.equal(pick(270, previous, 144.01), null);
+}
+assert.equal(pick(270, null, 70.01), 14);
+assert.equal(pick(270, null, 143.99), 14);
+assert.equal(radialSelection(0, 0, { left: 0, top: 0, width: 0, height: 0 }), null);
+
 const label: LabelDraft = { name: 'Yogur', unit: 'g', basis: 'portion', portionName: 'envase', portionSize: '150', quantity: '2', calories: '95', protein: '15', carbs: '6', fat: '1', fiber: '' };
 const yogurt = foodFromLabel(label)!;
 assert.equal(yogurt.canonicalQuantity, 300);
@@ -105,4 +250,15 @@ assert.match(route('/m/balance-material-expressive/unknown'), /Esta ruta no corr
 assert.match(route('/m/balance-style-studies'), /blw-study-organic/);
 assert.match(route('/m/balance-style-studies/agregar-alimento?modo=labels'), /Datos de la etiqueta/);
 assert.match(route('/m/balance-style-studies/unknown'), /Esta ruta no corresponde/);
-console.log('Balance wireframe contracts: quantity conversion/recalculation, optional fiber, official catalogue, Santiago weight dates, midnight ordering and routed form checks pass.');
+const gestureHTML = route('/m/balance-diary-gestures');
+assert.match(gestureHTML, /Variante A: Dock morfeado/);
+assert.match(gestureHTML, /Variante B: Alas en y₀ \+ puck/);
+assert.match(gestureHTML, /<button[^>]*data-active=""[^>]*>Variante A: Dock morfeado<\/button>/);
+assert.doesNotMatch(gestureHTML, /<button[^>]*data-active=""[^>]*>Variante B/);
+assert.equal((gestureHTML.match(/data-variant="A"/g) ?? []).length, 2);
+assert.equal((gestureHTML.match(/class="bcr-tab-add bdg-add"/g) ?? []).length, 2);
+assert.doesNotMatch(gestureHTML, /bdg-radial-pill|NaN|Infinity/);
+const gestureMetadata = mockupRegistry.find(item => item.id === 'balance-diary-gestures')!;
+assert.equal(gestureMetadata.version, 'v1.4.0');
+assert.equal(gestureMetadata.updatedAt, '2026-11-13');
+console.log('Balance wireframe contracts: existing food/route checks and UDS-025 gesture boundaries, cancellation, puck, radial hysteresis/scaling, SSR and metadata pass.');
