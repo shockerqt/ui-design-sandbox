@@ -23,12 +23,12 @@ import { ZachCompactPanel } from './ZachCompactPanel';
 export const mockupRegistry: MockupItem[] = [
   {
     id: 'zach-compact',
-    title: 'Zach · Consola compacta de alta densidad',
+    title: 'Zach · Consola compacta + Diagnóstico e IA (Olas 1–3)',
     category: 'Dashboards',
-    description: 'Consola operativa compacta para ver 12+ tareas, decisiones pendientes con acciones en línea, cola de merge y 18+ eventos en vivo simultáneamente.',
-    tags: ['Zach', 'daemon', 'dashboard', 'compact', 'dense', 'Base UI', 'dark'],
-    version: 'v1.0.0',
-    updatedAt: '2026-11-24',
+    description: 'Consola compacta iterada (v1.1) con selector interactivo de Olas 1–3: context_summary y stderr ZACH-066 en decisiones, clasificador ZACH-073 con opción recomendada, historial SQLite de intentos/auditoría y botón "Explicar con IA" (Gemini) cacheado.',
+    tags: ['Zach', 'daemon', 'dashboard', 'compact', 'Gemini', 'diagnostics', 'Base UI', 'dark'],
+    version: 'v1.1.0',
+    updatedAt: '2026-11-25',
     component: ZachCompactPanel
   },
   {
