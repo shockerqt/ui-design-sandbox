@@ -18,8 +18,19 @@ import { BalanceCleanRedesign } from './BalanceCleanRedesign';
 import { BalanceDiaryGestures } from './BalanceDiaryGestures';
 import { ZachControlPanel } from './ZachControlPanel';
 import { ZachLiveMap } from './ZachLiveMap';
+import { ZachCompactPanel } from './ZachCompactPanel';
 
 export const mockupRegistry: MockupItem[] = [
+  {
+    id: 'zach-compact',
+    title: 'Zach · Consola compacta de alta densidad',
+    category: 'Dashboards',
+    description: 'Consola operativa compacta para ver 12+ tareas, decisiones pendientes con acciones en línea, cola de merge y 18+ eventos en vivo simultáneamente.',
+    tags: ['Zach', 'daemon', 'dashboard', 'compact', 'dense', 'Base UI', 'dark'],
+    version: 'v1.0.0',
+    updatedAt: '2026-11-24',
+    component: ZachCompactPanel
+  },
   {
     id: 'balance-diary-gestures',
     title: 'Balance · Diario compacto, radial ascendente y macros P·C·G',
